@@ -1,12 +1,11 @@
 %option yylineno
 %option noyywrap
-%option caseless
 %{
     #include <bits/stdc++.h>
     #include "parser.tab.h"
     using namespace std;
-     int startline=1;
-     int start=1;
+    int startline=1;
+    int start=1;
 %}
 arithmetic     "+"|"-"|"*"|"/"|"//"|"%"|"**" 
 relational      "=="|"!="|">"|"<"|">="|"<="
@@ -14,7 +13,7 @@ logical         "and"|"or"|"not"
 bitwise         "&"|"|"|"^"|"~"|"<<"|">>"
 assignment      "="|"+="|"-="|"*="|"/="|"//="|"%="|"**="|"&="|"|="|"^="|"<<="|">>="
 data_type       "int"|"float"|"bool"|"str"
-WS              ([ \t\f\n\r]|\r\n)*
+WS              [ \t\f\n\r]*
 %%
 {arithmetic}        { return ARITHMETIC_OPERATOR; }
 {relational}          { return RELATIONAL_OPERATOR; }
