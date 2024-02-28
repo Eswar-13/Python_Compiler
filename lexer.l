@@ -7,6 +7,8 @@
     int startline=1;
     int start=1;
 %}
+
+
 arithmetic     "+"|"-"|"*"|"/"|"//"|"%"|"**" 
 relational      "=="|"!="|">"|"<"|">="|"<="
 logical         "and"|"or"|"not"
@@ -15,6 +17,8 @@ assignment      "="
 augassignment   "+="|"-="|"*="|"/="|"//="|"%="|"**="|"&="|"|="|"^="|"<<="|">>="
 data_type       "int"|"float"|"bool"|"str"
 WS              [ \t\f\n\r]*
+identifier      [A-Za-z_]+
+
 %%
 {arithmetic}        { return ARITHMETIC_OPERATOR; }
 {relational}          { return RELATIONAL_OPERATOR; }
@@ -33,6 +37,7 @@ WS              [ \t\f\n\r]*
 "break"                 {return BREAK;}
 "continue"              {return CONTINUE;}
 "def"                   {return DEF;}
+"class"                 {return CLASS;}
 ";"                     {return SEMICOLON;}
 ":"                     {return COLON;}
 "->"                    {return RETURN_ARROW;}
