@@ -8,7 +8,7 @@
      int startline=1;
      int start=1;
 %}
-WS              [ \t\f\n\r]|\r\n
+WS                 [ \t\f\n\r]|\r\n
 NUM             [\"]?{WS}*[0-9]*{WS}*[\"]?
 W             {WS}*
 %x QUIZ_STATE
