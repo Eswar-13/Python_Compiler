@@ -36,6 +36,9 @@ WS              [ \t\f\n\r]*
 ";"                     {return SEMICOLON;}
 ":"                     {return COLON;}
 "->"                    {return RETURN_ARROW;}
+"("                     {return LEFT_BRACKET;}
+")"                     {return RIGHT_BRACKET;}
+","                     {return COMMA;}
 
 
 %%
