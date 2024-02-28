@@ -1,0 +1,5 @@
+graph {
+val1[label="val(3)"];
+val2;
+val1 -- val2
+}

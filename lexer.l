@@ -11,7 +11,8 @@ arithmetic     "+"|"-"|"*"|"/"|"//"|"%"|"**"
 relational      "=="|"!="|">"|"<"|">="|"<="
 logical         "and"|"or"|"not"
 bitwise         "&"|"|"|"^"|"~"|"<<"|">>"
-assignment      "="|"+="|"-="|"*="|"/="|"//="|"%="|"**="|"&="|"|="|"^="|"<<="|">>="
+assignment      "="
+augassignment   "+="|"-="|"*="|"/="|"//="|"%="|"**="|"&="|"|="|"^="|"<<="|">>="
 data_type       "int"|"float"|"bool"|"str"
 WS              [ \t\f\n\r]*
 %%
@@ -20,15 +21,21 @@ WS              [ \t\f\n\r]*
 {logical}                     { return LOGICAL_OPERATOR; }
 {bitwise}            { return BITWISE_OPERATOR; }
 {assignment}  { return ASSIGNMENT_OPERATOR; }
+{augassignment}  {return AUGASSIGNMENT_OPERATOR; }
 {data_type}    {return DATA_TYPE; } 
 "list"{WS}"\["{WS}{data_type}{WS}"\]" {return LIST; }
 "if"                   {return IF;}
 "elif"                 {return ELIF;}
 "else"                  {return ELSE;}
 "for"                   {return FOR;}
+"in"                    {return IN;}
 "while"                 {return WHILE;}
 "break"                 {return BREAK;}
 "continue"              {return CONTINUE;}
+"def"                   {return DEF;}
+";"                     {return SEMICOLON;}
+":"                     {return COLON;}
+"->"                    {return RETURN_ARROW;}
 
 
 %%
