@@ -45,7 +45,8 @@ identifier      [A-Za-z_]+
 ")"                     {return RIGHT_BRACKET;}
 ","                     {return COMMA;}
 {identifier}            {return NAME;}
-
+"return"                {return RETURN;}
+.  {cout<<yytext;}
 
 %%
 
