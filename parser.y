@@ -15,7 +15,7 @@ extern FILE* yyout;
 
 %token ARITHMETIC_OPERATOR RELATIONAL_OPERATOR LOGICAL_OPERATOR BITWISE_OPERATOR ASSIGNMENT_OPERATOR DATA_TYPE FOR WHILE IF ELIF ELSE BREAK CLASS CONTINUE LIST 
 %token SEMICOLON AUGASSIGNMENT_OPERATOR COLON LEFT_BRACKET RIGHT_BRACKET RETURN_ARROW COMMA NAME
-%token IN DEF OR AND NOT RETURN NEWLINE INDENT DEDEN
+%token IN DEF OR AND NOT RETURN NEWLINE INDENT DEDEN AND OR XOR BIT_NOT ADD_SUB POWER
 
 %start module 
 
@@ -156,7 +156,47 @@ not_test: NOT not_test
 |comparison
 ;
 comparison: expr opt_expr
-opt_expr : 
+;
+opt_expr : RELATIONAL_OPERATOR expr opt_expr
+|%empty
+;
+expr: xor_expr opt_xor
+;
+opt_xor: %empty
+|OR xor_expr opt_xor
+;
+xor_expr: and_expr opt_and
+;
+opt_and: %empty
+|XOR and_expr opt_and
+;
+and_expr: shift_expr opt_shift
+;
+opt_shift: %empty
+|AND shift_expr opt_shift
+;
+shift_expr: arith_expr opt_arith
+;
+opt_arith: %empty
+|SHIFT arith_expr opt_arith
+;
+arith_expr: term opt_term
+;
+opt_term: %empty
+|ADD_SUB term opt_term
+;
+term: factor opt_factor
+;
+opt_factor: %empty
+|ARITHMETIC_OPERATOR factor opt_factor
+;
+factor: oper factor
+|power
+;
+oper: ADD_SUB
+|BIT_NOT
+;
+
 
 
 
@@ -193,7 +233,7 @@ int main ( int argc, char *argv[]){
    
    fclose(yyin);
    fclose(yyout);
-   
+
    
    return 0;
 }

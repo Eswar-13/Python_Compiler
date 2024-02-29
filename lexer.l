@@ -8,7 +8,7 @@
     int start=1;
 %}
 
-arithmetic     "+"|"-"|"*"|"/"|"//"|"%"|"**" 
+arithmetic     "*"|"/"|"//"|"%"
 relational      "=="|"!="|">"|"<"|">="|"<="
 logical         "and"|"or"|"not"
 bitwise         "&"|"|"|"^"|"~"|"<<"|">>"
@@ -22,7 +22,13 @@ identifier      [A-Za-z_]+
 {arithmetic}        { return ARITHMETIC_OPERATOR; }
 {relational}          { return RELATIONAL_OPERATOR; }
 {logical}                     { return LOGICAL_OPERATOR; }
-{bitwise}            { return BITWISE_OPERATOR; }
+"&"                 {return AND;}
+"|"                 {return OR;}
+"^"                 {return XOR;}
+"~"                 {return BIT_NOT;}
+"+"|"-"             {return ADD_SUB;}
+"**"                {return POWER;}
+"<<"|">>"						{return SHIFT;}
 {assignment}  { return ASSIGNMENT_OPERATOR; }
 {augassignment}  {return AUGASSIGNMENT_OPERATOR; }
 {data_type}    {return DATA_TYPE; } 
