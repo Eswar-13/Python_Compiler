@@ -44,6 +44,7 @@ identifier      [A-Za-z_]+
 "("                     {return LEFT_BRACKET;}
 ")"                     {return RIGHT_BRACKET;}
 ","                     {return COMMA;}
+{identifier}            {return NAME;}
 
 
 %%

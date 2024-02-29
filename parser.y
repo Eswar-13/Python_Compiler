@@ -13,7 +13,7 @@ extern FILE* yyout;
 %}
 
 %token ARITHMETIC_OPERATOR RELATIONAL_OPERATOR LOGICAL_OPERATOR BITWISE_OPERATOR ASSIGNMENT_OPERATOR DATA_TYPE FOR WHILE IF ELIF ELSE BREAK CLASS CONTINUE LIST 
-%token SEMICOLON AUGASSIGNMENT_OPERATOR COLON LEFT_BRACKET RIGHT_BRACKET RETURN_ARROW COMMA
+%token SEMICOLON AUGASSIGNMENT_OPERATOR COLON LEFT_BRACKET RIGHT_BRACKET RETURN_ARROW COMMA NAME
 %start module
 
 %% 
@@ -48,6 +48,7 @@ continue_stmt: CONTINUE
 ;
 
 
+
 compound_stmt: if_stmt|while_stmt|for_stmt|funcdef|classdef|decorated|async_stmt
 async_stmt: ASYNC funcdef
 |ASYNC for_stmt
@@ -55,11 +56,9 @@ async_stmt: ASYNC funcdef
 
 if_stmt: IF test COLON suite elif_statements else_statement_opt
 ;
-
 elif_statements:%empty
 | ELIF test COLON suite elif_statements
 ;
-
 else_statement_opt:%empty
 | ELSE COLON suite
 ;
@@ -70,66 +69,58 @@ while_stmt: WHILE test COLON suite else_statement_opt
 for_stmt: FOR exprlist IN testlist COLON suite else_statement_opt
 ;
 
+
 funcdef: DEF NAME parameters return_arrow_opt COLON suite
 ;
-
 return_arrow_opt:%empty
 |RETURN_ARROW test
 ;
-
 parameters: LEFT_BRACKET typedargslist_opt RIGHT_BRACKET
 ;
-
 typedargslist_opt: %empty
 |typedargslist
-
+;
 typedargslist: full_tfpdef tfpdef_list
 ;
-t
-
+tfpdef_list: COMMA full_tfpdef tfpdef_list
+|%empty
+;
+full_tfpdef: NAME annassign
+|NAME
+;
 
 
 
 classdef: CLASS NAME opt_class_arg COLON suite
-
+;
 opt_class_arg:%empty
 |LEFT_BRACKET opt_arglist RIGHT_BRACKET
 ;
-
 opt_arglist:%empty
 |arglist
 ;
-
 arglist: argument comma_arg_star  opt_comma
-
+;
 opt_comma:%empty
 |COMMA
 ;
-
 comma_arg_star:%empty
-|COMMA argument
-|comma_arg_star comma_arg_star
+|COMMA argument comma_arg_star
 ;
-
 argument: test opt_com_for
 |test ASSIGNMENT_OPERATOR test
 ;
-
 opt_com_for:%empty
 |com_for
 ;
-
 comp_iter: comp_for 
 | comp_if
 ;
-
 opt_comp_iter:%empty
 |comp_iter
 ;
-
 comp_for: FOR exprlist IN or_test opt_comp_iter
 ;
-
 comp_if: IF test_nocond opt_comp_iter
 ;
 
@@ -140,30 +131,23 @@ comp_if: IF test_nocond opt_comp_iter
 test: or_test opt_if_or_test_else_test
 | lambdef
 ;
-
 opt_if_or_test_else_test:%empty
 |IF or_test ELSE test
 ;
-
 test_nocond:or_test 
 ;
-
 or_test: and_test or_and_test_star
 ;
-
 or_and_test_star: %empty
 |OR and_test
 |or_and_test_star or_and_test_star
 ;
-
 and_test: not_test and_not_test_star
-
-
+;
 and_not_test_star: %empty
 |AND not_test
 |and_not_test_star and_not_test_star
 ;
-
 not_test: NOT not_test 
 |comparison
 ;
