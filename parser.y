@@ -15,7 +15,7 @@ extern FILE* yyout;
 
 %token ARITHMETIC_OPERATOR RELATIONAL_OPERATOR LOGICAL_OPERATOR BITWISE_OPERATOR ASSIGNMENT_OPERATOR DATA_TYPE FOR WHILE IF ELIF ELSE BREAK CLASS CONTINUE LIST 
 %token SEMICOLON AUGASSIGNMENT_OPERATOR COLON LEFT_BRACKET RIGHT_BRACKET RETURN_ARROW COMMA NAME
-%token IN DEF OR AND NOT RETURN
+%token IN DEF OR AND NOT RETURN NEWLINE INDENT DEDEN
 
 %start module 
 
@@ -132,7 +132,7 @@ comp_if: IF test_nocond opt_comp_iter
 ;
 
 
-
+suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 
 
 test: or_test opt_if_or_test_else_test
@@ -155,11 +155,11 @@ and_not_test_star: %empty
 not_test: NOT not_test 
 |comparison
 ;
+comparison: expr opt_expr
+opt_expr : 
 
 
 
-testlist_star_expr:%empty
-;
 
 testlist: test opt_testlist opt_comma
 ;
@@ -171,8 +171,7 @@ suite: %empty
 ;
 exprlist: %empty
 ;
-comparison :%empty
-;
+
 %%
 
 void yyerror(const char *s){

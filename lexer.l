@@ -8,7 +8,6 @@
     int start=1;
 %}
 
-
 arithmetic     "+"|"-"|"*"|"/"|"//"|"%"|"**" 
 relational      "=="|"!="|">"|"<"|">="|"<="
 logical         "and"|"or"|"not"
@@ -46,7 +45,7 @@ identifier      [A-Za-z_]+
 ","                     {return COMMA;}
 {identifier}            {return NAME;}
 "return"                {return RETURN;}
+"\n"                    {return NEWLINE;}
 .  {cout<<yytext;}
 
 %%
-
