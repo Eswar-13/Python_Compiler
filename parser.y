@@ -15,21 +15,19 @@ extern FILE* yyout;
 %token ARITHMETIC_OPERATOR RELATIONAL_OPERATOR BITWISE_OPERATOR ASSIGNMENT_OPERATOR DATA_TYPE FOR WHILE IF ELIF ELSE BREAK CLASS CONTINUE LIST 
 %token SEMICOLON AUGASSIGNMENT_OPERATOR COLON LEFT_BRACKET RIGHT_BRACKET RETURN_ARROW COMMA NAME
 %token LEFT_SQUARE_BRACKET RIGHT_SQUARE_BRACKET NONE TRUE FALSE
-%token IN DEF NOT RETURN NEWLINE INDENT DEDENT AND OR XOR BIT_NOT ADD_SUB POWER BIT_AND BIT_OR NOT
+%token IN DEF NOT RETURN NEWLINE INDENT DEDENT AND OR XOR BIT_NOT ADD_SUB POWER BIT_AND BIT_OR
 %token NUMBER STRING DOT SHIFT
 %token LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET
 %start module 
 
 %% 
-module : single_input
+module : stmt module 
+|/* empty */
 ;
-single_input: NEWLINE | simple_stmt | compound_stmt NEWLINE
+stmt: NEWLINE | simple_stmt | compound_stmt 
 ;
-stmt: simple_stmt
-|compound_stmt
-;
-simple_stmt: small_stmt more_expr opt_semicolon NEWLINE
-|  small_stmt more_expr
+
+simple_stmt: small_stmt more_expr opt_semicolon 
 ;
 opt_semicolon: SEMICOLON
 |/* empty */
@@ -138,8 +136,10 @@ comp_if: IF test_nocond opt_comp_iter
 
 
 suite: simple_stmt | NEWLINE INDENT stmt_list DEDENT
+|NEWLINE INDENT stmt_list YYEOF
+;
 stmt_list : stmt stmt_list | /* empty */
-
+;
 test: or_test opt_if_or_test_else_test
 ;
 opt_if_or_test_else_test:/* empty */
@@ -269,7 +269,7 @@ opt_exprlist: /* empty */
 %%
 
 void yyerror(const char *s){
-   cout<<"f u\n";
+   cout<<yytext<<" f u\n";
    return ;
 }
 
