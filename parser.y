@@ -12,17 +12,18 @@ extern FILE* yyout;
 
 %}
 
-%token ARITHMETIC_OPERATOR RELATIONAL_OPERATOR LOGICAL_OPERATOR BITWISE_OPERATOR ASSIGNMENT_OPERATOR DATA_TYPE FOR WHILE IF ELIF ELSE BREAK CLASS CONTINUE LIST 
+%token ARITHMETIC_OPERATOR RELATIONAL_OPERATOR BITWISE_OPERATOR ASSIGNMENT_OPERATOR DATA_TYPE FOR WHILE IF ELIF ELSE BREAK CLASS CONTINUE LIST 
 %token SEMICOLON AUGASSIGNMENT_OPERATOR COLON LEFT_BRACKET RIGHT_BRACKET RETURN_ARROW COMMA NAME
 %token LEFT_SQUARE_BRACKET RIGHT_SQUARE_BRACKET NONE TRUE FALSE
-%token IN DEF NOT RETURN NEWLINE INDENT DEDENT AND OR XOR BIT_NOT ADD_SUB POWER 
+%token IN DEF NOT RETURN NEWLINE INDENT DEDENT AND OR XOR BIT_NOT ADD_SUB POWER BIT_AND BIT_OR NOT
 %token NUMBER STRING DOT SHIFT
 %token LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET
 %start module 
 
 %% 
-module : stmt module
-|/* empty */
+module : single_input
+;
+single_input: NEWLINE | simple_stmt | compound_stmt NEWLINE
 ;
 stmt: simple_stmt
 |compound_stmt
@@ -36,7 +37,7 @@ opt_semicolon: SEMICOLON
 more_expr: SEMICOLON small_stmt more_expr
 |/* empty */
 ;
-small_stmt: expr_stmt
+small_stmt: expr_stmt 
 |break_stmt
 |continue_stmt
 |return_stmt
@@ -63,7 +64,7 @@ return_stmt: RETURN
 | RETURN testlist
 
 
-compound_stmt: if_stmt|while_stmt|for_stmt|funcdef|classdef
+compound_stmt: if_stmt|while_stmt|for_stmt|funcdef|classdef 
 ;
 if_stmt: IF test COLON suite elif_statements else_statement_opt
 ;
@@ -167,7 +168,7 @@ opt_expr : RELATIONAL_OPERATOR expr opt_expr
 expr: xor_expr opt_xor
 ;
 opt_xor: /* empty */
-|OR xor_expr opt_xor
+|BIT_OR xor_expr opt_xor
 ;
 xor_expr: and_expr opt_and
 ;
@@ -177,7 +178,7 @@ opt_and: /* empty */
 and_expr: shift_expr opt_shift
 ;
 opt_shift: /* empty */
-|AND shift_expr opt_shift
+|BIT_AND shift_expr opt_shift
 ;
 shift_expr: arith_expr opt_arith
 ;
@@ -210,8 +211,8 @@ atom_expr: atom opt_trailer
 opt_trailer: trailer opt_trailer
 |/* empty */
 ;
-atom: LEFT_BRACKET testlist_comp RIGHT_BRACKET
-|LEFT_SQUARE_BRACKET testlist_comp RIGHT_SQUARE_BRACKET
+atom: LEFT_BRACKET opt_testlist_comp RIGHT_BRACKET
+|LEFT_SQUARE_BRACKET opt_testlist_comp RIGHT_SQUARE_BRACKET
 |NAME
 |NUMBER
 |DATA_TYPE
@@ -220,6 +221,9 @@ atom: LEFT_BRACKET testlist_comp RIGHT_BRACKET
 |TRUE
 |FALSE
 |LIST
+;
+opt_testlist_comp: testlist_comp
+|
 ;
 testlist_comp: test comp_for
 | test opt_test_stmt opt_comma
@@ -248,10 +252,6 @@ opt_sliceop : sliceop
 
 sliceop: COLON opt_test_sub
 ;
-
-
-
-
 
 testlist: test opt_testlist opt_comma
 ;
