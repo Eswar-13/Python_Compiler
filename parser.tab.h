@@ -1,14 +1,14 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
-/* Skeleton interface for Bison's Yacc-like parsers in C
+/* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
+   Inc.
 
-   This program is free software; you can redistribute it and/or modify
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,9 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -33,119 +31,92 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Tokens.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
+
+#ifndef YY_YY_PARSER_TAB_H_INCLUDED
+# define YY_YY_PARSER_TAB_H_INCLUDED
+/* Debug traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 0
+#endif
+#if YYDEBUG
+extern int yydebug;
+#endif
+
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     ARITHMETIC_OPERATOR = 258,
-     RELATIONAL_OPERATOR = 259,
-     LOGICAL_OPERATOR = 260,
-     BITWISE_OPERATOR = 261,
-     ASSIGNMENT_OPERATOR = 262,
-     DATA_TYPE = 263,
-     FOR = 264,
-     WHILE = 265,
-     IF = 266,
-     ELIF = 267,
-     ELSE = 268,
-     BREAK = 269,
-     CLASS = 270,
-     CONTINUE = 271,
-     LIST = 272,
-     SEMICOLON = 273,
-     AUGASSIGNMENT_OPERATOR = 274,
-     COLON = 275,
-     LEFT_BRACKET = 276,
-     RIGHT_BRACKET = 277,
-     RETURN_ARROW = 278,
-     COMMA = 279,
-     NAME = 280,
-     LEFT_SQUARE_BRACKET = 281,
-     RIGHT_SQUARE_BRACKET = 282,
-     NONE = 283,
-     TRUE = 284,
-     FALSE = 285,
-     IN = 286,
-     DEF = 287,
-     NOT = 288,
-     RETURN = 289,
-     NEWLINE = 290,
-     INDENT = 291,
-     DEDENT = 292,
-     AND = 293,
-     OR = 294,
-     XOR = 295,
-     BIT_NOT = 296,
-     ADD_SUB = 297,
-     POWER = 298,
-     NUMBER = 299,
-     STRING = 300,
-     DOT = 301,
-     SHIFT = 302,
-     LEFT_CURLY_BRACKET = 303,
-     RIGHT_CURLY_BRACKET = 304
-   };
+  enum yytokentype
+  {
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    ARITHMETIC_OPERATOR = 258,     /* ARITHMETIC_OPERATOR  */
+    RELATIONAL_OPERATOR = 259,     /* RELATIONAL_OPERATOR  */
+    LOGICAL_OPERATOR = 260,        /* LOGICAL_OPERATOR  */
+    BITWISE_OPERATOR = 261,        /* BITWISE_OPERATOR  */
+    ASSIGNMENT_OPERATOR = 262,     /* ASSIGNMENT_OPERATOR  */
+    DATA_TYPE = 263,               /* DATA_TYPE  */
+    FOR = 264,                     /* FOR  */
+    WHILE = 265,                   /* WHILE  */
+    IF = 266,                      /* IF  */
+    ELIF = 267,                    /* ELIF  */
+    ELSE = 268,                    /* ELSE  */
+    BREAK = 269,                   /* BREAK  */
+    CLASS = 270,                   /* CLASS  */
+    CONTINUE = 271,                /* CONTINUE  */
+    LIST = 272,                    /* LIST  */
+    SEMICOLON = 273,               /* SEMICOLON  */
+    AUGASSIGNMENT_OPERATOR = 274,  /* AUGASSIGNMENT_OPERATOR  */
+    COLON = 275,                   /* COLON  */
+    LEFT_BRACKET = 276,            /* LEFT_BRACKET  */
+    RIGHT_BRACKET = 277,           /* RIGHT_BRACKET  */
+    RETURN_ARROW = 278,            /* RETURN_ARROW  */
+    COMMA = 279,                   /* COMMA  */
+    NAME = 280,                    /* NAME  */
+    LEFT_SQUARE_BRACKET = 281,     /* LEFT_SQUARE_BRACKET  */
+    RIGHT_SQUARE_BRACKET = 282,    /* RIGHT_SQUARE_BRACKET  */
+    NONE = 283,                    /* NONE  */
+    TRUE = 284,                    /* TRUE  */
+    FALSE = 285,                   /* FALSE  */
+    IN = 286,                      /* IN  */
+    DEF = 287,                     /* DEF  */
+    NOT = 288,                     /* NOT  */
+    RETURN = 289,                  /* RETURN  */
+    NEWLINE = 290,                 /* NEWLINE  */
+    INDENT = 291,                  /* INDENT  */
+    DEDENT = 292,                  /* DEDENT  */
+    AND = 293,                     /* AND  */
+    OR = 294,                      /* OR  */
+    XOR = 295,                     /* XOR  */
+    BIT_NOT = 296,                 /* BIT_NOT  */
+    ADD_SUB = 297,                 /* ADD_SUB  */
+    POWER = 298,                   /* POWER  */
+    NUMBER = 299,                  /* NUMBER  */
+    STRING = 300,                  /* STRING  */
+    DOT = 301,                     /* DOT  */
+    SHIFT = 302,                   /* SHIFT  */
+    LEFT_CURLY_BRACKET = 303,      /* LEFT_CURLY_BRACKET  */
+    RIGHT_CURLY_BRACKET = 304      /* RIGHT_CURLY_BRACKET  */
+  };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Tokens.  */
-#define ARITHMETIC_OPERATOR 258
-#define RELATIONAL_OPERATOR 259
-#define LOGICAL_OPERATOR 260
-#define BITWISE_OPERATOR 261
-#define ASSIGNMENT_OPERATOR 262
-#define DATA_TYPE 263
-#define FOR 264
-#define WHILE 265
-#define IF 266
-#define ELIF 267
-#define ELSE 268
-#define BREAK 269
-#define CLASS 270
-#define CONTINUE 271
-#define LIST 272
-#define SEMICOLON 273
-#define AUGASSIGNMENT_OPERATOR 274
-#define COLON 275
-#define LEFT_BRACKET 276
-#define RIGHT_BRACKET 277
-#define RETURN_ARROW 278
-#define COMMA 279
-#define NAME 280
-#define LEFT_SQUARE_BRACKET 281
-#define RIGHT_SQUARE_BRACKET 282
-#define NONE 283
-#define TRUE 284
-#define FALSE 285
-#define IN 286
-#define DEF 287
-#define NOT 288
-#define RETURN 289
-#define NEWLINE 290
-#define INDENT 291
-#define DEDENT 292
-#define AND 293
-#define OR 294
-#define XOR 295
-#define BIT_NOT 296
-#define ADD_SUB 297
-#define POWER 298
-#define NUMBER 299
-#define STRING 300
-#define DOT 301
-#define SHIFT 302
-#define LEFT_CURLY_BRACKET 303
-#define RIGHT_CURLY_BRACKET 304
 
-
-
-
+/* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef int YYSTYPE;
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
-# define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
+# define YYSTYPE_IS_DECLARED 1
 #endif
+
 
 extern YYSTYPE yylval;
 
+
+int yyparse (void);
+
+
+#endif /* !YY_YY_PARSER_TAB_H_INCLUDED  */

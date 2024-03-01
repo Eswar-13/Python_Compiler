@@ -27,8 +27,11 @@ module : stmt module
 stmt: simple_stmt
 |compound_stmt
 ;
-simple_stmt: small_stmt more_expr SEMICOLON
+simple_stmt: small_stmt more_expr opt_semicolon NEWLINE
 |  small_stmt more_expr
+;
+opt_semicolon: SEMICOLON
+|/* empty */
 ;
 more_expr: SEMICOLON small_stmt more_expr
 |/* empty */
@@ -216,6 +219,7 @@ atom: LEFT_BRACKET testlist_comp RIGHT_BRACKET
 |NONE
 |TRUE
 |FALSE
+|LIST
 ;
 testlist_comp: test comp_for
 | test opt_test_stmt opt_comma
@@ -265,14 +269,13 @@ opt_exprlist: /* empty */
 %%
 
 void yyerror(const char *s){
-   cout<<"f u";
+   cout<<"f u\n";
    return ;
 }
 
 
 int main ( int argc, char *argv[]){
      
-   cout<<argv[2];
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");
    
