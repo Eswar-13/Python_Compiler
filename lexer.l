@@ -20,8 +20,8 @@ identifier      [A-Za-z_]+
 
 %%
 {arithmetic}        { return ARITHMETIC_OPERATOR; }
-{relational}          { return RELATIONAL_OPERATOR; }
-{logical}                     { return LOGICAL_OPERATOR; }
+{relational}        { return RELATIONAL_OPERATOR; }
+{logical}           { return LOGICAL_OPERATOR; }
 "&"                 {return AND;}
 "|"                 {return OR;}
 "^"                 {return XOR;}
@@ -32,6 +32,8 @@ identifier      [A-Za-z_]+
 {assignment}  { return ASSIGNMENT_OPERATOR; }
 {augassignment}  {return AUGASSIGNMENT_OPERATOR; }
 {data_type}    {return DATA_TYPE; } 
+[0-9]+       {return NUMBER;}
+\"[^\"]*\"    {return STRING;}
 "list"{WS}"\["{WS}{data_type}{WS}"\]" {return LIST; }
 "if"                   {return IF;}
 "elif"                 {return ELIF;}
@@ -48,10 +50,19 @@ identifier      [A-Za-z_]+
 "->"                    {return RETURN_ARROW;}
 "("                     {return LEFT_BRACKET;}
 ")"                     {return RIGHT_BRACKET;}
+"\["                    {return LEFT_SQUARE_BRACKET;}
+"\]"                    {return RIGHT_SQUARE_BRACKET;}
+"\{"                    {return LEFT_CURLY_BRACKET;}
+"\}"                    {return RIGHT_CURLY_BRACKET;}
 ","                     {return COMMA;}
 {identifier}            {return NAME;}
 "return"                {return RETURN;}
 "\n"                    {return NEWLINE;}
-.  {cout<<yytext;}
+" "                     {;}
+"None"                  {return NONE;}
+"True"                  {return TRUE;}
+"False"                 {return FALSE;}
+"."                        {eturn DOT;}
+.  {fprintf(yyout,"%s",yytext)};
 
 %%
