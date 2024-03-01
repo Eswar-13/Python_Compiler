@@ -385,20 +385,20 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[136] =
     {   0,
-        0,    0,   47,   45,   39,   40,   45,   45,    1,    4,
-       30,   31,    1,    8,   36,    8,   44,    1,   14,   28,
-       27,    2,   11,    2,   37,   37,   37,   37,   32,   33,
-        6,   37,   37,   37,   37,   37,   37,   37,   37,   37,
-       37,   37,   37,   37,   34,    5,   35,    7,    2,    0,
-       15,   12,    9,   29,    1,   14,   10,   10,   37,   37,
-       37,   37,   37,   37,   37,   37,   37,   37,   37,   37,
-       37,   17,   21,   37,   37,    3,   37,   37,   37,   37,
-       37,   37,   37,   37,   37,   37,   25,   37,   37,   37,
-       20,   13,   37,   37,   37,   37,   37,   37,   37,   37,
+        0,    0,   47,   45,   38,   39,   45,   45,    1,    4,
+       30,   31,    1,    8,   36,    8,   43,    1,   14,   28,
+       27,    2,   11,    2,   44,   44,   44,   44,   32,   33,
+        6,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   34,    5,   35,    7,    2,    0,
+       15,   12,    9,   29,    1,   14,   10,   10,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   17,   21,   44,   44,    3,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   25,   44,   44,   44,
+       20,   13,   44,   44,   44,   44,   40,   41,   44,   44,
 
-       37,   18,   19,   37,   37,   37,   37,   37,   23,   26,
-       37,    0,    0,   37,   22,   37,    0,    0,    0,    0,
-        0,   37,   37,    0,    0,    0,    0,   24,    0,    0,
+       44,   18,   19,   44,   44,   44,   44,   42,   23,   26,
+       44,    0,    0,   44,   22,   44,    0,    0,    0,    0,
+        0,   37,   44,    0,    0,    0,    0,   24,    0,    0,
         0,    0,    0,   16,    0
     } ;
 
@@ -545,7 +545,7 @@ static const flex_int16_t yy_chk[235] =
 static const flex_int32_t yy_rule_can_match_eol[47] =
     {   0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 
     0, 0, 0, 0, 0, 0, 0,     };
 
 static yy_state_type yy_last_accepting_state;
@@ -1041,43 +1041,43 @@ YY_RULE_SETUP
 case 37:
 YY_RULE_SETUP
 #line 58 "lexer.l"
-{return NAME;}
-	YY_BREAK
-case 38:
-YY_RULE_SETUP
-#line 59 "lexer.l"
 {return RETURN;}
 	YY_BREAK
+case 38:
+/* rule 38 can match eol */
+YY_RULE_SETUP
+#line 59 "lexer.l"
+{return NEWLINE;}
+	YY_BREAK
 case 39:
-/* rule 39 can match eol */
 YY_RULE_SETUP
 #line 60 "lexer.l"
-{return NEWLINE;}
+{;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 61 "lexer.l"
-{;}
+{return NONE;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 62 "lexer.l"
-{return NONE;}
+{return TRUE;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 63 "lexer.l"
-{return TRUE;}
+{return FALSE;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 64 "lexer.l"
-{return FALSE;}
+{return DOT;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
 #line 65 "lexer.l"
-{eturn DOT;}
+{return NAME;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP

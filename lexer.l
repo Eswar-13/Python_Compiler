@@ -55,14 +55,14 @@ identifier      [A-Za-z_]+
 "\{"                    {return LEFT_CURLY_BRACKET;}
 "\}"                    {return RIGHT_CURLY_BRACKET;}
 ","                     {return COMMA;}
-{identifier}            {return NAME;}
 "return"                {return RETURN;}
 "\n"                    {return NEWLINE;}
 " "                     {;}
 "None"                  {return NONE;}
 "True"                  {return TRUE;}
 "False"                 {return FALSE;}
-"."                        {eturn DOT;}
+"."                        {return DOT;}
+{identifier}            {return NAME;}
 .  {fprintf(yyout,"%s",yytext)};
 
 %%
