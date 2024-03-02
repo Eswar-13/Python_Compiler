@@ -44,8 +44,7 @@ right_assign: annassign
 | AUGASSIGNMENT_OPERATOR testlist 
 |Assign_stmt
 ;
-Assign_stmt: ASSIGNMENT_OPERATOR testlist Assign_stmt
-|/* empty */
+Assign_stmt:  Assign_stmt ASSIGNMENT_OPERATOR testlist | ASSIGNMENT_OPERATOR testlist
 ;
 annassign: COLON test ASSIGNMENT_OPERATOR test
 |COLON test
@@ -61,136 +60,132 @@ return_stmt: RETURN testlist
 
 compound_stmt: if_stmt|while_stmt|for_stmt|funcdef|classdef 
 ;
-if_stmt: IF test COLON suite elif_statements else_statement_opt
+if_stmt: IF test COLON suite 
+|IF test COLON suite else_statement
+|IF test COLON suite elif_statements 
+|IF test COLON suite elif_statements else_statement
 ;
-elif_statements: /* empty */
-| ELIF test COLON suite elif_statements
+elif_statements: elif_statements ELIF test COLON suite 
+| ELIF test COLON suite 
 ;
-else_statement_opt: /* empty */
-| ELSE COLON suite
-;
-
-while_stmt: WHILE test COLON suite else_statement_opt
-;
-
-for_stmt: FOR exprlist IN testlist COLON suite else_statement_opt
+else_statement: ELSE COLON suite
 ;
 
+while_stmt: WHILE test COLON suite |
+ WHILE test COLON suite else_statement
+;
 
-funcdef: DEF NAME parameters return_arrow_opt COLON suite
+for_stmt: FOR exprlist IN testlist COLON suite 
+| FOR exprlist IN testlist COLON suite else_statement
 ;
-return_arrow_opt:/* empty */
-|RETURN_ARROW test
+
+funcdef: DEF NAME parameters COLON suite
+| DEF NAME parameters RETURN_ARROW test COLON suite
 ;
-parameters: LEFT_BRACKET typedargslist_opt RIGHT_BRACKET
+
+parameters: LEFT_BRACKET RIGHT_BRACKET
+| LEFT_BRACKET typedargslist RIGHT_BRACKET
 ;
-typedargslist_opt: /* empty */
-|typedargslist
+
+typedargslist: typedargslist COMMA full_tfpdef | full_tfpdef 
 ;
-typedargslist: full_tfpdef tfpdef_list
-;
-tfpdef_list: COMMA full_tfpdef tfpdef_list
-|/* empty */
-;
+
 full_tfpdef: NAME annassign
 |NAME
 ;
-
-
-
 classdef: CLASS NAME opt_class_arg COLON suite
 ;
-opt_class_arg:/* empty */
+opt_class_arg: LEFT_BRACKET RIGHT_BRACKET
 |LEFT_BRACKET opt_arglist RIGHT_BRACKET
 ;
-opt_arglist:/* empty */
+opt_arglist: arglist COMMA
 |arglist
 ;
-arglist: argument comma_arg_star  opt_comma
+arglist: arglist COMMA argument 
+| argument
 ;
-opt_comma:/* empty */
-|COMMA
-;
-comma_arg_star:/* empty */
-|COMMA argument comma_arg_star
-;
-argument: test opt_comp_for
+argument: test 
+| test comp_for
 |test ASSIGNMENT_OPERATOR test
-;
-opt_comp_for:/* empty */
-|comp_for
 ;
 comp_iter: comp_for 
 | comp_if
 ;
-opt_comp_iter:/* empty */
-|comp_iter
+comp_for: FOR exprlist IN or_test 
+| FOR exprlist IN or_test comp_iter
 ;
-comp_for: FOR exprlist IN or_test opt_comp_iter
-;
-comp_if: IF test_nocond opt_comp_iter
+comp_if: IF test_nocond 
+| IF test_nocond comp_iter
 ;
 
 
 suite: simple_stmt | NEWLINE INDENT stmt_list DEDENT
 |NEWLINE INDENT stmt_list YYEOF
 ;
-stmt_list : stmt stmt_list | /* empty */
+stmt_list : stmt_list stmt| stmt
 ;
-test: or_test opt_if_or_test_else_test
-;
-opt_if_or_test_else_test:/* empty */
-|IF or_test ELSE test
+
+test: or_test IF or_test ELSE test
+|or_test
 ;
 test_nocond:or_test 
 ;
-or_test: and_test or_and_test_star
+or_test: and_test or_and_test_plus
+|and_test
 ;
-or_and_test_star: /* empty */
-|OR and_test or_and_test_star
+or_and_test_plus: OR and_test
+|or_and_test_plus OR and_test
 ;
-and_test: not_test and_not_test_star
+and_test: not_test and_not_test_plus
+|not_test
 ;
-and_not_test_star: /* empty */
-|AND not_test and_not_test_star
+and_not_test_plus: AND not_test
+|and_not_test_plus AND not_test 
 ;
 not_test: NOT not_test 
 |comparison
 ;
 comparison: expr opt_expr
+|expr
 ;
-opt_expr : RELATIONAL_OPERATOR expr opt_expr
-|/* empty */
+opt_expr : opt_expr RELATIONAL_OPERATOR expr
+|RELATIONAL_OPERATOR expr
 ;
 expr: xor_expr opt_xor
+|xor_expr
 ;
-opt_xor: /* empty */
-|BIT_OR xor_expr opt_xor
+opt_xor: BIT_OR xor_expr
+|opt_xor BIT_OR xor_expr
 ;
-xor_expr: and_expr opt_and
+xor_expr: and_expr opt_and_plus
+|and_expr
 ;
-opt_and: /* empty */
-|XOR and_expr opt_and
+opt_and_plus: XOR and_expr
+|opt_and_plus XOR and_expr 
 ;
 and_expr: shift_expr opt_shift
+|shift_expr
 ;
-opt_shift: /* empty */
-|BIT_AND shift_expr opt_shift
+opt_shift: BIT_AND shift_expr 
+|opt_shift BIT_AND shift_expr 
 ;
 shift_expr: arith_expr opt_arith
+|arith_expr
 ;
-opt_arith: /* empty */
-|SHIFT arith_expr opt_arith
+opt_arith: SHIFT arith_expr
+|opt_arith SHIFT arith_expr 
 ;
 arith_expr: term opt_term
+|term
 ;
-opt_term: /* empty */
-|ADD_SUB term opt_term
+opt_term: ADD_SUB term
+|opt_term ADD_SUB term
 ;
 term: factor opt_factor
+|factor
 ;
-opt_factor: /* empty */
-|ARITHMETIC_OPERATOR factor opt_factor
+opt_factor: ARITHMETIC_OPERATOR factor
+|opt_factor ARITHMETIC_OPERATOR factor 
 ;
 factor: oper factor
 |power
@@ -198,18 +193,19 @@ factor: oper factor
 oper: ADD_SUB
 |BIT_NOT
 ;
-power: atom_expr opt_atom
-;
-opt_atom: POWER factor ;
-|/* empty */
+power: atom_expr POWER factor
+|atom_expr
 ;
 atom_expr: atom opt_trailer
+|atom
 ;
-opt_trailer: trailer opt_trailer
-|/* empty */
+opt_trailer:opt_trailer trailer 
+|trailer
 ;
-atom: LEFT_BRACKET opt_testlist_comp RIGHT_BRACKET
-|LEFT_SQUARE_BRACKET opt_testlist_comp RIGHT_SQUARE_BRACKET
+atom: LEFT_BRACKET testlist_comp RIGHT_BRACKET
+|LEFT_SQUARE_BRACKET testlist_comp RIGHT_SQUARE_BRACKET
+|LEFT_BRACKET  RIGHT_BRACKET
+|LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET
 |NAME
 |NUMBER
 |DATA_TYPE
@@ -219,46 +215,46 @@ atom: LEFT_BRACKET opt_testlist_comp RIGHT_BRACKET
 |FALSE
 |LIST
 ;
-opt_testlist_comp: testlist_comp
-|
-;
+
 testlist_comp: test comp_for
-| test opt_test_stmt opt_comma
+| opt_test_stmt COMMA
+|opt_test_stmt
 ;
-opt_test_stmt: /* empty */ 
-|COMMA test opt_test_stmt
+opt_test_stmt: test
+|opt_test_stmt COMMA test 
 ;
-trailer: LEFT_BRACKET opt_arglist RIGHT_BRACKET
+trailer: LEFT_BRACKET arglist RIGHT_BRACKET
+|LEFT_BRACKET RIGHT_BRACKET
 | LEFT_SQUARE_BRACKET subscriptlist RIGHT_SQUARE_BRACKET
 | DOT NAME
-subscriptlist: subscript opt_subscript opt_comma
+subscriptlist: opt_subscript COMMA
+|opt_subscript
 ;
-opt_subscript: COMMA subscript opt_subscript
-|/* empty */
+opt_subscript:opt_subscript COMMA subscript
+|subscript
 ;
 subscript: test
-|opt_test_sub COLON opt_test_sub opt_sliceop
-;
-opt_test_sub : test 
-| /* empty */
-;
-
-opt_sliceop : sliceop
-| /* empty */
-;
-
-sliceop: COLON opt_test_sub
-;
-
-testlist: test COMMA testlist | test 
+|test COLON test sliceop
+|test COLON test 
+| COLON test sliceop
+| COLON test 
+|test COLON  sliceop
+|test COLON 
+| COLON  sliceop
+| COLON 
 ;
 
 
-exprlist: expr opt_exprlist opt_comma
+sliceop: COLON test
+|COLON
 ;
-opt_exprlist: /* empty */
-|COMMA expr opt_exprlist
+
+testlist: testlist COMMA test | test 
 ;
+
+exprlist: exprlist COMMA expr |expr 
+;
+
 
 %%
 
