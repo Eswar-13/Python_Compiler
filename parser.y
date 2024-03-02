@@ -2,6 +2,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define YYDEBUG 1
+
+extern int yydebug;
 extern int yyparse();
 extern int yylex();
 extern void yyerror(const char *);
@@ -24,7 +27,7 @@ extern FILE* yyout;
 module : stmt module 
 |/* empty */
 ;
-stmt: NEWLINE | simple_stmt | compound_stmt 
+stmt: NEWLINE | simple_stmt | compound_stmt | testlist
 ;
 
 simple_stmt: more_expr | more_expr SEMICOLON
@@ -54,7 +57,8 @@ break_stmt: BREAK
 ;
 continue_stmt: CONTINUE
 ;
-return_stmt: RETURN testlist
+return_stmt: RETURN
+| RETURN testlist
 ;
 
 
@@ -93,7 +97,8 @@ typedargslist: typedargslist COMMA full_tfpdef | full_tfpdef
 full_tfpdef: NAME annassign
 |NAME
 ;
-classdef: CLASS NAME opt_class_arg COLON suite
+classdef: CLASS NAME opt_class_arg COLON suite|
+CLASS NAME COLON suite
 ;
 opt_class_arg: LEFT_BRACKET RIGHT_BRACKET
 |LEFT_BRACKET opt_arglist RIGHT_BRACKET
@@ -259,7 +264,7 @@ exprlist: exprlist COMMA expr |expr
 %%
 
 void yyerror(const char *s){
-   cout<<yytext<<" f u\n";
+   cout<<" f u \n"<<yytext;
    return ;
 }
 
@@ -269,6 +274,7 @@ int main ( int argc, char *argv[]){
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");
    
+   yydebug=1;
    yyparse();
    
    fclose(yyin);
