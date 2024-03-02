@@ -23,14 +23,27 @@ extern FILE* yyout;
 %token LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET
 %start module 
 
+%precedence low
+%precedence low1
+%precedence low2
+%precedence low3
+%precedence low4
+%precedence low5
+%precedence low6
+%precedence high
+%precedence high1
+%precedence NEWLINE SEMICOLON COLON ASSIGNMENT_OPERATOR AUGASSIGNMENT_OPERATOR ADD_SUB AND ARITHMETIC_OPERATOR BIT_AND BIT_NOT BIT_OR BITWISE_OPERATOR BREAK LEFT_BRACKET RIGHT_BRACKET LEFT_CURLY_BRACKET LEFT_SQUARE_BRACKET RIGHT_CURLY_BRACKET RIGHT_SQUARE_BRACKET CLASS COMMA CONTINUE DATA_TYPE DEDENT DEF DOT ELIF ELSE FALSE FOR IF IN INDENT LIST NAME NONE NOT NUMBER OR POWER RELATIONAL_OPERATOR RETURN RETURN_ARROW SHIFT STRING TRUE WHILE XOR YYEOF 
+
+
 %% 
-module : stmt module 
-|/* empty */
+module : stmt module %prec high
+|/* empty */ %prec low
 ;
 stmt: NEWLINE | simple_stmt | compound_stmt | testlist
 ;
 
-simple_stmt: more_expr | more_expr SEMICOLON
+simple_stmt: more_expr %prec low
+| more_expr SEMICOLON %prec high
 ;
 more_expr:more_expr SEMICOLON small_stmt {cout<<"y";}
 |small_stmt
@@ -49,16 +62,16 @@ right_assign: annassign
 ;
 Assign_stmt:  Assign_stmt ASSIGNMENT_OPERATOR testlist | ASSIGNMENT_OPERATOR testlist
 ;
-annassign: COLON test ASSIGNMENT_OPERATOR test
-|COLON test
+annassign: COLON test ASSIGNMENT_OPERATOR test %prec high
+|COLON test %prec low
 ;
 
 break_stmt: BREAK
 ;
 continue_stmt: CONTINUE
 ;
-return_stmt: RETURN
-| RETURN testlist
+return_stmt: RETURN %prec low
+| RETURN testlist %prec high
 ;
 
 
@@ -75,12 +88,12 @@ elif_statements: elif_statements ELIF test COLON suite
 else_statement: ELSE COLON suite
 ;
 
-while_stmt: WHILE test COLON suite |
- WHILE test COLON suite else_statement
+while_stmt: WHILE test COLON suite %prec low
+|WHILE test COLON suite else_statement %prec high
 ;
 
-for_stmt: FOR exprlist IN testlist COLON suite 
-| FOR exprlist IN testlist COLON suite else_statement
+for_stmt: FOR exprlist IN testlist COLON suite %prec low
+| FOR exprlist IN testlist COLON suite else_statement %prec high
 ;
 
 funcdef: DEF NAME parameters COLON suite
@@ -91,11 +104,12 @@ parameters: LEFT_BRACKET RIGHT_BRACKET
 | LEFT_BRACKET typedargslist RIGHT_BRACKET
 ;
 
-typedargslist: typedargslist COMMA full_tfpdef | full_tfpdef 
+typedargslist: typedargslist COMMA full_tfpdef 
+| full_tfpdef 
 ;
 
-full_tfpdef: NAME annassign
-|NAME
+full_tfpdef: NAME annassign %prec high
+|NAME %prec low
 ;
 classdef: CLASS NAME opt_class_arg COLON suite|
 CLASS NAME COLON suite
@@ -103,11 +117,11 @@ CLASS NAME COLON suite
 opt_class_arg: LEFT_BRACKET RIGHT_BRACKET
 |LEFT_BRACKET opt_arglist RIGHT_BRACKET
 ;
-opt_arglist: arglist COMMA
-|arglist
+opt_arglist: arglist COMMA %prec high
+|arglist %prec low
 ;
-arglist: arglist COMMA argument 
-| argument
+arglist: arglist COMMA argument %prec high
+| argument %prec low
 ;
 argument: test 
 | test comp_for
@@ -130,13 +144,13 @@ suite: simple_stmt | NEWLINE INDENT stmt_list DEDENT
 stmt_list : stmt_list stmt| stmt
 ;
 
-test: or_test IF or_test ELSE test
-|or_test
+test: or_test IF or_test ELSE test %prec high
+|or_test %prec low
 ;
 test_nocond:or_test 
 ;
-or_test: and_test or_and_test_plus
-|and_test
+or_test: and_test or_and_test_plus %prec high
+|and_test %prec low
 ;
 or_and_test_plus: OR and_test
 |or_and_test_plus OR and_test
@@ -180,14 +194,14 @@ shift_expr: arith_expr opt_arith
 opt_arith: SHIFT arith_expr
 |opt_arith SHIFT arith_expr 
 ;
-arith_expr: term opt_term
-|term
+arith_expr: term opt_term %prec high
+|term %prec low
 ;
 opt_term: ADD_SUB term
 |opt_term ADD_SUB term
 ;
-term: factor opt_factor
-|factor
+term: factor opt_factor %prec high
+|factor %prec low
 ;
 opt_factor: ARITHMETIC_OPERATOR factor
 |opt_factor ARITHMETIC_OPERATOR factor 
@@ -198,11 +212,11 @@ factor: oper factor
 oper: ADD_SUB
 |BIT_NOT
 ;
-power: atom_expr POWER factor
-|atom_expr
+power: atom_expr POWER factor %prec high
+|atom_expr %prec low
 ;
-atom_expr: atom opt_trailer
-|atom
+atom_expr: atom opt_trailer %prec high
+|atom %prec low
 ;
 opt_trailer:opt_trailer trailer 
 |trailer
@@ -274,7 +288,7 @@ int main ( int argc, char *argv[]){
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");
    
-   yydebug=1;
+   yydebug=0;
    yyparse();
    
    fclose(yyin);

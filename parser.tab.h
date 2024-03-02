@@ -101,7 +101,16 @@ extern int yydebug;
     DOT = 302,                     /* DOT  */
     SHIFT = 303,                   /* SHIFT  */
     LEFT_CURLY_BRACKET = 304,      /* LEFT_CURLY_BRACKET  */
-    RIGHT_CURLY_BRACKET = 305      /* RIGHT_CURLY_BRACKET  */
+    RIGHT_CURLY_BRACKET = 305,     /* RIGHT_CURLY_BRACKET  */
+    low = 306,                     /* low  */
+    low1 = 307,                    /* low1  */
+    low2 = 308,                    /* low2  */
+    low3 = 309,                    /* low3  */
+    low4 = 310,                    /* low4  */
+    low5 = 311,                    /* low5  */
+    low6 = 312,                    /* low6  */
+    high = 313,                    /* high  */
+    high1 = 314                    /* high1  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
