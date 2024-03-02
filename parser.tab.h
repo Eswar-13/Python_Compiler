@@ -122,7 +122,7 @@ union YYSTYPE
 #line 20 "parser.y"
 
    struct{
-      char * parent;
+      char * child;
    }attributes;
 
 #line 129 "parser.tab.h"

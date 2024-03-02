@@ -1,7 +1,23 @@
 Graph {
-module -- stmt0; stmt0[label="simple_stmt"];
-module -- stmt2; stmt2[label="simple_stmt"];
-module -- stmt4; stmt4[label="compound_stmt"];
-module -- stmt5; stmt5[label="simple_stmt"];
-module;
+stmt0--simple_stmt0;
+module--stmt0;
+module--stmt1;
+stmt2--simple_stmt1;
+module--stmt2;
+module--stmt3;
+stmt4--simple_stmt2;
+stmt_list0--stmt4;
+suite0--NEWLINE0;
+suite0--INDENT0;
+suite0--stmt_list0;
+suite0--DEDENT0;
+if_stmt0--IF0;
+if_stmt0--test0;
+if_stmt0--COLON0;
+if_stmt0--suite0;
+compound_stmt0--if_stmt0;
+stmt5--compound_stmt0;
+module--stmt5;
+stmt6--simple_stmt3;
+module--stmt6;
 }

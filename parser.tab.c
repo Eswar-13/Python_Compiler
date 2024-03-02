@@ -83,7 +83,7 @@ extern char* yytext;
 extern FILE* yyin;  
 extern FILE* yyout;
 
-int total_nodes=0;
+map<string,int> m;
 
 
 #line 90 "parser.tab.c"
@@ -638,20 +638,20 @@ static const yytype_int16 yyrline[] =
        0,    50,    50,    50,    51,    54,    55,    56,    57,    60,
       61,    63,    64,    66,    67,    68,    69,    72,    74,    75,
       76,    78,    78,    80,    81,    84,    86,    88,    89,    93,
-      93,    93,    93,    93,    95,    96,    97,    98,   100,   101,
-     103,   106,   107,   110,   111,   114,   115,   118,   119,   122,
-     123,   126,   127,   129,   130,   132,   133,   135,   136,   138,
-     139,   141,   142,   143,   145,   146,   148,   149,   151,   152,
-     156,   156,   157,   159,   159,   162,   163,   165,   167,   168,
-     170,   171,   173,   174,   176,   177,   179,   180,   182,   183,
-     185,   186,   188,   189,   191,   192,   194,   195,   197,   198,
-     200,   201,   203,   204,   206,   207,   209,   210,   212,   213,
-     215,   216,   218,   219,   221,   222,   224,   225,   227,   228,
-     230,   231,   233,   234,   236,   237,   239,   240,   241,   242,
-     243,   244,   245,   246,   247,   248,   249,   250,   253,   254,
-     255,   257,   258,   260,   261,   262,   263,   264,   265,   267,
-     268,   270,   271,   272,   273,   274,   275,   276,   277,   278,
-     282,   283,   286,   286,   289,   289
+      94,    95,    96,    97,    99,   100,   101,   102,   104,   105,
+     107,   110,   111,   114,   115,   118,   119,   122,   123,   126,
+     127,   130,   131,   133,   134,   136,   137,   139,   140,   142,
+     143,   145,   146,   147,   149,   150,   152,   153,   155,   156,
+     160,   161,   162,   164,   165,   168,   169,   171,   173,   174,
+     176,   177,   179,   180,   182,   183,   185,   186,   188,   189,
+     191,   192,   194,   195,   197,   198,   200,   201,   203,   204,
+     206,   207,   209,   210,   212,   213,   215,   216,   218,   219,
+     221,   222,   224,   225,   227,   228,   230,   231,   233,   234,
+     236,   237,   239,   240,   242,   243,   245,   246,   247,   248,
+     249,   250,   251,   252,   253,   254,   255,   256,   259,   260,
+     261,   263,   264,   266,   267,   268,   269,   270,   271,   273,
+     274,   276,   277,   278,   279,   280,   281,   282,   283,   284,
+     288,   289,   292,   292,   295,   295
 };
 #endif
 
@@ -1444,42 +1444,54 @@ yyreduce:
     {
   case 2: /* $@1: %empty  */
 #line 50 "parser.y"
-             { if((yyvsp[0].attributes).parent) fprintf(yyout,"module -- stmt%d; stmt%d[label=\"%s\"];\n",total_nodes,total_nodes,(yyvsp[0].attributes).parent);total_nodes++;}
+             {fprintf(yyout,"module--stmt%d;\n",m["stmt"]); m["stmt"]++; }
 #line 1449 "parser.tab.c"
-    break;
-
-  case 4: /* module: %empty  */
-#line 51 "parser.y"
-            {fprintf(yyout,"module;\n");}
-#line 1455 "parser.tab.c"
     break;
 
   case 6: /* stmt: simple_stmt  */
 #line 55 "parser.y"
-              {(yyval.attributes).parent=(char*)"simple_stmt"; }
-#line 1461 "parser.tab.c"
+              { fprintf(yyout,"stmt%d--simple_stmt%d;\n",m["stmt"],m["simple_stmt"]); m["simple_stmt"]++;}
+#line 1455 "parser.tab.c"
     break;
 
   case 7: /* stmt: compound_stmt  */
 #line 56 "parser.y"
-                {(yyval.attributes).parent=(char*)"compound_stmt"; }
-#line 1467 "parser.tab.c"
+                {fprintf(yyout,"stmt%d--compound_stmt%d;\n",m["stmt"],m["compound_stmt"]); m["compound_stmt"]++; }
+#line 1461 "parser.tab.c"
     break;
 
   case 8: /* stmt: testlist  */
 #line 57 "parser.y"
-           {(yyval.attributes).parent=(char*)"simple_stmt"; }
+           {fprintf(yyout,"stmt%d--simple_stmt%d;\n",m["stmt"],m["simple_stmt"]); m["simple_stmt"]++; }
+#line 1467 "parser.tab.c"
+    break;
+
+  case 29: /* compound_stmt: if_stmt  */
+#line 93 "parser.y"
+                       {fprintf(yyout,"compound_stmt%d--if_stmt%d;\n",m["compound_stmt"],m["if_stmt"]); m["if_stmt"]++;}
 #line 1473 "parser.tab.c"
     break;
 
-  case 11: /* more_expr: more_expr SEMICOLON small_stmt  */
-#line 63 "parser.y"
-                                         {cout<<"y";}
+  case 34: /* if_stmt: IF test COLON suite  */
+#line 99 "parser.y"
+                             { fprintf(yyout,"if_stmt%d--IF%d;\n",m["if_stmt"],m["IF"]); m["IF"]++; fprintf(yyout,"if_stmt%d--test%d;\n",m["if_stmt"],m["test"]); m["test"]++; fprintf(yyout,"if_stmt%d--COLON%d;\n",m["if_stmt"],m["COLON"]); m["COLON"]++; fprintf(yyout,"if_stmt%d--suite%d;\n",m["if_stmt"],m["suite"]); m["suite"]++;}
 #line 1479 "parser.tab.c"
     break;
 
+  case 71: /* suite: NEWLINE INDENT stmt_list DEDENT  */
+#line 161 "parser.y"
+                                  { fprintf(yyout,"suite%d--NEWLINE%d;\n",m["suite"],m["NEWLINE"]); m["NEWLINE"]++; fprintf(yyout,"suite%d--INDENT%d;\n",m["suite"],m["INDENT"]); m["INDENT"]++; fprintf(yyout,"suite%d--stmt_list%d;\n",m["suite"],m["stmt_list"]); m["stmt_list"]++; fprintf(yyout,"suite%d--DEDENT%d;\n",m["suite"],m["DEDENT"]); m["DEDENT"]++;}
+#line 1485 "parser.tab.c"
+    break;
 
-#line 1483 "parser.tab.c"
+  case 74: /* stmt_list: stmt  */
+#line 165 "parser.y"
+       {fprintf(yyout,"stmt_list%d--stmt%d;\n",m["stmt_list"],m["stmt"]); m["stmt"]++;}
+#line 1491 "parser.tab.c"
+    break;
+
+
+#line 1495 "parser.tab.c"
 
       default: break;
     }
@@ -1672,7 +1684,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 293 "parser.y"
+#line 299 "parser.y"
 
 
 void yyerror(const char *s){

@@ -13,13 +13,13 @@ extern char* yytext;
 extern FILE* yyin;  
 extern FILE* yyout;
 
-int total_nodes=0;
+map<string,int> m;
 
 %}
 
 %union{
    struct{
-      char * parent;
+      char * child;
    }attributes;
 }
 
@@ -30,7 +30,7 @@ int total_nodes=0;
 %token<attributes> NUMBER STRING DOT SHIFT
 %token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET
 
-%type<attributes>stmt simple_stmt compound_stmt
+%type<attributes>stmt simple_stmt compound_stmt more_expr
 
 %start module 
 
@@ -47,20 +47,20 @@ int total_nodes=0;
 
 
 %% 
-module : stmt{ if($1.parent) fprintf(yyout,"module -- stmt%d; stmt%d[label=\"%s\"];\n",total_nodes,total_nodes,$1.parent);total_nodes++;}  module %prec high
-|/* empty */{fprintf(yyout,"module;\n");} %prec low
+module : stmt{fprintf(yyout,"module--stmt%d;\n",m["stmt"]); m["stmt"]++; } module %prec high
+|/* empty */ %prec low
 ;
 
 stmt: NEWLINE 
-| simple_stmt {$$.parent=(char*)"simple_stmt"; } 
-| compound_stmt {$$.parent=(char*)"compound_stmt"; }
-| testlist {$$.parent=(char*)"simple_stmt"; }
+| simple_stmt { fprintf(yyout,"stmt%d--simple_stmt%d;\n",m["stmt"],m["simple_stmt"]); m["simple_stmt"]++;} 
+| compound_stmt {fprintf(yyout,"stmt%d--compound_stmt%d;\n",m["stmt"],m["compound_stmt"]); m["compound_stmt"]++; } 
+| testlist {fprintf(yyout,"stmt%d--simple_stmt%d;\n",m["stmt"],m["simple_stmt"]); m["simple_stmt"]++; }
 ;
 
 simple_stmt: more_expr %prec low
 | more_expr SEMICOLON %prec high
 ;
-more_expr:more_expr SEMICOLON small_stmt {cout<<"y";}
+more_expr:more_expr SEMICOLON small_stmt 
 |small_stmt
 ;
 small_stmt: expr_stmt 
@@ -90,9 +90,13 @@ return_stmt: RETURN %prec low
 ;
 
 
-compound_stmt: if_stmt|while_stmt|for_stmt|funcdef|classdef 
+compound_stmt: if_stmt {fprintf(yyout,"compound_stmt%d--if_stmt%d;\n",m["compound_stmt"],m["if_stmt"]); m["if_stmt"]++;}
+|while_stmt
+|for_stmt
+|funcdef
+|classdef 
 ;
-if_stmt: IF test COLON suite 
+if_stmt: IF test COLON suite { fprintf(yyout,"if_stmt%d--IF%d;\n",m["if_stmt"],m["IF"]); m["IF"]++; fprintf(yyout,"if_stmt%d--test%d;\n",m["if_stmt"],m["test"]); m["test"]++; fprintf(yyout,"if_stmt%d--COLON%d;\n",m["if_stmt"],m["COLON"]); m["COLON"]++; fprintf(yyout,"if_stmt%d--suite%d;\n",m["if_stmt"],m["suite"]); m["suite"]++;}
 |IF test COLON suite else_statement
 |IF test COLON suite elif_statements 
 |IF test COLON suite elif_statements else_statement
@@ -153,10 +157,12 @@ comp_if: IF test_nocond
 ;
 
 
-suite: simple_stmt | NEWLINE INDENT stmt_list DEDENT
+suite: simple_stmt 
+| NEWLINE INDENT stmt_list DEDENT { fprintf(yyout,"suite%d--NEWLINE%d;\n",m["suite"],m["NEWLINE"]); m["NEWLINE"]++; fprintf(yyout,"suite%d--INDENT%d;\n",m["suite"],m["INDENT"]); m["INDENT"]++; fprintf(yyout,"suite%d--stmt_list%d;\n",m["suite"],m["stmt_list"]); m["stmt_list"]++; fprintf(yyout,"suite%d--DEDENT%d;\n",m["suite"],m["DEDENT"]); m["DEDENT"]++;}
 |NEWLINE INDENT stmt_list YYEOF
 ;
-stmt_list : stmt_list stmt| stmt
+stmt_list : stmt_list stmt
+| stmt {fprintf(yyout,"stmt_list%d--stmt%d;\n",m["stmt_list"],m["stmt"]); m["stmt"]++;}
 ;
 
 test: or_test IF or_test ELSE test %prec high
