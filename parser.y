@@ -27,13 +27,10 @@ module : stmt module
 stmt: NEWLINE | simple_stmt | compound_stmt 
 ;
 
-simple_stmt: small_stmt more_expr opt_semicolon 
+simple_stmt: more_expr | more_expr SEMICOLON
 ;
-opt_semicolon: SEMICOLON
-|/* empty */
-;
-more_expr: SEMICOLON small_stmt more_expr
-|/* empty */
+more_expr:more_expr SEMICOLON small_stmt {cout<<"y";}
+|small_stmt
 ;
 small_stmt: expr_stmt 
 |break_stmt
@@ -58,8 +55,8 @@ break_stmt: BREAK
 ;
 continue_stmt: CONTINUE
 ;
-return_stmt: RETURN 
-| RETURN testlist
+return_stmt: RETURN testlist
+;
 
 
 compound_stmt: if_stmt|while_stmt|for_stmt|funcdef|classdef 
@@ -253,10 +250,7 @@ opt_sliceop : sliceop
 sliceop: COLON opt_test_sub
 ;
 
-testlist: test opt_testlist opt_comma
-;
-opt_testlist: /* empty */
-|COMMA test opt_testlist
+testlist: test COMMA testlist | test 
 ;
 
 
