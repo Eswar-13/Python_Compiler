@@ -1,0 +1,7 @@
+Graph {
+module -- stmt0; stmt0[label="simple_stmt"];
+module -- stmt2; stmt2[label="simple_stmt"];
+module -- stmt4; stmt4[label="compound_stmt"];
+module -- stmt5; stmt5[label="simple_stmt"];
+module;
+}

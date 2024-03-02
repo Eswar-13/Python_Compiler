@@ -13,14 +13,25 @@ extern char* yytext;
 extern FILE* yyin;  
 extern FILE* yyout;
 
+int total_nodes=0;
+
 %}
 
-%token ARITHMETIC_OPERATOR RELATIONAL_OPERATOR BITWISE_OPERATOR ASSIGNMENT_OPERATOR DATA_TYPE FOR WHILE IF ELIF ELSE BREAK CLASS CONTINUE LIST 
-%token SEMICOLON AUGASSIGNMENT_OPERATOR COLON LEFT_BRACKET RIGHT_BRACKET RETURN_ARROW COMMA NAME
-%token LEFT_SQUARE_BRACKET RIGHT_SQUARE_BRACKET NONE TRUE FALSE
-%token IN DEF NOT RETURN NEWLINE INDENT DEDENT AND OR XOR BIT_NOT ADD_SUB POWER BIT_AND BIT_OR
-%token NUMBER STRING DOT SHIFT
-%token LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET
+%union{
+   struct{
+      char * parent;
+   }attributes;
+}
+
+%token<attributes> ARITHMETIC_OPERATOR RELATIONAL_OPERATOR BITWISE_OPERATOR ASSIGNMENT_OPERATOR DATA_TYPE FOR WHILE IF ELIF ELSE BREAK CLASS CONTINUE LIST 
+%token<attributes> SEMICOLON AUGASSIGNMENT_OPERATOR COLON LEFT_BRACKET RIGHT_BRACKET RETURN_ARROW COMMA NAME
+%token<attributes> LEFT_SQUARE_BRACKET RIGHT_SQUARE_BRACKET NONE TRUE FALSE
+%token<attributes> IN DEF NOT RETURN NEWLINE INDENT DEDENT AND OR XOR BIT_NOT ADD_SUB POWER BIT_AND BIT_OR
+%token<attributes> NUMBER STRING DOT SHIFT
+%token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET
+
+%type<attributes>stmt simple_stmt compound_stmt
+
 %start module 
 
 %precedence low
@@ -36,10 +47,14 @@ extern FILE* yyout;
 
 
 %% 
-module : stmt module %prec high
-|/* empty */ %prec low
+module : stmt{ if($1.parent) fprintf(yyout,"module -- stmt%d; stmt%d[label=\"%s\"];\n",total_nodes,total_nodes,$1.parent);total_nodes++;}  module %prec high
+|/* empty */{fprintf(yyout,"module;\n");} %prec low
 ;
-stmt: NEWLINE | simple_stmt | compound_stmt | testlist
+
+stmt: NEWLINE 
+| simple_stmt {$$.parent=(char*)"simple_stmt"; } 
+| compound_stmt {$$.parent=(char*)"compound_stmt"; }
+| testlist {$$.parent=(char*)"simple_stmt"; }
 ;
 
 simple_stmt: more_expr %prec low
@@ -287,10 +302,10 @@ int main ( int argc, char *argv[]){
      
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");
-   
+   fprintf(yyout,"Graph {\n");
    yydebug=0;
    yyparse();
-   
+   fprintf(yyout,"}");
    fclose(yyin);
    fclose(yyout);
    
