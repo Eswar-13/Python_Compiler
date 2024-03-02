@@ -1,3 +1,5 @@
 flex lexer.l
 bison -d parser.y
-g++ -o a lex.yy.c parser.tab.c 
+g++ -o ast lex.yy.c parser.tab.c 
+./ast -input testcases/a.py -output out.dot 
+dot -o out.pdf -Tpdf out.dot

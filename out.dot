@@ -1,0 +1,15 @@
+graph ast {
+module;
+stmt;
+ module -- stmt;
+stmt;
+ module -- stmt;
+stmt;
+ module -- stmt;
+stmt;
+ module -- stmt;
+stmt;
+ module -- stmt;
+stmt;
+ module -- stmt;
+}

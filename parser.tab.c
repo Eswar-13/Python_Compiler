@@ -1405,8 +1405,20 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
+  case 2: /* module: stmt module  */
+#line 24 "parser.y"
+                     {fprintf(yyout,"stmt;\n module -- stmt;\n");}
+#line 1412 "parser.tab.c"
+    break;
 
-#line 1410 "parser.tab.c"
+  case 3: /* module: %empty  */
+#line 25 "parser.y"
+             {fprintf(yyout,"module;\n");}
+#line 1418 "parser.tab.c"
+    break;
+
+
+#line 1422 "parser.tab.c"
 
       default: break;
     }
@@ -1612,9 +1624,9 @@ int main ( int argc, char *argv[]){
      
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");
-   
+   fprintf(yyout,"graph ast {\n");
    yyparse();
-   
+   fprintf(yyout,"}");
    fclose(yyin);
    fclose(yyout);
    
