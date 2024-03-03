@@ -12,6 +12,7 @@ extern int yylineno;
 extern char* yytext;
 extern FILE* yyin;  
 extern FILE* yyout;
+extern int yychar;
 
 map<string,int> m;
 
@@ -26,7 +27,7 @@ map<string,int> m;
 %token<attributes> ARITHMETIC_OPERATOR RELATIONAL_OPERATOR BITWISE_OPERATOR ASSIGNMENT_OPERATOR DATA_TYPE FOR WHILE IF ELIF ELSE BREAK CLASS CONTINUE LIST 
 %token<attributes> SEMICOLON AUGASSIGNMENT_OPERATOR COLON LEFT_BRACKET RIGHT_BRACKET RETURN_ARROW COMMA NAME
 %token<attributes> LEFT_SQUARE_BRACKET RIGHT_SQUARE_BRACKET NONE TRUE FALSE
-%token<attributes> IN DEF NOT RETURN NEWLINE INDENT DEDENT AND OR XOR BIT_NOT ADD_SUB POWER BIT_AND BIT_OR
+%token<attributes> IN DEF NOT RETURN NEWLINE INDENT DEDENT AND OR XOR BIT_NOT ADD SUB POWER BIT_AND BIT_OR
 %token<attributes> NUMBER STRING DOT SHIFT
 %token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET
 
@@ -43,7 +44,7 @@ map<string,int> m;
 %precedence low6
 %precedence high
 %precedence high1
-%precedence NEWLINE SEMICOLON COLON ASSIGNMENT_OPERATOR AUGASSIGNMENT_OPERATOR ADD_SUB AND ARITHMETIC_OPERATOR BIT_AND BIT_NOT BIT_OR BITWISE_OPERATOR BREAK LEFT_BRACKET RIGHT_BRACKET LEFT_CURLY_BRACKET LEFT_SQUARE_BRACKET RIGHT_CURLY_BRACKET RIGHT_SQUARE_BRACKET CLASS COMMA CONTINUE DATA_TYPE DEDENT DEF DOT ELIF ELSE FALSE FOR IF IN INDENT LIST NAME NONE NOT NUMBER OR POWER RELATIONAL_OPERATOR RETURN RETURN_ARROW SHIFT STRING TRUE WHILE XOR YYEOF 
+%precedence NEWLINE SEMICOLON COLON ASSIGNMENT_OPERATOR AUGASSIGNMENT_OPERATOR ADD SUB AND ARITHMETIC_OPERATOR BIT_AND BIT_NOT BIT_OR BITWISE_OPERATOR BREAK LEFT_BRACKET RIGHT_BRACKET LEFT_CURLY_BRACKET LEFT_SQUARE_BRACKET RIGHT_CURLY_BRACKET RIGHT_SQUARE_BRACKET CLASS COMMA CONTINUE DATA_TYPE DEDENT DEF DOT ELIF ELSE FALSE FOR IF IN INDENT LIST NAME NONE NOT NUMBER OR POWER RELATIONAL_OPERATOR RETURN RETURN_ARROW SHIFT STRING TRUE WHILE XOR YYEOF 
 
 
 %% 
@@ -197,81 +198,63 @@ stmt_list stmt  {fprintf(yyout,"stmt_list%d--stmt%d;\n",m["stmt_list"],m["stmt"]
 | stmt {fprintf(yyout,"stmt_list%d--stmt%d;\n",m["stmt_list"],m["stmt"]); m["stmt"]++;}
 ;
 
-test: or_test IF or_test ELSE test %prec high
-|or_test %prec low
+test: or_test IF or_test ELSE test %prec high      {fprintf(yyout,"test%d--or_test%d;\n",m["test"],m["or_test"]); m["or_test"]++;fprintf(yyout,"test%d--IF%d;\n",m["test"],m["IF"]); m["IF"]++;fprintf(yyout,"test%d--or_test%d;\n",m["test"],m["or_test"]); m["or_test"]++;fprintf(yyout,"test%d--ELSE%d;\n",m["test"],m["ELSE"]); m["ELSE"]++;}
+|or_test %prec low      {fprintf(yyout,"test%d--or_test%d;\n",m["test"],m["or_test"]); m["or_test"]++;}
 ;
 
-or_test: and_test or_and_test_plus %prec high
-|and_test %prec low
+or_test: or_test OR and_test %prec high   {fprintf(yyout,"or_test%d--OR%d;\n",m["or_test"],m["OR"]); m["OR"]++;fprintf(yyout,"or_test%d--and_test%d;\n",m["or_test"],m["and_test"]); m["and_test"]++;}
+|and_test %prec low        {fprintf(yyout,"or_test%d--and_test%d;\n",m["or_test"],m["and_test"]);m["and_test"]++;}
 ;
-or_and_test_plus: OR and_test
-|or_and_test_plus OR and_test
+
+and_test: and_test AND not_test           {fprintf(yyout,"and_test%d--AND%d;\n",m["and_test"],m["AND"]); m["AND"]++;fprintf(yyout,"and_test%d--not_test%d;\n",m["and_test"],m["not_test"]); m["not_test"]++;}
+|not_test               {fprintf(yyout,"and_test%d--not_test%d;\n",m["and_test"],m["not_test"]); m["not_test"]++;}
 ;
-and_test: not_test and_not_test_plus
-|not_test
+
+not_test: NOT {fprintf(yyout,"not_test%d--NOT%d;\n",m["not_test"],m["NOT"]); m["NOT"]++;}
+   not_test  
+|comparison    {fprintf(yyout,"not_test%d--comparison%d;\n",m["not_test"],m["comparison"]); m["comparison"]++;}
 ;
-and_not_test_plus: AND not_test
-|and_not_test_plus AND not_test 
+comparison: comparison RELATIONAL_OPERATOR expr %prec high     {fprintf(yyout,"comparison%d--RELATIONAL_OPERATOR%d;\n",m["comparison"],m["RELATIONAL_OPERATOR"]); m["RELATIONAL_OPERATOR"]++;fprintf(yyout,"comparison%d--expr%d;\n",m["comparison"],m["expr"]); m["expr"]++;}
+|expr %prec low      {;fprintf(yyout,"comparison%d--expr%d;\n",m["comparison"],m["expr"]); m["expr"]++;}
 ;
-not_test: NOT not_test 
-|comparison
+expr: expr BIT_OR and_expr %prec high     {fprintf(yyout,"expr%d--BIT_OR%d;\n",m["expr"],m["BIT_OR"]); m["BIT_OR"]++;fprintf(yyout,"expr%d--xor_expr%d;\n",m["expr"],m["xor_expr"]); m["xor_expr"]++;}
+|xor_expr  %prec low       {fprintf(yyout,"expr%d--xor_expr%d;\n",m["expr"],m["xor_expr"]); m["xor_expr"]++;}
 ;
-comparison: expr opt_expr
-|expr
+xor_expr: xor_expr XOR and_expr  %prec high  {fprintf(yyout,"xor_expr%d--XOR%d;\n",m["xor_expr"],m["XOR"]); m["XOR"]++;fprintf(yyout,"xor_expr%d--and_expr%d;\n",m["xor_expr"],m["and_expr"]); m["and_expr"]++;}
+|and_expr   %prec low         {fprintf(yyout,"xor_expr%d--and_expr%d;\n",m["xor_expr"],m["and_expr"]); m["and_expr"]++;}
 ;
-opt_expr : opt_expr RELATIONAL_OPERATOR expr
-|RELATIONAL_OPERATOR expr
+and_expr: and_expr BIT_AND shift_expr  %prec high  {fprintf(yyout,"and_expr%d--BIT_AND%d;\n",m["and_expr"],m["BIT_AND"]); m["BIT_AND"]++;fprintf(yyout,"and_expr%d--shift_expr%d;\n",m["and_expr"],m["shift_expr"]); m["shift_expr"]++;}
+|shift_expr  %prec low        {fprintf(yyout,"and_expr%d--shift_expr%d;\n",m["and_expr"],m["shift_expr"]); m["shift_expr"]++;}
 ;
-expr: xor_expr opt_xor
-|xor_expr
+shift_expr: shift_expr SHIFT arith_expr %prec high    {fprintf(yyout,"shift_expr%d--SHIFT%d;\n",m["shift_expr"],m["SHIFT"]); m["SHIFT"]++;fprintf(yyout,"shift_expr%d--arith_expr%d;\n",m["shift_expr"],m["arith_expr"]); m["arith_expr"]++;}
+|arith_expr %prec low         {fprintf(yyout,"shift_expr%d--arith_expr%d;\n",m["shift_expr"],m["arith_expr"]); m["arith_expr"]++;}
 ;
-opt_xor: BIT_OR xor_expr
-|opt_xor BIT_OR xor_expr
+arith_expr: 
+arith_expr ADD term %prec high        {fprintf(yyout,"arith_expr%d--ADD%d;\n",m["arith_expr"],m["ADD"]); m["ADD"]++;fprintf(yyout,"arith_expr%d--term%d;\n",m["arith_expr"],m["term"]); m["term"]++;}
+|arith_expr SUB term %prec high        {fprintf(yyout,"arith_expr%d--SUB%d;\n",m["arith_expr"],m["SUB"]); m["SUB"]++;fprintf(yyout,"arith_expr%d--term%d;\n",m["arith_expr"],m["term"]); m["term"]++;}
+|term %prec low                              {fprintf(yyout,"arith_expr%d--term%d;\n",m["arith_expr"],m["term"]); m["term"]++;}
 ;
-xor_expr: and_expr opt_and_plus
-|and_expr
+term: term ARITHMETIC_OPERATOR factor %prec high      {fprintf(yyout,"term%d--ARITHMETIC_OPERATOR%d;\n",m["term"],m["ARITHMETIC_OPERATOR"]); m["ARITHMETIC_OPERATOR"]++;fprintf(yyout,"term%d--factor%d;\n",m["term"],m["factor"]); m["factor"]++;}
+|factor %prec low             {fprintf(yyout,"term%d--factor%d;\n",m["term"],m["factor"]); m["factor"]++;}
 ;
-opt_and_plus: XOR and_expr
-|opt_and_plus XOR and_expr 
+
+factor:
+ADD  factor {fprintf(yyout,"factor%d--ADD%d;\n",m["factor"],m["ADD"]); m["ADD"]++;}
+|SUB factor {fprintf(yyout,"factor%d--SUB%d;\n",m["factor"],m["SUB"]); m["SUB"]++;} 
+|BIT_NOT factor{fprintf(yyout,"factor%d--BIT_NOT%d;\n",m["factor"],m["BIT_NOT"]); m["BIT_NOT"]++;} 
+|power   {fprintf(yyout,"factor%d--power%d;\n",m["factor"],m["power"]); m["power"]++;}
 ;
-and_expr: shift_expr opt_shift
-|shift_expr
+power:
+atom_expr POWER factor %prec high  {fprintf(yyout,"power%d--atom_expr%d;\n",m["power"],m["atom_expr"]); m["atom_expr"]++;fprintf(yyout,"power%d--POWER%d;\n",m["power"],m["POWER"]); m["POWER"]++;fprintf(yyout,"power%d--factor%d;\n",m["power"],m["factor"]); m["factor"]++;}
+|atom_expr %prec low    {fprintf(yyout,"power%d--atom_expr%d;\n",m["power"],m["atom_expr"]); m["atom_expr"]++;}
 ;
-opt_shift: BIT_AND shift_expr 
-|opt_shift BIT_AND shift_expr 
+atom_expr: atom opt_trailer %prec high {fprintf(yyout,"atom_expr%d--atom%d;\n",m["atom_expr"],m["atom"]); m["atom"]++; fprintf(yyout,"atom_expr%d--opt_trailer%d;\n",m["atom_expr"],m["opt_trailer"]); m["opt_trailer"]++;}
+|atom %prec low {fprintf(yyout,"atom_expr%d--atom%d;\n",m["atom_expr"],m["atom"]); m["atom"]++; }
 ;
-shift_expr: arith_expr opt_arith
-|arith_expr
+opt_trailer:
+opt_trailer trailer {fprintf(yyout,"opt_trailer%d--trailer%d;\n",m["opt_trailer"],m["trailer"]); m["trailer"]++; }
+|trailer {fprintf(yyout,"opt_trailer%d--trailer%d;\n",m["opt_trailer"],m["trailer"]); m["trailer"]++; }
 ;
-opt_arith: SHIFT arith_expr
-|opt_arith SHIFT arith_expr 
-;
-arith_expr: term opt_term %prec high
-|term %prec low
-;
-opt_term: ADD_SUB term
-|opt_term ADD_SUB term
-;
-term: factor opt_factor %prec high
-|factor %prec low
-;
-opt_factor: ARITHMETIC_OPERATOR factor
-|opt_factor ARITHMETIC_OPERATOR factor 
-;
-factor: oper factor
-|power
-;
-oper: ADD_SUB
-|BIT_NOT
-;
-power: atom_expr POWER factor %prec high
-|atom_expr %prec low
-;
-atom_expr: atom opt_trailer %prec high
-|atom %prec low
-;
-opt_trailer:opt_trailer trailer 
-|trailer
 ;
 atom:
 LEFT_BRACKET testlist_comp RIGHT_BRACKET {fprintf(yyout,"atom%d--LEFT_BRACKET%d;\n",m["atom"],m["LEFT_BRACKET"]); m["LEFT_BRACKET"]++; fprintf(yyout,"atom%d--testlist_comp%d;\n",m["atom"],m["testlist_comp"]); m["testlist_comp"]++; fprintf(yyout,"atom%d--RIGHT_BRACKET%d;\n",m["atom"],m["RIGHT_BRACKET"]); m["RIGHT_BRACKET"]++;}
@@ -316,12 +299,17 @@ exprlist COMMA expr {fprintf(yyout,"exprlist%d--COMMA%d;\n",m["exprlist"],m["COM
 
 
 %%
-
-void yyerror(const char *s){
-   cout<<" f u \n"<<yytext;
-   return ;
+const char* token_name(int t) {
+    return yysymbol_name(YYTRANSLATE(t));
 }
 
+void yyerror(const char *s){
+   cout<<endl;
+   cout<<"Error in Line no "<<yylineno<<endl;
+   cout<< "The Last Lexem is "<<yytext<<endl;
+   cout<< "The Last Token is "<<token_name(yychar)<<endl;
+   return ;
+}
 
 int main ( int argc, char *argv[]){
      

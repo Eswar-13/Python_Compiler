@@ -92,25 +92,26 @@ extern int yydebug;
     OR = 293,                      /* OR  */
     XOR = 294,                     /* XOR  */
     BIT_NOT = 295,                 /* BIT_NOT  */
-    ADD_SUB = 296,                 /* ADD_SUB  */
-    POWER = 297,                   /* POWER  */
-    BIT_AND = 298,                 /* BIT_AND  */
-    BIT_OR = 299,                  /* BIT_OR  */
-    NUMBER = 300,                  /* NUMBER  */
-    STRING = 301,                  /* STRING  */
-    DOT = 302,                     /* DOT  */
-    SHIFT = 303,                   /* SHIFT  */
-    LEFT_CURLY_BRACKET = 304,      /* LEFT_CURLY_BRACKET  */
-    RIGHT_CURLY_BRACKET = 305,     /* RIGHT_CURLY_BRACKET  */
-    low = 306,                     /* low  */
-    low1 = 307,                    /* low1  */
-    low2 = 308,                    /* low2  */
-    low3 = 309,                    /* low3  */
-    low4 = 310,                    /* low4  */
-    low5 = 311,                    /* low5  */
-    low6 = 312,                    /* low6  */
-    high = 313,                    /* high  */
-    high1 = 314                    /* high1  */
+    ADD = 296,                     /* ADD  */
+    SUB = 297,                     /* SUB  */
+    POWER = 298,                   /* POWER  */
+    BIT_AND = 299,                 /* BIT_AND  */
+    BIT_OR = 300,                  /* BIT_OR  */
+    NUMBER = 301,                  /* NUMBER  */
+    STRING = 302,                  /* STRING  */
+    DOT = 303,                     /* DOT  */
+    SHIFT = 304,                   /* SHIFT  */
+    LEFT_CURLY_BRACKET = 305,      /* LEFT_CURLY_BRACKET  */
+    RIGHT_CURLY_BRACKET = 306,     /* RIGHT_CURLY_BRACKET  */
+    low = 307,                     /* low  */
+    low1 = 308,                    /* low1  */
+    low2 = 309,                    /* low2  */
+    low3 = 310,                    /* low3  */
+    low4 = 311,                    /* low4  */
+    low5 = 312,                    /* low5  */
+    low6 = 313,                    /* low6  */
+    high = 314,                    /* high  */
+    high1 = 315                    /* high1  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -119,13 +120,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 20 "parser.y"
+#line 21 "parser.y"
 
    struct{
       char * child;
    }attributes;
 
-#line 129 "parser.tab.h"
+#line 130 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

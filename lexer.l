@@ -77,7 +77,8 @@ SIGNED_REAL     [+-]{REAL_LITERAL}
 "|"                 {cout<<yytext; return BIT_OR;}
 "^"                 {cout<<yytext; return XOR;}
 "~"                 {cout<<yytext; return BIT_NOT;}
-"+"|"-"             {cout<<yytext; return ADD_SUB;}
+"+"                 {cout<<yytext; return ADD;}
+"-"                 {cout<<yytext; return SUB;}
 "**"                {cout<<yytext; return POWER;}
 "<<"|">>"						{cout<<yytext; return SHIFT;}
 {assignment}  { cout<<yytext; return ASSIGNMENT_OPERATOR; }
