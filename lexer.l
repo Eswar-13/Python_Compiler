@@ -18,6 +18,36 @@
         }
         return count;
     }
+    int operatorToInteger(const std::string& op) {
+    // Map each operator to its corresponding integer value
+    if (op == "+=") {
+        return 0;
+    } else if (op == "-=") {
+        return 1;
+    } else if (op == "*=") {
+        return 2;
+    } else if (op == "/=") {
+        return 3;
+    } else if (op == "//=") {
+        return 4;
+    } else if (op == "%=") {
+        return 5;
+    } else if (op == "**=") {
+        return 6;
+    } else if (op == "&=") {
+        return 7;
+    } else if (op == "|=") {
+        return 8;
+    } else if (op == "^=") {
+        return 9;
+    } else if (op == "<<=") {
+        return 10;
+    } else if (op == ">>=") {
+        return 11;
+    } else {
+        return -1; // Return -1 if operator not found
+    }
+}
 
 %}
 
@@ -32,10 +62,7 @@ identifier      [A-Za-z_][A-Za-z_0-9]*
 DIGIT           [0-9]
 INTEGER         {DIGIT}+
 INT_LITERAL     {INTEGER}
-SIGNED_INT      [+-]{INT_LITERAL}
 SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
-REAL_LITERAL    ({INTEGER}[DEde][+-]?{INTEGER})|({SIGNIFICAND}([DEde][+-]?{INTEGER})?)
-SIGNED_REAL     [+-]{REAL_LITERAL}
 
 %x DEDENTATION
 %x LINE_START
@@ -82,11 +109,11 @@ SIGNED_REAL     [+-]{REAL_LITERAL}
 "**"                {cout<<yytext; return POWER;}
 "<<"|">>"						{cout<<yytext; return SHIFT;}
 {assignment}  { cout<<yytext; return ASSIGNMENT_OPERATOR; }
-{augassignment}  {cout<<yytext; return AUGASSIGNMENT_OPERATOR; }
+{augassignment}  {cout<<yytext; yylval.attributes.top=operatorToInteger(yytext); return AUGASSIGNMENT_OPERATOR; }
 {data_type}    {cout<<yytext; return DATA_TYPE; } 
-{INT_LITERAL}|{SIGNED_INT}|{REAL_LITERAL}|{SIGNED_REAL} {cout<<yytext;return NUMBER;}
+{INT_LITERAL}|{SIGNIFICAND} {cout<<yytext;return NUMBER;}
 \"[^\"]*\"    {cout<<yytext; return STRING;}
-\'[^\']*\'    {cout<<yytext; return STRING;}
+\'[^\']*\'    {cout<<yytext; return STRING_1;}
 "list"{WS}"\["{WS}{data_type}{WS}"\]" {cout<<yytext; return LIST; }
 "if"                   {cout<<" 1"<<yytext; return IF;}
 "elif"                 {cout<<" 2"<<yytext; return ELIF;}

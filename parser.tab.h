@@ -100,18 +100,21 @@ extern int yydebug;
     NUMBER = 301,                  /* NUMBER  */
     STRING = 302,                  /* STRING  */
     DOT = 303,                     /* DOT  */
-    SHIFT = 304,                   /* SHIFT  */
-    LEFT_CURLY_BRACKET = 305,      /* LEFT_CURLY_BRACKET  */
-    RIGHT_CURLY_BRACKET = 306,     /* RIGHT_CURLY_BRACKET  */
-    low = 307,                     /* low  */
-    low1 = 308,                    /* low1  */
-    low2 = 309,                    /* low2  */
-    low3 = 310,                    /* low3  */
-    low4 = 311,                    /* low4  */
-    low5 = 312,                    /* low5  */
-    low6 = 313,                    /* low6  */
-    high = 314,                    /* high  */
-    high1 = 315                    /* high1  */
+    L_SHIFT = 304,                 /* L_SHIFT  */
+    R_SHIFT = 305,                 /* R_SHIFT  */
+    STRING_1 = 306,                /* STRING_1  */
+    LEFT_CURLY_BRACKET = 307,      /* LEFT_CURLY_BRACKET  */
+    RIGHT_CURLY_BRACKET = 308,     /* RIGHT_CURLY_BRACKET  */
+    low = 309,                     /* low  */
+    low1 = 310,                    /* low1  */
+    low2 = 311,                    /* low2  */
+    low3 = 312,                    /* low3  */
+    low4 = 313,                    /* low4  */
+    low5 = 314,                    /* low5  */
+    low6 = 315,                    /* low6  */
+    high = 316,                    /* high  */
+    high1 = 317,                   /* high1  */
+    SHIFT = 318                    /* SHIFT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -120,13 +123,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 22 "parser.y"
+#line 62 "parser.y"
 
    struct{
-      int top;
+     int top;
+     int low;
    }attributes;
 
-#line 130 "parser.tab.h"
+#line 134 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
