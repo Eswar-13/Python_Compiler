@@ -14,13 +14,14 @@ extern FILE* yyin;
 extern FILE* yyout;
 extern int yychar;
 
-map<string,int> m;
+int node=0;
+map<string,int>m;
 
 %}
 
 %union{
    struct{
-      char * child;
+      int top;
    }attributes;
 }
 
@@ -31,7 +32,7 @@ map<string,int> m;
 %token<attributes> NUMBER STRING DOT SHIFT
 %token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET
 
-
+%type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt while_stmt for_stmt funcdef classdef suite else_statement elif_statements exprlist parameters typedargslist full_tfpdef opt_class_arg opt_arglist arglist argument comp_for comp_if comp_iter comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer testlist_comp opt_test_stmt  
 
 %start module 
 
@@ -48,42 +49,39 @@ map<string,int> m;
 
 
 %% 
-module : stmt{fprintf(yyout,"module--stmt%d;\n",m["stmt"]); m["stmt"]++; } module %prec high
-|/* empty */ %prec low
+module : stmt module %prec high {fprintf(yyout,"module--%d;\n",$1.top);}
+|stmt {fprintf(yyout,"module--%d;\n",$1.top);}
 ;
 
 stmt: NEWLINE { fprintf(yyout,"stmt%d--NEWLINE%d;\n",m["stmt"],m["NEWLINE"]); m["NEWLINE"]++;}
-| simple_stmt { fprintf(yyout,"stmt%d--simple_stmt%d;\n",m["stmt"],m["simple_stmt"]); m["simple_stmt"]++;} 
+| simple_stmt {$$.top=$1.top;}
 | compound_stmt {fprintf(yyout,"stmt%d--compound_stmt%d;\n",m["stmt"],m["compound_stmt"]); m["compound_stmt"]++; } 
 | testlist {fprintf(yyout,"stmt%d--testlist%d;\n",m["stmt"],m["testlist"]); m["testlist"]++; }
 ;
 
-simple_stmt: more_expr %prec low
+simple_stmt: more_expr %prec low {$$.top=$1.top;}
 | more_expr SEMICOLON %prec high
 ;
 more_expr:
 more_expr SEMICOLON small_stmt 
-|small_stmt 
+|small_stmt {$$.top=$1.top;}
 ;
 
 small_stmt: 
-expr_stmt      {fprintf(yyout,"simple_stmt%d--expr_stmt%d;\n",m["simple_stmt"],m["expr_stmt"]); m["expr_stmt"]++; }
+expr_stmt      {$$.top=$1.top;}
 |break_stmt    {fprintf(yyout,"simple_stmt%d--break_stmt%d;\n",m["simple_stmt"],m["break_stmt"]); m["break_stmt"]++; }
 |continue_stmt             {fprintf(yyout,"simple_stmt%d--continue_stmt%d;\n",m["simple_stmt"],m["expr_stmt"]); m["continue_stmt"]++; }
 |return_stmt               {fprintf(yyout,"simple_stmt%d--return_stmt%d;\n",m["simple_stmt"],m["return_stmt"]); m["return_stmt"]++; }
 ;
 
 expr_stmt: 
-testlist right_assign      {fprintf(yyout,"expr_stmt%d--testlist%d;\n",m["expr_stmt"],m["testlist"]); m["testlist"]++;fprintf(yyout,"expr_stmt%d--right_assign%d;\n",m["expr_stmt"],m["right_assign"]); m["right_assign"]++; }
-;
-right_assign: 
-annassign     {fprintf(yyout,"right_assign%d--annassign%d;\n",m["right_assign"],m["annassign"]); m["annassign"]++; }
-| AUGASSIGNMENT_OPERATOR testlist   {fprintf(yyout,"right_assign%d--AUGASSIGNMENT_OPERATOR%d;\n",m["right_assign"],m["AUGASSIGNMENT_OPERATOR"]); m["AUGASSIGNMENT_OPERATOR"]++;fprintf(yyout,"right_assign%d--testlist%d;\n",m["right_assign"],m["testlist"]); m["testlist"]++; }
-|Assign_stmt   
+testlist annassign     {fprintf(yyout,"right_assign%d--annassign%d;\n",m["right_assign"],m["annassign"]); m["annassign"]++; }
+|testlist AUGASSIGNMENT_OPERATOR testlist   {fprintf(yyout,"right_assign%d--AUGASSIGNMENT_OPERATOR%d;\n",m["right_assign"],m["AUGASSIGNMENT_OPERATOR"]); m["AUGASSIGNMENT_OPERATOR"]++;fprintf(yyout,"right_assign%d--testlist%d;\n",m["right_assign"],m["testlist"]); m["testlist"]++; }
+|testlist Assign_stmt   {$$.top=$2.top; fprintf(yyout,"%d--%d;\n",$2.top,$1.top);}
 ;
 Assign_stmt:  
 Assign_stmt ASSIGNMENT_OPERATOR testlist  {fprintf(yyout,"right_assign%d--ASSIGNMENT_OPERATOR%d;\n",m["right_assign"],m["ASSIGNMENT_OPERATOR"]); m["ASSIGNMENT_OPERATOR"]++;fprintf(yyout,"right_assign%d--testlist%d;\n",m["right_assign"],m["testlist"]); m["testlist"]++; }
-| ASSIGNMENT_OPERATOR testlist          {fprintf(yyout,"right_assign%d--ASSIGNMENT_OPERATOR%d;\n",m["right_assign"],m["ASSIGNMENT_OPERATOR"]); m["ASSIGNMENT_OPERATOR"]++;fprintf(yyout,"right_assign%d--testlist%d;\n",m["right_assign"],m["testlist"]); m["testlist"]++; }
+| ASSIGNMENT_OPERATOR testlist   {fprintf(yyout,"%d--%d; %d[label=\"Operator (=)\"];\n",node,$2.top,node); node++; $$.top=node-1;}
 ;
 annassign:
 COLON test ASSIGNMENT_OPERATOR test %prec high     {fprintf(yyout,"annassign%d--COLON%d;\n",m["annassign"],m["COLON"]); m["COLON"]++;fprintf(yyout,"annassign%d--test%d;\n",m["annassign"],m["test"]); m["test"]++;fprintf(yyout,"annassign%d--ASSIGNMENT_OPERATOR%d;\n",m["annassign"],m["ASSIGNMENT_OPERATOR"]); m["ASSIGNMENT_OPERATOR"]++; fprintf(yyout,"annassign%d--test%d;\n",m["annassign"],m["test"]); m["test"]++;}
@@ -199,57 +197,56 @@ stmt_list stmt  {fprintf(yyout,"stmt_list%d--stmt%d;\n",m["stmt_list"],m["stmt"]
 ;
 
 test: or_test IF or_test ELSE test %prec high      {fprintf(yyout,"test%d--or_test%d;\n",m["test"],m["or_test"]); m["or_test"]++;fprintf(yyout,"test%d--IF%d;\n",m["test"],m["IF"]); m["IF"]++;fprintf(yyout,"test%d--or_test%d;\n",m["test"],m["or_test"]); m["or_test"]++;fprintf(yyout,"test%d--ELSE%d;\n",m["test"],m["ELSE"]); m["ELSE"]++;}
-|or_test %prec low      {fprintf(yyout,"test%d--or_test%d;\n",m["test"],m["or_test"]); m["or_test"]++;}
+|or_test %prec low     {$$.top=$1.top;}
 ;
 
-or_test: or_test OR and_test %prec high   {fprintf(yyout,"or_test%d--OR%d;\n",m["or_test"],m["OR"]); m["OR"]++;fprintf(yyout,"or_test%d--and_test%d;\n",m["or_test"],m["and_test"]); m["and_test"]++;}
-|and_test %prec low        {fprintf(yyout,"or_test%d--and_test%d;\n",m["or_test"],m["and_test"]);m["and_test"]++;}
+or_test: or_test OR and_test %prec high   {fprintf(yyout,"test%d--OR%d;\n",m["test"],m["OR"]); fprintf(yyout,"OR%d--and_test%d;\n",m["OR"],m["and_test"]);m["OR"]++; m["and_test"]++;}
+|and_test %prec low       {$$.top=$1.top;}
 ;
 
 and_test: and_test AND not_test           {fprintf(yyout,"and_test%d--AND%d;\n",m["and_test"],m["AND"]); m["AND"]++;fprintf(yyout,"and_test%d--not_test%d;\n",m["and_test"],m["not_test"]); m["not_test"]++;}
-|not_test               {fprintf(yyout,"and_test%d--not_test%d;\n",m["and_test"],m["not_test"]); m["not_test"]++;}
+|not_test              {$$.top=$1.top;}
 ;
 
 not_test: NOT {fprintf(yyout,"not_test%d--NOT%d;\n",m["not_test"],m["NOT"]); m["NOT"]++;}
    not_test  
-|comparison    {fprintf(yyout,"not_test%d--comparison%d;\n",m["not_test"],m["comparison"]); m["comparison"]++;}
+|comparison    {$$.top=$1.top;}
 ;
 comparison: comparison RELATIONAL_OPERATOR expr %prec high     {fprintf(yyout,"comparison%d--RELATIONAL_OPERATOR%d;\n",m["comparison"],m["RELATIONAL_OPERATOR"]); m["RELATIONAL_OPERATOR"]++;fprintf(yyout,"comparison%d--expr%d;\n",m["comparison"],m["expr"]); m["expr"]++;}
-|expr %prec low      {;fprintf(yyout,"comparison%d--expr%d;\n",m["comparison"],m["expr"]); m["expr"]++;}
+|expr %prec low     {$$.top=$1.top;}
 ;
 expr: expr BIT_OR and_expr %prec high     {fprintf(yyout,"expr%d--BIT_OR%d;\n",m["expr"],m["BIT_OR"]); m["BIT_OR"]++;fprintf(yyout,"expr%d--xor_expr%d;\n",m["expr"],m["xor_expr"]); m["xor_expr"]++;}
-|xor_expr  %prec low       {fprintf(yyout,"expr%d--xor_expr%d;\n",m["expr"],m["xor_expr"]); m["xor_expr"]++;}
+|xor_expr  %prec low       {$$.top=$1.top;}
 ;
 xor_expr: xor_expr XOR and_expr  %prec high  {fprintf(yyout,"xor_expr%d--XOR%d;\n",m["xor_expr"],m["XOR"]); m["XOR"]++;fprintf(yyout,"xor_expr%d--and_expr%d;\n",m["xor_expr"],m["and_expr"]); m["and_expr"]++;}
-|and_expr   %prec low         {fprintf(yyout,"xor_expr%d--and_expr%d;\n",m["xor_expr"],m["and_expr"]); m["and_expr"]++;}
+|and_expr   %prec low       {$$.top=$1.top;}
 ;
 and_expr: and_expr BIT_AND shift_expr  %prec high  {fprintf(yyout,"and_expr%d--BIT_AND%d;\n",m["and_expr"],m["BIT_AND"]); m["BIT_AND"]++;fprintf(yyout,"and_expr%d--shift_expr%d;\n",m["and_expr"],m["shift_expr"]); m["shift_expr"]++;}
-|shift_expr  %prec low        {fprintf(yyout,"and_expr%d--shift_expr%d;\n",m["and_expr"],m["shift_expr"]); m["shift_expr"]++;}
+|shift_expr  %prec low    {$$.top=$1.top;}
 ;
 shift_expr: shift_expr SHIFT arith_expr %prec high    {fprintf(yyout,"shift_expr%d--SHIFT%d;\n",m["shift_expr"],m["SHIFT"]); m["SHIFT"]++;fprintf(yyout,"shift_expr%d--arith_expr%d;\n",m["shift_expr"],m["arith_expr"]); m["arith_expr"]++;}
-|arith_expr %prec low         {fprintf(yyout,"shift_expr%d--arith_expr%d;\n",m["shift_expr"],m["arith_expr"]); m["arith_expr"]++;}
+|arith_expr %prec low    {$$.top=$1.top;}
 ;
 arith_expr: 
 arith_expr ADD term %prec high        {fprintf(yyout,"arith_expr%d--ADD%d;\n",m["arith_expr"],m["ADD"]); m["ADD"]++;fprintf(yyout,"arith_expr%d--term%d;\n",m["arith_expr"],m["term"]); m["term"]++;}
 |arith_expr SUB term %prec high        {fprintf(yyout,"arith_expr%d--SUB%d;\n",m["arith_expr"],m["SUB"]); m["SUB"]++;fprintf(yyout,"arith_expr%d--term%d;\n",m["arith_expr"],m["term"]); m["term"]++;}
-|term %prec low                              {fprintf(yyout,"arith_expr%d--term%d;\n",m["arith_expr"],m["term"]); m["term"]++;}
+|term %prec low  {$$.top=$1.top;}
 ;
 term: term ARITHMETIC_OPERATOR factor %prec high      {fprintf(yyout,"term%d--ARITHMETIC_OPERATOR%d;\n",m["term"],m["ARITHMETIC_OPERATOR"]); m["ARITHMETIC_OPERATOR"]++;fprintf(yyout,"term%d--factor%d;\n",m["term"],m["factor"]); m["factor"]++;}
-|factor %prec low             {fprintf(yyout,"term%d--factor%d;\n",m["term"],m["factor"]); m["factor"]++;}
-;
+|factor %prec low  {$$.top=$1.top;}
 
 factor:
 ADD  factor {fprintf(yyout,"factor%d--ADD%d;\n",m["factor"],m["ADD"]); m["ADD"]++;}
 |SUB factor {fprintf(yyout,"factor%d--SUB%d;\n",m["factor"],m["SUB"]); m["SUB"]++;} 
 |BIT_NOT factor{fprintf(yyout,"factor%d--BIT_NOT%d;\n",m["factor"],m["BIT_NOT"]); m["BIT_NOT"]++;} 
-|power   {fprintf(yyout,"factor%d--power%d;\n",m["factor"],m["power"]); m["power"]++;}
+|power {$$.top=$1.top;}
 ;
 power:
 atom_expr POWER factor %prec high  {fprintf(yyout,"power%d--atom_expr%d;\n",m["power"],m["atom_expr"]); m["atom_expr"]++;fprintf(yyout,"power%d--POWER%d;\n",m["power"],m["POWER"]); m["POWER"]++;fprintf(yyout,"power%d--factor%d;\n",m["power"],m["factor"]); m["factor"]++;}
-|atom_expr %prec low    {fprintf(yyout,"power%d--atom_expr%d;\n",m["power"],m["atom_expr"]); m["atom_expr"]++;}
+|atom_expr %prec low  {$$.top=$1.top;}
 ;
 atom_expr: atom opt_trailer %prec high {fprintf(yyout,"atom_expr%d--atom%d;\n",m["atom_expr"],m["atom"]); m["atom"]++; fprintf(yyout,"atom_expr%d--opt_trailer%d;\n",m["atom_expr"],m["opt_trailer"]); m["opt_trailer"]++;}
-|atom %prec low {fprintf(yyout,"atom_expr%d--atom%d;\n",m["atom_expr"],m["atom"]); m["atom"]++; }
+|atom %prec low {$$.top=$1.top;}
 ;
 opt_trailer:
 opt_trailer trailer {fprintf(yyout,"opt_trailer%d--trailer%d;\n",m["opt_trailer"],m["trailer"]); m["trailer"]++; }
@@ -261,7 +258,7 @@ LEFT_BRACKET testlist_comp RIGHT_BRACKET {fprintf(yyout,"atom%d--LEFT_BRACKET%d;
 |LEFT_BRACKET  RIGHT_BRACKET {fprintf(yyout,"atom%d--LEFT_BRACKET%d;\n",m["atom"],m["LEFT_BRACKET"]); m["LEFT_BRACKET"]++; fprintf(yyout,"atom%d--RIGHT_BRACKET%d;\n",m["atom"],m["RIGHT_BRACKET"]); m["RIGHT_BRACKET"]++;}
 |LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET {fprintf(yyout,"atom%d--LEFT_SQUARE_BRACKET%d;\n",m["atom"],m["LEFT_SQUARE_BRACKET"]); m["LEFT_SQUARE_BRACKET"]++; fprintf(yyout,"atom%d--RIGHT_SQUARE_BRACKET%d;\n",m["atom"],m["RIGHT_SQUARE_BRACKET"]); m["RIGHT_SQUARE_BRACKET"]++;}
 |LEFT_SQUARE_BRACKET testlist_comp RIGHT_SQUARE_BRACKET {fprintf(yyout,"atom%d--LEFT_SQUARE_BRACKET%d;\n",m["atom"],m["LEFT_SQUARE_BRACKET"]); m["LEFT_SQUARE_BRACKET"]++; fprintf(yyout,"atom%d--testlist_comp%d;\n",m["atom"],m["testlist_comp"]); m["testlist_comp"]++; fprintf(yyout,"atom%d--RIGHT_SQUARE_BRACKET%d;\n",m["atom"],m["RIGHT_SQUARE_BRACKET"]); m["RIGHT_SQUARE_BRACKET"]++;}
-|NAME {fprintf(yyout,"atom%d--NAME%d;\n",m["atom"],m["NAME"]); m["NAME"]++;}
+|NAME {fprintf(yyout,"%d[label=\"Name( %s )\"];\n",node,yytext);node++; $$.top=node-1;}
 |NUMBER {fprintf(yyout,"atom%d--NUMBER%d;\n",m["atom"],m["NUMBER"]); m["NUMBER"]++;}
 |DATA_TYPE {fprintf(yyout,"atom%d--DATA_TYPE%d;\n",m["atom"],m["DATA_TYPE"]); m["DATA_TYPE"]++;}
 |STRING {fprintf(yyout,"atom%d--STRING%d;\n",m["atom"],m["STRING"]); m["STRING"]++;}
@@ -289,14 +286,13 @@ LEFT_BRACKET arglist RIGHT_BRACKET {fprintf(yyout,"trailer%d--LEFT_BRACKET%d;\n"
 
 testlist: 
 testlist COMMA test {fprintf(yyout,"testlist%d--COMMA%d;\n",m["testlist"],m["COMMA"]); m["COMMA"]++; fprintf(yyout,"testlist%d--test%d;\n",m["testlist"],m["test"]); m["test"]++;} 
-| test {fprintf(yyout,"testlist%d--test%d;\n",m["testlist"],m["test"]); m["test"]++;}
+| test {$$.top=$1.top;}
 ;
 
 exprlist: 
 exprlist COMMA expr {fprintf(yyout,"exprlist%d--COMMA%d;\n",m["exprlist"],m["COMMA"]); m["COMMA"]++; fprintf(yyout,"exprlist%d--expr%d;\n",m["exprlist"],m["expr"]); m["expr"]++;} 
 | expr {fprintf(yyout,"exprlist%d--expr%d;\n",m["exprlist"],m["expr"]); m["expr"]++;}
 ;
-
 
 %%
 const char* token_name(int t) {
