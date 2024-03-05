@@ -105,16 +105,17 @@ extern int yydebug;
     STRING_1 = 306,                /* STRING_1  */
     LEFT_CURLY_BRACKET = 307,      /* LEFT_CURLY_BRACKET  */
     RIGHT_CURLY_BRACKET = 308,     /* RIGHT_CURLY_BRACKET  */
-    low = 309,                     /* low  */
-    low1 = 310,                    /* low1  */
-    low2 = 311,                    /* low2  */
-    low3 = 312,                    /* low3  */
-    low4 = 313,                    /* low4  */
-    low5 = 314,                    /* low5  */
-    low6 = 315,                    /* low6  */
-    high = 316,                    /* high  */
-    high1 = 317,                   /* high1  */
-    SHIFT = 318                    /* SHIFT  */
+    INVALID = 309,                 /* INVALID  */
+    low = 310,                     /* low  */
+    low1 = 311,                    /* low1  */
+    low2 = 312,                    /* low2  */
+    low3 = 313,                    /* low3  */
+    low4 = 314,                    /* low4  */
+    low5 = 315,                    /* low5  */
+    low6 = 316,                    /* low6  */
+    high = 317,                    /* high  */
+    high1 = 318,                   /* high1  */
+    SHIFT = 319                    /* SHIFT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -123,14 +124,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 62 "parser.y"
+#line 52 "parser.y"
 
    struct{
      int top;
      int low;
    }attributes;
 
-#line 134 "parser.tab.h"
+#line 135 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
