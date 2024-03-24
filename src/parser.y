@@ -45,6 +45,9 @@ char* integerToOperator(int value) {
         return (char *)""; // Return empty string for invalid integer values
     }
 }
+
+vector<string>code;
+
 map<string,int>table;
 extern stack<string>current_attributes;
 
@@ -57,12 +60,19 @@ void pop_functional_attributes(){
     cout<<"pop "<<current_attributes.top()<<endl;
     current_attributes.pop();
 }
+
+string convert( string in){
+    string out = in;
+    return out;
+}
+
 %}
 
 %union{
    struct{
      int top;
-     int low;
+     char * reg;
+     int type;
      char* lexeme;
    }attributes;
 }
@@ -125,14 +135,17 @@ name annassign  {
                     node++;
                 }
 |testlist AUGASSIGNMENT_OPERATOR testlist 
-|testlist Assign_stmt   
+|Assign_stmt   
 ;
-name: NAME {$$.lexeme=$1.lexeme;cout<<$1.lexeme<<endl;}
-;
+
 Assign_stmt:  
-Assign_stmt ASSIGNMENT_OPERATOR testlist 
-| ASSIGNMENT_OPERATOR testlist
+name ASSIGNMENT_OPERATOR Assign_stmt {string c=convert($1.reg); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;}
+|name ASSIGNMENT_OPERATOR testlist {string c=convert($1.reg); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;}
 ;
+
+name: NAME {$$.lexeme=$1.lexeme; $$.reg=$1.lexeme; }
+;
+
 annassign:
 COLON test param_list %prec high  
 |COLON test %prec low  
@@ -260,62 +273,61 @@ stmt_list stmt
 | stmt 
 ;
 
-test: or_test IF or_test ELSE test %prec high  
-|or_test %prec low     
+test: or_test %prec low  {$$.reg=$1.reg;}    
 ;
 
-or_test: or_test OR and_test %prec high  
-|and_test %prec low       
+or_test: or_test OR and_test %prec high {string c=convert($1.reg); c=c+"="+c+"or"+convert($3.reg); code.push_back(c); $$.reg=$1.reg;}   
+|and_test %prec low {$$.reg=$1.reg;}       
 ;
 
-and_test: and_test AND not_test   
-|not_test              
+and_test: and_test AND not_test   {string c=convert($1.reg); c=c+"="+c+"and"+convert($3.reg); code.push_back(c); $$.reg=$1.reg;}  
+|not_test {$$.reg=$1.reg;}              
 ;
 
-not_test: NOT not_test    
-|comparison    
+not_test: NOT not_test  {string c=convert($2.reg); c=c+"=""not"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;}
+|comparison  {$$.reg=$1.reg;} 
 ;
-comparison: comparison r_o expr %prec high   
-|expr %prec low     
+comparison: comparison r_o expr %prec high  {string c=convert($1.reg); c=c+"="+c+convert($2.reg)+convert($3.reg); code.push_back(c); $$.reg=$1.reg;} 
+|expr %prec low  {$$.reg=$1.reg;}   
 ;
-r_o: RELATIONAL_OPERATOR 
+r_o: RELATIONAL_OPERATOR {string c=convert(lexeme); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); }
 ;
-expr: expr BIT_OR and_expr %prec high    
-|xor_expr  %prec low       
+expr: expr BIT_OR xor_expr %prec high    {string c=convert($1.reg); c=c+"="+convert($1.reg)+"|"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
+|xor_expr  %prec low   {$$.reg=$1.reg;}     
 ;
-xor_expr: xor_expr XOR and_expr  %prec high 
-|and_expr   %prec low       
+xor_expr: xor_expr XOR and_expr  %prec high {string c=convert($1.reg); c=c+"="+convert($1.reg)+"^"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
+|and_expr   %prec low    {$$.reg=$1.reg;}    
 ;
-and_expr: and_expr BIT_AND shift_expr  %prec high 
-|shift_expr  %prec low    
+and_expr: and_expr BIT_AND shift_expr  %prec high {string c=convert($1.reg); c=c+"="+convert($1.reg)+"&"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
+|shift_expr  %prec low     {$$.reg=$1.reg;}
 ;
-shift_expr: shift_expr L_SHIFT arith_expr %prec high  
-|shift_expr R_SHIFT arith_expr %prec high   
-|arith_expr %prec low    
+shift_expr: shift_expr L_SHIFT arith_expr %prec high  {string c=convert($1.reg); c=c+"="+convert($1.reg)+"<<"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
+|shift_expr R_SHIFT arith_expr %prec high   {string c=convert($1.reg); c=c+"="+convert($1.reg)+">>"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
+|arith_expr %prec low    {$$.reg=$1.reg;}
 ;
 arith_expr: 
-arith_expr ADD term %prec high    
-|arith_expr SUB term %prec high   
-|term %prec low  
+arith_expr ADD term %prec high    {string c=convert($1.reg); c=c+"="+convert($1.reg)+"+"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
+|arith_expr SUB term %prec high   {string c=convert($1.reg); c=c+"="+convert($1.reg)+"-"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
+|term %prec low   {$$.reg=$1.reg;}
 ;
-term: term a_o factor %prec high   
-|factor %prec low  
+term: term a_o factor %prec high   {string c=convert($1.reg); c=c+"="+c+convert($2.reg)+convert($3.reg); code.push_back(c); $$.reg=$1.reg;}
+|factor %prec low  {$$.reg=$1.reg;}
 
-a_o: ARITHMETIC_OPERATOR  
+a_o: ARITHMETIC_OPERATOR  {string c=convert(lexeme); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); }
 ;
 factor:
-ADD  factor 
-|SUB factor 
-|BIT_NOT factor
-|power 
+ADD  factor {string c=convert($2.reg); c=c+"=""+"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;}
+|SUB factor {string c=convert($2.reg); c=c+"=""-"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;}
+|BIT_NOT factor {string c=convert($2.reg); c=c+"=""~"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;}
+|power {$$.reg=$1.reg;}
 ;
 power:
-atom_expr POWER factor %prec high 
-|atom_expr %prec low  
+atom_expr POWER factor %prec high {string c=convert($1.reg); c=c+"="+c+"**"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
+|atom_expr %prec low  {$$.reg=$1.reg;}
 ;
 atom_expr: 
 atom opt_trailer %prec high 
-|atom %prec low 
+|atom %prec low {$$.reg=$1.reg;}
 ;
 opt_trailer:
 opt_trailer trailer 
@@ -326,8 +338,8 @@ LEFT_BRACKET testlist_comp RIGHT_BRACKET
 |LEFT_BRACKET  RIGHT_BRACKET                 
 |LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET     
 |LEFT_SQUARE_BRACKET testlist_comp RIGHT_SQUARE_BRACKET   
-|NAME      
-|NUMBER   
+|NAME   {string c="r"+to_string(node); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert(lexeme); code.push_back(c);  node++;}
+|NUMBER   {string c="r"+to_string(node); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert(lexeme); code.push_back(c);  node++;}
 |DATA_TYPE  
 |STRING 
 |STRING_1 
@@ -385,10 +397,11 @@ int main ( int argc, char *argv[]){
    if(argc==5){ 
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");
-   fprintf(yyout,"Graph { \n");
    yydebug=0;
    yyparse();
-   fprintf(yyout,"}");
+   for(auto x:code){
+    fprintf(yyout,"%s\n",x.data());
+   }
    fclose(yyin);
    fclose(yyout);
    }else if(argc==2){

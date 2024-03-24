@@ -1,6 +1,2 @@
-j: int = 0
-def bubbleSort() -> None:
-  i: int = 0
-  for i in range(len(array)):
-    swapped: bool = False
-k: int = 0
+a=5+6*8 and 4
+c=d=4*9+64-5+a-6
