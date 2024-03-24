@@ -15,7 +15,6 @@ extern FILE* yyout;
 extern int yychar;
 
 int node=0;
-
 char* integerToOperator(int value) {
     // Map each integer value to its corresponding operator string
     if (value == 0) {
@@ -46,6 +45,8 @@ char* integerToOperator(int value) {
         return (char *)""; // Return empty string for invalid integer values
     }
 }
+map<string,int>table;
+extern stack<string>current_attributes;
 
 %}
 
@@ -107,7 +108,15 @@ expr_stmt
 ;
 
 expr_stmt: 
-testlist annassign 
+testlist annassign {
+                    string entry="";
+                    char a=(char)('a'+node);
+                    entry+=a;
+                    table[entry]=node;
+                    current_attributes.push(entry);
+                    cout<<"push "<<entry<<endl;
+                    node++;
+                   }
 |testlist AUGASSIGNMENT_OPERATOR testlist 
 |testlist Assign_stmt   
 ;
@@ -233,7 +242,15 @@ IF or_test
 
 suite: 
 simple_stmt 
-| NEWLINE INDENT stmt_list DEDENT 
+| NEWLINE INDENT stmt_list DEDENT   {
+                                        while(current_attributes.top()!="INDENT"){
+                                            cout<<"pop "<<current_attributes.top()<<endl;
+                                            table.erase(current_attributes.top());
+                                            current_attributes.pop();
+                                        }
+                                        cout<<"pop "<<current_attributes.top()<<endl;
+                                        current_attributes.pop();
+                                    }
 | NEWLINE INDENT stmt_list YYEOF 
 ;
 stmt_list : 

@@ -7,6 +7,7 @@
     int curr_indent=0;
     int count_dedent=0;
     char* lexeme;
+    stack<string>current_attributes;
     int countspace(char *str) {
         int count = 0;
         while (*str) {
@@ -73,7 +74,7 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
                             BEGIN(INITIAL);
                             if(s>curr_indent){
                             curr_indent=s;
-                            
+                            current_attributes.push("INDENT");
                             return INDENT;
                             }
                             else if(s<curr_indent){
