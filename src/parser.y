@@ -48,12 +48,22 @@ char* integerToOperator(int value) {
 map<string,int>table;
 extern stack<string>current_attributes;
 
+void pop_functional_attributes(){
+    while(current_attributes.top()!="INDENT"){
+        cout<<"pop "<<current_attributes.top()<<endl;
+        table.erase(current_attributes.top());
+        current_attributes.pop();
+    }
+    cout<<"pop "<<current_attributes.top()<<endl;
+    current_attributes.pop();
+}
 %}
 
 %union{
    struct{
      int top;
      int low;
+     char* lexeme;
    }attributes;
 }
 
@@ -108,17 +118,16 @@ expr_stmt
 ;
 
 expr_stmt: 
-testlist annassign {
-                    string entry="";
-                    char a=(char)('a'+node);
-                    entry+=a;
-                    table[entry]=node;
-                    current_attributes.push(entry);
-                    cout<<"push "<<entry<<endl;
+name annassign  {
+                    table[$1.lexeme]=node;
+                    current_attributes.push($1.lexeme);
+                    cout<<"push "<<$1.lexeme<<endl;
                     node++;
-                   }
+                }
 |testlist AUGASSIGNMENT_OPERATOR testlist 
 |testlist Assign_stmt   
+;
+name: NAME {$$.lexeme=$1.lexeme;cout<<$1.lexeme<<endl;}
 ;
 Assign_stmt:  
 Assign_stmt ASSIGNMENT_OPERATOR testlist 
@@ -195,8 +204,7 @@ name COLON test %prec low
 |NAME %prec high  
 ;
 
-name: NAME 
-;
+
 
 classdef: 
 CLASS name opt_class_arg COLON suite   
@@ -243,15 +251,9 @@ IF or_test
 suite: 
 simple_stmt 
 | NEWLINE INDENT stmt_list DEDENT   {
-                                        while(current_attributes.top()!="INDENT"){
-                                            cout<<"pop "<<current_attributes.top()<<endl;
-                                            table.erase(current_attributes.top());
-                                            current_attributes.pop();
-                                        }
-                                        cout<<"pop "<<current_attributes.top()<<endl;
-                                        current_attributes.pop();
+                                        pop_functional_attributes();
                                     }
-| NEWLINE INDENT stmt_list YYEOF 
+| NEWLINE INDENT stmt_list YYEOF {pop_functional_attributes();}
 ;
 stmt_list : 
 stmt_list stmt  
@@ -379,7 +381,7 @@ void yyerror(const char *s){
 }
 
 int main ( int argc, char *argv[]){
-
+   
    if(argc==5){ 
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");

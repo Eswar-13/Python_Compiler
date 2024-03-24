@@ -141,7 +141,7 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
 "True"                  {  return TRUE;}
 "False"                 {  return FALSE;}
 "."                        {  return DOT;}
-{identifier}            { lexeme=yytext; return NAME;}
+{identifier}            { yylval.attributes.lexeme = strdup(yytext); return NAME;}
 #[^\n]*                 {;}
 " "                     {;}
 .  { lexeme=yytext; return INVALID; }
