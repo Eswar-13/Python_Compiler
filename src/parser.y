@@ -46,12 +46,43 @@ char* integerToOperator(int value) {
         return (char *)""; // Return empty string for invalid integer values
     }
 }
-
+class content{
+    public:
+        int type;
+        content(){}
+        content(int type) : type(type) {}
+};
+int typedetector(string s){
+    if(s=="int")return 1;
+    if(s=="float")return 2;
+    if(s=="bool")return 3;
+    if(s=="str")return 4;
+    if(s=="class")return 5;
+    return 0;
+}
+int typelist(string s){
+    int a=0;
+    string t="";
+    for(int i=0;i<s.length();i++){
+        if(s[i]=='[')a=1;
+        else if(s[i]==']')a=0;
+        else if(a&&s[i]!=' ')t+=s[i];
+    }
+    return typedetector(t);
+}
 vector<string>code;
 
-map<string,int>table;
+map<string,content>table;
 extern stack<string>current_attributes;
-
+bool check(string s){
+    if(table.find(s)==table.end()){yyerror("dec");return 1;}
+    else return 0;
+}
+void update_table(string key,int type){
+    table[key]=content(type);
+    current_attributes.push(key);
+    cout<<"push "<<key<<endl;
+}
 void pop_functional_attributes(){
     while(current_attributes.top()!="INDENT"){
         cout<<"pop "<<current_attributes.top()<<endl;
@@ -97,7 +128,7 @@ void fill(int l,int c){
 %token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET INVALID
 
 %type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt if_test elif_test while_stmt while_test for_stmt funcdef classdef suite else_statement elif_statements exprlist parameters typedargslist full_tfpdef opt_class_arg opt_arglist arglist argument comp_for comp_if comp_iter comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer testlist_comp opt_test_stmt  
-%type<attributes>  a_o r_o param_list name
+%type<attributes>  a_o r_o param_list name data_type
 %start module 
 
 %precedence low
@@ -140,29 +171,26 @@ expr_stmt
 ;
 
 expr_stmt: 
-name annassign  {
-                    table[$1.lexeme]=node;
-                    current_attributes.push($1.lexeme);
-                    cout<<"push "<<$1.lexeme<<endl;
-                    node++;
-                }
-|testlist AUGASSIGNMENT_OPERATOR testlist 
+name annassign  {update_table($1.lexeme,$2.type);}
+|test AUGASSIGNMENT_OPERATOR test 
 |Assign_stmt   
 ;
 
 Assign_stmt:  
-name ASSIGNMENT_OPERATOR Assign_stmt {string c=convert($1.reg); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;}
-|name ASSIGNMENT_OPERATOR testlist {string c=convert($1.reg); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;}
+test ASSIGNMENT_OPERATOR Assign_stmt {string c=convert($1.reg); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;}
+|test ASSIGNMENT_OPERATOR test {string c=convert($1.reg); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;}
 ;
 
-name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str()); }
+name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str());}
 ;
 
 annassign:
-COLON test param_list %prec high  
-|COLON test %prec low  
+COLON data_type param_list %prec high  {$$.type=$2.type;}
+|COLON data_type %prec low  {$$.type=$2.type;}
 ;
-
+data_type: DATA_TYPE {$$.type=typedetector($1.lexeme);}
+|LIST {$$.type=typelist($1.lexeme);}
+;
 param_list:
 ASSIGNMENT_OPERATOR test  
 
@@ -223,8 +251,8 @@ FOR exprlist IN testlist COLON suite %prec low
 ;
 
 funcdef: 
-DEF name parameters COLON suite  
-| DEF name parameters RETURN_ARROW test COLON suite  
+DEF name parameters COLON suite  {update_table($2.lexeme,5);}
+| DEF name parameters RETURN_ARROW test COLON suite  {update_table($2.lexeme,5);}
 ;
 
 parameters: LEFT_BRACKET RIGHT_BRACKET     
@@ -237,13 +265,13 @@ typedargslist COMMA full_tfpdef
 ;
 
 full_tfpdef: 
-name COLON test %prec low  
+name COLON test %prec low  {update_table($1.lexeme,$3.type);}
 |NAME %prec high  
 ;
 
 classdef: 
-CLASS name opt_class_arg COLON suite   
-|CLASS name COLON suite   
+CLASS name opt_class_arg COLON suite   {update_table($1.lexeme,6);}
+|CLASS name COLON suite   {update_table($1.lexeme,6);}
 ;
 
 opt_class_arg: 
@@ -294,53 +322,53 @@ stmt_list stmt
 | stmt 
 ;
 
-test: or_test %prec low  {$$.reg=$1.reg;}    
+test: or_test %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}    
 ;
 
 or_test: or_test OR and_test %prec high {string c=convert($1.reg); c=c+"="+c+"or"+convert($3.reg); code.push_back(c); $$.reg=$1.reg;}   
-|and_test %prec low {$$.reg=$1.reg;}       
+|and_test %prec low {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}       
 ;
 
 and_test: and_test AND not_test   {string c=convert($1.reg); c=c+"="+c+"and"+convert($3.reg); code.push_back(c); $$.reg=$1.reg;}  
-|not_test {$$.reg=$1.reg;}              
+|not_test {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}              
 ;
 
 not_test: NOT not_test  {string c=convert($2.reg); c=c+"=""not"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;}
-|comparison  {$$.reg=$1.reg;} 
+|comparison  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;} 
 ;
 
 comparison: comparison r_o expr %prec high  {string c=convert($1.reg); c=c+"="+c+convert($2.reg)+convert($3.reg); code.push_back(c); $$.reg=$1.reg;} 
-|expr %prec low  {$$.reg=$1.reg;}   
+|expr %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}   
 ;
 
 r_o: RELATIONAL_OPERATOR {string c=convert($1.lexeme); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); }
 ;
 
 expr: expr BIT_OR xor_expr %prec high    {string c=convert($1.reg); c=c+"="+convert($1.reg)+"|"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
-|xor_expr  %prec low   {$$.reg=$1.reg;}     
+|xor_expr  %prec low   {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}     
 ;
 
 xor_expr: xor_expr XOR and_expr  %prec high {string c=convert($1.reg); c=c+"="+convert($1.reg)+"^"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
-|and_expr   %prec low    {$$.reg=$1.reg;}    
+|and_expr   %prec low    {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}    
 ;
 
 and_expr: and_expr BIT_AND shift_expr  %prec high {string c=convert($1.reg); c=c+"="+convert($1.reg)+"&"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
-|shift_expr  %prec low     {$$.reg=$1.reg;}
+|shift_expr  %prec low     {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}
 ;
 
 shift_expr: shift_expr L_SHIFT arith_expr %prec high  {string c=convert($1.reg); c=c+"="+convert($1.reg)+"<<"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
 |shift_expr R_SHIFT arith_expr %prec high   {string c=convert($1.reg); c=c+"="+convert($1.reg)+">>"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
-|arith_expr %prec low    {$$.reg=$1.reg;}
+|arith_expr %prec low    {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}
 ;
 
 arith_expr: 
 arith_expr ADD term %prec high    {string c=convert($1.reg); c=c+"="+convert($1.reg)+"+"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
 |arith_expr SUB term %prec high   {string c=convert($1.reg); c=c+"="+convert($1.reg)+"-"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
-|term %prec low   {$$.reg=$1.reg;}
+|term %prec low   {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}
 ;
 
 term: term a_o factor %prec high   {string c=convert($1.reg); c=c+"="+c+convert($2.reg)+convert($3.reg); code.push_back(c); $$.reg=$1.reg;}
-|factor %prec low  {$$.reg=$1.reg;}
+|factor %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}
 
 a_o: ARITHMETIC_OPERATOR  {string c=convert($1.lexeme); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); }
 ;
@@ -349,17 +377,17 @@ factor:
 ADD  factor {string c=convert($2.reg); c=c+"=""+"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;}
 |SUB factor {string c=convert($2.reg); c=c+"=""-"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;}
 |BIT_NOT factor {string c=convert($2.reg); c=c+"=""~"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;}
-|power {$$.reg=$1.reg;}
+|power {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}
 ;
 
 power:
 atom_expr POWER factor %prec high {string c=convert($1.reg); c=c+"="+c+"**"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;}
-|atom_expr %prec low  {$$.reg=$1.reg;}
+|atom_expr %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}
 ;
 
 atom_expr: 
 atom opt_trailer %prec high 
-|atom %prec low {$$.reg=$1.reg;}
+|atom %prec low {$$.reg=$1.reg;$$.lexeme=$1.lexeme;}
 ;
 
 opt_trailer:
@@ -372,14 +400,14 @@ LEFT_BRACKET testlist_comp RIGHT_BRACKET
 |LEFT_BRACKET  RIGHT_BRACKET                 
 |LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET     
 |LEFT_SQUARE_BRACKET testlist_comp RIGHT_SQUARE_BRACKET   
-|NAME   {string c="r"+to_string(node); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  node++;}
-|NUMBER   {string c="r"+to_string(node); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  node++;}
+|NAME   {string c="r"+to_string(node); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0;}
+|NUMBER   {string c="r"+to_string(node); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); }
 |DATA_TYPE  
 |STRING 
 |STRING_1 
 |NONE 
-|TRUE 
-|FALSE 
+|TRUE {$$.lexeme=$1.lexeme;}
+|FALSE {$$.lexeme=$1.lexeme;}
 |LIST 
 ;
 
@@ -418,6 +446,7 @@ const char* token_name(int t) {
 
 void yyerror(const char *s){
    cout<<endl;
+   if(s=="dec"){cout<<"declaration error"<<endl;return;}
    cout<<"Error in Line no "<<yylineno<<endl;
    cout<< "The Last Lexeme is "<<yytext<<endl;
    cout<< "The Last Token is "<<token_name(yychar)<<endl;

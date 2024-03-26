@@ -139,9 +139,9 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
 ","                     {  return COMMA;}
 "return"                {  return RETURN;}
 "\n"+                   { BEGIN(LINE_START);  return NEWLINE;}
-"None"                  {  return NONE;}
-"True"                  {  return TRUE;}
-"False"                 {  return FALSE;}
+"None"                  { yylval.attributes.lexeme = strdup(yytext); return NONE;}
+"True"                  { yylval.attributes.lexeme = strdup(yytext); return TRUE;}
+"False"                 { yylval.attributes.lexeme = strdup(yytext); return FALSE;}
 "."                        {  return DOT;}
 {identifier}            { yylval.attributes.lexeme = strdup(yytext); return NAME;}
 #[^\n]*                 {;}
