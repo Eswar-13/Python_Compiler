@@ -55,7 +55,7 @@ arithmetic     "*"|"/"|"//"|"%"
 relational      "=="|"!="|">"|"<"|">="|"<="          
 bitwise         "&"|"|"|"^"|"~"|"<<"|">>"
 assignment      "="
-augassignment   "+="|"-="|"*="|"/="|"//="|"%="|"**="|"&="|"|="|"^="|"<<="|">>="
+augassignment   "+="|"-="|"="|"/="|"//="|"%="|"*="|"&="|"|="|"^="|"<<="|">>="
 data_type       "int"|"float"|"bool"|"str"
 WS              [ \t\f\n\r]*
 identifier      [A-Za-z_][A-Za-z_0-9]*
@@ -113,7 +113,8 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
 {assignment}  {  return ASSIGNMENT_OPERATOR; }
 {augassignment}  { yylval.attributes.top=operatorToInteger(yytext); yylval.attributes.lexeme=yytext; return AUGASSIGNMENT_OPERATOR; }
 {data_type}    { yylval.attributes.lexeme=yytext; return DATA_TYPE; } 
-{INT_LITERAL}|{SIGNIFICAND} {yylval.attributes.lexeme=yytext; return NUMBER;}
+{INT_LITERAL} {yylval.attributes.lexeme=yytext; return INT;}
+{SIGNIFICAND} {yylval.attributes.lexeme=yytext; return FLOAT;}
 \"[^\"]*\"    { yylval.attributes.lexeme=yytext; return STRING;}
 \'[^\']*\'    { yylval.attributes.lexeme=yytext; return STRING_1;}
 "list"{WS}"\["{WS}{data_type}{WS}"\]" { yylval.attributes.lexeme=yytext; return LIST; }
