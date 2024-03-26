@@ -96,7 +96,7 @@ void fill(int l,int c){
 %token<attributes> NUMBER STRING DOT L_SHIFT R_SHIFT STRING_1
 %token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET INVALID
 
-%type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt if_test elif_test while_stmt for_stmt funcdef classdef suite else_statement elif_statements exprlist parameters typedargslist full_tfpdef opt_class_arg opt_arglist arglist argument comp_for comp_if comp_iter comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer testlist_comp opt_test_stmt  
+%type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt if_test elif_test while_stmt while_test for_stmt funcdef classdef suite else_statement elif_statements exprlist parameters typedargslist full_tfpdef opt_class_arg opt_arglist arglist argument comp_for comp_if comp_iter comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer testlist_comp opt_test_stmt  
 %type<attributes>  a_o r_o param_list name
 %start module 
 
@@ -210,9 +210,12 @@ ELSE COLON suite
 ;
 
 while_stmt: 
-WHILE test COLON suite %prec low  
-|WHILE test COLON suite else_statement %prec high
+while_test 
+|while_test else_statement 
 ;
+
+while_test:
+WHILE{$1.jump=code.size()+1;} test  {$3.jump=code.size()+1; string c="if "+convert($3.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {string c=code[$3.jump]; c=c+to_string(code.size()+2); code[$3.jump]=c; c="jump line "+to_string($1.jump); code.push_back(c);}
 
 for_stmt: 
 FOR exprlist IN testlist COLON suite %prec low  
