@@ -1,21 +1,36 @@
-r0=5
-r1=6
-r2=8
-r1=r1*r2
+r0=1
+r1=2
 r0=r0+r1
-r3=4
-r0=r0andr3
-a=r0
+r2=35
+r0=r0+r2
+r3=9
 r4=4
-r5=9
-r4=r4*r5
-r6=64
-r4=r4+r6
-r7=5
-r4=r4-r7
-r8=5+a
-r4=r4+r8
-r9=6
-r4=r4-r9
-d=r4
-c=r4
+r3=r3**r4
+r0=r0+r3
+a=r0
+r5=1
+q=r5
+r6=a
+r7=q
+r6=r6>r7
+if r6 jump line 18
+jump line 21
+r8=0
+a=r8
+jump line 31
+r9=a
+r10=q
+r9=r9>r10
+if r9 jump line 26
+jump line 29
+r11=0
+q=r11
+jump line 31
+r12=1
+q=r12
+r13=100
+r14=1
+r15=2
+r14=r14+r15
+r13=r13<<r14
+f=r13

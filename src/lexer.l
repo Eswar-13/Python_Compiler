@@ -68,7 +68,7 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
 %x LINE_START
 
 %%
-<LINE_START>^"  "*[^ \n]    {
+<LINE_START>^"  "*[^ #\n]    {
                             int s=countspace(yytext);
                             unput(yytext[s]);
                             BEGIN(INITIAL);
@@ -86,6 +86,8 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
                             return DEDENT;
                             }
                         }
+<LINE_START>#[^\n]*   {;}
+<LINE_START>"\n"+     {;}
 <DEDENTATION>.        { 
                         unput(yytext[0]);
                         if(count_dedent>0){
@@ -94,8 +96,8 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
                         }else {
                             BEGIN(INITIAL);}
                         }
-{arithmetic}        { lexeme=yytext; return ARITHMETIC_OPERATOR; }
-{relational}        { lexeme=yytext; return RELATIONAL_OPERATOR; }
+{arithmetic}        { yylval.attributes.lexeme=yytext; return ARITHMETIC_OPERATOR; }
+{relational}        { yylval.attributes.lexeme=yytext; return RELATIONAL_OPERATOR; }
 "and"               { return AND;}
 "or"                { return OR;}
 "not"               { return NOT;}
@@ -109,12 +111,12 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
 "<<"                {  return L_SHIFT;}
 ">>"						{  return R_SHIFT;}
 {assignment}  {  return ASSIGNMENT_OPERATOR; }
-{augassignment}  { yylval.attributes.top=operatorToInteger(yytext); lexeme=yytext; return AUGASSIGNMENT_OPERATOR; }
-{data_type}    { lexeme=yytext; return DATA_TYPE; } 
-{INT_LITERAL}|{SIGNIFICAND} {lexeme=yytext; return NUMBER;}
-\"[^\"]*\"    { lexeme=yytext; return STRING;}
-\'[^\']*\'    { lexeme=yytext; return STRING_1;}
-"list"{WS}"\["{WS}{data_type}{WS}"\]" { lexeme=yytext; return LIST; }
+{augassignment}  { yylval.attributes.top=operatorToInteger(yytext); yylval.attributes.lexeme=yytext; return AUGASSIGNMENT_OPERATOR; }
+{data_type}    { yylval.attributes.lexeme=yytext; return DATA_TYPE; } 
+{INT_LITERAL}|{SIGNIFICAND} {yylval.attributes.lexeme=yytext; return NUMBER;}
+\"[^\"]*\"    { yylval.attributes.lexeme=yytext; return STRING;}
+\'[^\']*\'    { yylval.attributes.lexeme=yytext; return STRING_1;}
+"list"{WS}"\["{WS}{data_type}{WS}"\]" { yylval.attributes.lexeme=yytext; return LIST; }
 "if"                   {  return IF;}
 "elif"                 {  return ELIF;}
 "else"                 {  return ELSE;}
@@ -144,6 +146,6 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
 {identifier}            { yylval.attributes.lexeme = strdup(yytext); return NAME;}
 #[^\n]*                 {;}
 " "                     {;}
-.  { lexeme=yytext; return INVALID; }
+.  { yylval.attributes.lexeme=yytext; return INVALID; }
 
 %%
