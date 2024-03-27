@@ -150,7 +150,7 @@ void fill(int l,int c){
 %precedence low6
 %precedence high
 %precedence high1
-%precedence NEWLINE SEMICOLON STRING_1 COLON ASSIGNMENT_OPERATOR AUGASSIGNMENT_OPERATOR ADD SUB AND ARITHMETIC_OPERATOR BIT_AND BIT_NOT BIT_OR BITWISE_OPERATOR BREAK LEFT_BRACKET RIGHT_BRACKET LEFT_CURLY_BRACKET LEFT_SQUARE_BRACKET RIGHT_CURLY_BRACKET RIGHT_SQUARE_BRACKET CLASS COMMA CONTINUE DATA_TYPE DEDENT DEF DOT ELIF ELSE FALSE FOR IF IN INDENT LIST NAME NONE NOT NUMBER OR POWER RELATIONAL_OPERATOR RETURN RETURN_ARROW SHIFT STRING TRUE WHILE XOR YYEOF 
+%precedence NEWLINE SEMICOLON STRING_1 COLON ASSIGNMENT_OPERATOR AUGASSIGNMENT_OPERATOR ADD SUB AND ARITHMETIC_OPERATOR BIT_AND BIT_NOT BIT_OR BITWISE_OPERATOR BREAK LEFT_BRACKET RIGHT_BRACKET LEFT_CURLY_BRACKET LEFT_SQUARE_BRACKET RIGHT_CURLY_BRACKET RIGHT_SQUARE_BRACKET CLASS COMMA CONTINUE DATA_TYPE DEDENT DEF DOT ELIF ELSE FALSE FOR IF IN INDENT LIST NAME NONE NOT INT FLOAT OR POWER RELATIONAL_OPERATOR RETURN RETURN_ARROW SHIFT STRING TRUE WHILE XOR YYEOF 
 
 %% 
 module : module stmt %prec high 
@@ -158,10 +158,10 @@ module : module stmt %prec high
 ;
 
 stmt: 
-NEWLINE 
+NEWLINE
 | simple_stmt
 | compound_stmt 
-| testlist 
+| testlist
 ;
 
 simple_stmt: more_expr %prec low 
@@ -181,28 +181,28 @@ expr_stmt
 ;
 
 expr_stmt: 
-name annassign  {update_table($1.lexeme,$2.type);}
+name annassign  {string c=convert($1.lexeme); c=c+"="+convert($2.reg); code.push_back(c); update_table($1.lexeme,$2.type);}
 |test AUGASSIGNMENT_OPERATOR test {if(!check_type($1.type,$3.type))return 0;}
 |Assign_stmt   
 ;
 
 Assign_stmt:  
-test ASSIGNMENT_OPERATOR Assign_stmt {string c=convert($1.reg); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;}
-|test ASSIGNMENT_OPERATOR test {string c=convert($1.reg); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;}
+test ASSIGNMENT_OPERATOR Assign_stmt {string c=convert($1.lexeme); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;}
+|test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;}
 ;
 
 name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str());}
 ;
 
 annassign:
-COLON data_type param_list %prec high  {$$.type=$2.type;if(!check_type($2.type,$3.type))return 0;}
+COLON data_type param_list %prec high  {$$.reg=$3.reg; $$.type=$2.type;if(!check_type($2.type,$3.type))return 0;}
 |COLON data_type %prec low  {$$.type=$2.type;}
 ;
 data_type: DATA_TYPE {$$.type=typedetector($1.lexeme);}
 |LIST {$$.type=typelist($1.lexeme);}
 ;
 param_list:
-ASSIGNMENT_OPERATOR test  {$$.type=$2.type;}
+ASSIGNMENT_OPERATOR test  {$$.reg=$2.reg; $$.type=$2.type;}
 
 break_stmt: 
 BREAK  
@@ -383,7 +383,7 @@ atom_expr POWER factor %prec high {string c=convert($1.reg); c=c+"="+c+"**"+conv
 ;
 
 atom_expr: 
-atom opt_trailer %prec high 
+atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());  c=c+"="+convert($1.lexeme)+convert($2.lexeme); code.push_back(c); }
 |atom %prec low {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;}
 ;
 
@@ -397,9 +397,9 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;}
 |LEFT_BRACKET  RIGHT_BRACKET                 
 |LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET     
 |LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {$$.type=$2.type;}
-|NAME   {string c="r"+to_string(node); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0;$$.type=table[$1.lexeme].type;}
-|INT  {string c="r"+to_string(node); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=1;}
-|FLOAT  {string c="r"+to_string(node); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=2;}
+|NAME   {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0;$$.type=table[$1.lexeme].type;}
+|INT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=1;}
+|FLOAT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=2;}
 |DATA_TYPE  {$$.type=typedetector($1.lexeme);$$.lexeme=$1.lexeme;}
 |STRING   {$$.type=4;}
 |STRING_1  {$$.type=4;}
@@ -413,7 +413,7 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;}
 trailer: 
 LEFT_BRACKET arglist RIGHT_BRACKET     
 | LEFT_BRACKET RIGHT_BRACKET           
-| LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {if($2.type!=1){yyerror("type");return 0;}}
+| LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {string c="["; c+=convert($2.reg); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); if($2.type!=1){yyerror("type");return 0;}}
 | DOT name 
 ;
 
