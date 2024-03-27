@@ -79,24 +79,31 @@ int check_type(int type1, int type2){
         return 0;
     }
 }
+
 vector<string>code;
 
-map<string,content>table;
+map<string,map<string,content>>table;
+string curr_func="global";
+
 extern stack<string>current_attributes;
 int current_func_type;
 bool check(string s){
-    if(table.find(s)==table.end()){yyerror("dec");return 1;}
+    if(table[curr_func].find(s)==table[curr_func].end() && table["global"].find(s)==table["global"].end()){yyerror("dec");return 1;}
     else return 0;
 }
 void update_table(string key,int type){
-    table[key]=content(type);
+    table[curr_func][key]=content(type);
     current_attributes.push(key);
     cout<<"push "<<key<<endl;
+}
+int get_type(string key){
+    if(table[curr_func].find(key)==table[curr_func].end()) return table["global"][key].type;
+    return table[curr_func][key].type;
 }
 void pop_functional_attributes(){
     while(current_attributes.top()!="INDENT"){
         cout<<"pop "<<current_attributes.top()<<endl;
-        table.erase(current_attributes.top());
+        table[curr_func].erase(current_attributes.top());
         current_attributes.pop();
     }
     //cout<<"pop "<<current_attributes.top()<<endl;
@@ -187,8 +194,7 @@ name annassign  {string c=convert($1.lexeme); c=c+"="+convert($2.reg); code.push
 ;
 
 Assign_stmt:  
-test ASSIGNMENT_OPERATOR Assign_stmt {string c=convert($1.lexeme); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;}
-|test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;}
+test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;}
 ;
 
 name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str());}
@@ -397,7 +403,7 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;}
 |LEFT_BRACKET  RIGHT_BRACKET                 
 |LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET     
 |LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {$$.type=$2.type;}
-|NAME   {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0;$$.type=table[$1.lexeme].type;}
+|NAME   {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0; $$.type=get_type($1.lexeme);}
 |INT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=1;}
 |FLOAT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=2;}
 |DATA_TYPE  {$$.type=typedetector($1.lexeme);$$.lexeme=$1.lexeme;}
