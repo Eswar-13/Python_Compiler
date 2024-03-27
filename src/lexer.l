@@ -96,8 +96,8 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
                         }else {
                             BEGIN(INITIAL);}
                         }
-{arithmetic}        { yylval.attributes.lexeme=yytext; return ARITHMETIC_OPERATOR; }
-{relational}        { yylval.attributes.lexeme=yytext; return RELATIONAL_OPERATOR; }
+{arithmetic}        { yylval.attributes.lexeme = strdup(yytext); return ARITHMETIC_OPERATOR; }
+{relational}        { yylval.attributes.lexeme = strdup(yytext); return RELATIONAL_OPERATOR; }
 "and"               { return AND;}
 "or"                { return OR;}
 "not"               { return NOT;}
@@ -111,13 +111,13 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
 "<<"                {  return L_SHIFT;}
 ">>"						{  return R_SHIFT;}
 {assignment}  {  return ASSIGNMENT_OPERATOR; }
-{augassignment}  { yylval.attributes.top=operatorToInteger(yytext); yylval.attributes.lexeme=yytext; return AUGASSIGNMENT_OPERATOR; }
-{data_type}    { yylval.attributes.lexeme=yytext; return DATA_TYPE; } 
-{INT_LITERAL} {yylval.attributes.lexeme=yytext; return INT;}
-{SIGNIFICAND} {yylval.attributes.lexeme=yytext; return FLOAT;}
-\"[^\"]*\"    { yylval.attributes.lexeme=yytext; return STRING;}
-\'[^\']*\'    { yylval.attributes.lexeme=yytext; return STRING_1;}
-"list"{WS}"\["{WS}{data_type}{WS}"\]" { yylval.attributes.lexeme=yytext; return LIST; }
+{augassignment}  { yylval.attributes.top=operatorToInteger(yytext); yylval.attributes.lexeme = strdup(yytext); return AUGASSIGNMENT_OPERATOR; }
+{data_type}    { yylval.attributes.lexeme = strdup(yytext); return DATA_TYPE; } 
+{INT_LITERAL} {yylval.attributes.lexeme = strdup(yytext); return INT;}
+{SIGNIFICAND} {yylval.attributes.lexeme = strdup(yytext); return FLOAT;}
+\"[^\"]*\"    { yylval.attributes.lexeme = strdup(yytext); return STRING;}
+\'[^\']*\'    { yylval.attributes.lexeme = strdup(yytext); return STRING_1;}
+"list"{WS}"\["{WS}{data_type}{WS}"\]" { yylval.attributes.lexeme = strdup(yytext); return LIST; }
 "if"                   {  return IF;}
 "elif"                 {  return ELIF;}
 "else"                 {  return ELSE;}
