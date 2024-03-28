@@ -51,6 +51,8 @@ class content{
         int type;
         int list_type;
         int list_number;
+        int funct_return_type;
+        vector<int>func_parameter;
         int line_number;
         content(){}
         content(int type_num,int line) {
@@ -100,7 +102,6 @@ void update_table(string key,int type,int line_number){
     table[curr_func][key]=content(type,line_number);
     current_attributes.push(key);
 }
-
 int get_type(string key){
     if(table[curr_func].find(key)==table[curr_func].end()) return table["global"][key].type;
     return table[curr_func][key].type;
@@ -115,6 +116,23 @@ int get_listnumber(string key){
     else if(table[curr_func].find(key)==table[curr_func].end()) return table["global"][key].list_number;
     return table[curr_func][key].list_number;
 }
+int get_funct_type(string key){
+    if (table["global"].find(key)==table["global"].end()&&(table[curr_func].find(key)==table[curr_func].end())){return -1;}
+    else if(table[curr_func].find(key)==table[curr_func].end()) return table["global"][key].funct_return_type;
+    return table[curr_func][key].funct_return_type;
+}
+vector<int> get_func_parameter(string key){
+    if (table["global"].find(key)==table["global"].end()&&(table[curr_func].find(key)==table[curr_func].end())){return {};}
+    else if(table[curr_func].find(key)==table[curr_func].end()) return table["global"][key].func_parameter;
+    return table[curr_func][key].func_parameter;
+}
+int match_vector(vector<int>a,vector<int>b){
+    if(a.size()!=b.size()){yyerror("type");return 0;}
+    for(int i=0;i<a.size();i++){
+        if(!check_type(a[i],b[i]))return 0;
+    }
+    return 1;
+}
 void pop_functional_attributes(){
     while(current_attributes.top()!="INDENT"){
         table[curr_func].erase(current_attributes.top());
@@ -122,7 +140,6 @@ void pop_functional_attributes(){
     }
     current_attributes.pop();
 }
-
 string convert( string in){
     string out = in;
     return out;
@@ -138,9 +155,10 @@ void fill(int l,int c){
     }
     return ;
 }
-struct{
+struct other{
     vector<int>types;
-}other;
+};
+
 %}
 
 %union{
@@ -149,9 +167,9 @@ struct{
      char * reg;
      int type;
      int jump;
+     int line;
      int list_type;
      int count;
-     int line;
      char* lexeme;
      struct other* other;
    }attributes;
@@ -164,7 +182,7 @@ struct{
 %token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET INVALID
 
 %type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt if_test elif_test while_stmt while_test for_stmt funcdef classdef suite else_statement elif_statements parameters typedargslist full_tfpdef opt_class_arg opt_arglist arglist argument comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer 
-%type<attributes>  a_o r_o param_list name data_type
+%type<attributes>  a_o r_o param_list name data_type func_name
 %start module 
 
 %precedence low
@@ -247,6 +265,7 @@ COLON data_type param_list %prec high{  $$.reg=$3.reg;$$.type=$2.type;
 ;
 data_type: DATA_TYPE {$$.type=typedetector($1.lexeme);}
 |LIST {$$.type=7;$$.lexeme=$1.lexeme;}
+|NONE {$$.type=0;}
 ;
 param_list:
 ASSIGNMENT_OPERATOR test  {$$.reg=$2.reg; $$.type=$2.type;$$.count=$2.count;}
@@ -309,27 +328,38 @@ FOR expr IN test COLON suite %prec low
 ;
 
 funcdef: 
-DEF name parameters COLON suite  {update_table($2.lexeme,6,$2.line);}
-| DEF name parameters RETURN_ARROW data_type{current_func_type=$5.type;} COLON suite  {update_table($2.lexeme,6,$2.line);}
+DEF func_name parameters COLON suite{
+                                        curr_func="global";
+                                        update_table($2.lexeme,6,$2.line);
+                                        table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
+                                        table[curr_func][$2.lexeme].funct_return_type=0;
+                                    }
+| DEF func_name parameters RETURN_ARROW data_type{current_func_type=$5.type;} COLON suite{
+                                                                                            curr_func="global";
+                                                                                            update_table($2.lexeme,6,$2.line);
+                                                                                            table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
+                                                                                            table[curr_func][$2.lexeme].funct_return_type=$5.type;
+                                                                                        }
 ;
-
-parameters: LEFT_BRACKET RIGHT_BRACKET     
-| LEFT_BRACKET typedargslist RIGHT_BRACKET  
+func_name:name{curr_func=$1.lexeme;$$.lexeme=$1.lexeme;}
+;
+parameters: LEFT_BRACKET RIGHT_BRACKET   {$$.other=new other;}
+| LEFT_BRACKET typedargslist RIGHT_BRACKET  {$$.other=$2.other;}
 ;
 
 typedargslist: 
-typedargslist COMMA full_tfpdef 
-| full_tfpdef 
+typedargslist COMMA full_tfpdef {$$.other=$1.other;(($$.other)->types).push_back($3.type);}
+| full_tfpdef {$$.other=new other;(($$.other)->types).push_back($1.type);}
 ;
 
 full_tfpdef: 
-name COLON test %prec low  {update_table($1.lexeme,$3.type,$1.line);}
+name COLON data_type %prec low  {update_table($1.lexeme,$3.type,$1.line);$$.type=$3.type;}
 |NAME %prec high  
 ;
 
 classdef: 
-CLASS name opt_class_arg COLON suite   {update_table($2.lexeme,5,$2.line);}
-|CLASS name COLON suite   {update_table($2.lexeme,5,$2.line);}
+CLASS name opt_class_arg COLON suite   {update_table($1.lexeme,5,$2.line);}
+|CLASS name COLON suite   {update_table($1.lexeme,5,$2.line);}
 ;
 
 opt_class_arg: 
@@ -343,12 +373,12 @@ arglist COMMA %prec high
 ;
 
 arglist: 
-arglist COMMA argument %prec high 
-| argument %prec low  
+arglist COMMA argument %prec high {$$.other=$1.other;(($$.other)->types).push_back($3.type);}
+| argument %prec low  {$$.other=new other;(($$.other)->types).push_back($1.type);}
 ;
 
 argument: 
-test        
+test   {$$.type=$1.type;}     
 |test ASSIGNMENT_OPERATOR test  {if(!check_type($1.type,$3.type))return 0;}
 ;
 
@@ -434,7 +464,11 @@ atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme);
                               if(get_type($1.lexeme)==7){
                                 if($2.list_type!=1){yyerror("type");return 0;}
                                 $$.type=get_listtype($1.lexeme);
-                              }else{
+                              }else if($1.type==6){
+                                if(!match_vector(get_func_parameter($1.lexeme),$2.other->types)){return 0;}
+                                $$.type=get_funct_type($1.lexeme);
+                              }
+                              else{
                                 if($2.list_type==1){yyerror("type");return 0;}
                               }
                             }
@@ -443,7 +477,7 @@ atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme);
 
 opt_trailer:
 opt_trailer trailer {int type=check_type($1.type,$2.type);if(!type){return 0;}$$.type=type;}
-|trailer   {$$.type=$1.type;$$.list_type=$1.list_type;$$.lexeme=$1.lexeme;}
+|trailer   {$$.type=$1.type;$$.list_type=$1.list_type;$$.lexeme=$1.lexeme;$$.other=$1.other;}
 ;
 
 atom:
@@ -465,8 +499,8 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;}
 
 
 trailer: 
-LEFT_BRACKET arglist RIGHT_BRACKET     
-| LEFT_BRACKET RIGHT_BRACKET           
+LEFT_BRACKET arglist RIGHT_BRACKET   {$$.other=$2.other;}
+| LEFT_BRACKET RIGHT_BRACKET  {$$.other=new other;}         
 | LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {string c="["; c+=convert($2.reg); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); if($2.type!=1){yyerror("type");return 0;}$$.type=$2.type;$$.list_type=1;}
 | DOT name 
 ;
