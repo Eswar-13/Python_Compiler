@@ -973,12 +973,12 @@ YY_RULE_SETUP
 case 5:
 YY_RULE_SETUP
 #line 99 "lexer.l"
-{ yylval.attributes.lexeme=yytext; return ARITHMETIC_OPERATOR; }
+{ yylval.attributes.lexeme = strdup(yytext); return ARITHMETIC_OPERATOR; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 100 "lexer.l"
-{ yylval.attributes.lexeme=yytext; return RELATIONAL_OPERATOR; }
+{ yylval.attributes.lexeme = strdup(yytext); return RELATIONAL_OPERATOR; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
@@ -1048,40 +1048,40 @@ YY_RULE_SETUP
 case 20:
 YY_RULE_SETUP
 #line 114 "lexer.l"
-{ yylval.attributes.top=operatorToInteger(yytext); yylval.attributes.lexeme=yytext; return AUGASSIGNMENT_OPERATOR; }
+{ yylval.attributes.top=operatorToInteger(yytext); yylval.attributes.lexeme = strdup(yytext); return AUGASSIGNMENT_OPERATOR; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 115 "lexer.l"
-{ yylval.attributes.lexeme=yytext; return DATA_TYPE; } 
+{ yylval.attributes.lexeme = strdup(yytext); return DATA_TYPE; } 
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 116 "lexer.l"
-{yylval.attributes.lexeme=yytext; return INT;}
+{yylval.attributes.lexeme = strdup(yytext); return INT;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 117 "lexer.l"
-{yylval.attributes.lexeme=yytext; return FLOAT;}
+{yylval.attributes.lexeme = strdup(yytext); return FLOAT;}
 	YY_BREAK
 case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
 #line 118 "lexer.l"
-{ yylval.attributes.lexeme=yytext; return STRING;}
+{ yylval.attributes.lexeme = strdup(yytext); return STRING;}
 	YY_BREAK
 case 25:
 /* rule 25 can match eol */
 YY_RULE_SETUP
 #line 119 "lexer.l"
-{ yylval.attributes.lexeme=yytext; return STRING_1;}
+{ yylval.attributes.lexeme = strdup(yytext); return STRING_1;}
 	YY_BREAK
 case 26:
 /* rule 26 can match eol */
 YY_RULE_SETUP
 #line 120 "lexer.l"
-{ yylval.attributes.lexeme=yytext; return LIST; }
+{ yylval.attributes.lexeme = strdup(yytext); return LIST; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP

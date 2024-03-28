@@ -51,8 +51,12 @@ class content{
         int type;
         int list_type;
         int list_number;
+        int line_number;
         content(){}
-        content(int type) : type(type) {}
+        content(int type_num,int line) {
+            type=type_num;
+            line_number=line;
+        }
 };
 int typedetector(string s){
     if(s=="int")return 1;
@@ -92,10 +96,9 @@ bool check(string s){
     if(table[curr_func].find(s)==table[curr_func].end() && table["global"].find(s)==table["global"].end()){yyerror("dec");return 0;}
     else return 0;
 }
-void update_table(string key,int type){
-    table[curr_func][key]=content(type);
+void update_table(string key,int type,int line_number){
+    table[curr_func][key]=content(type,line_number);
     current_attributes.push(key);
-    cout<<"push "<<key<<endl;
 }
 
 int get_type(string key){
@@ -114,11 +117,9 @@ int get_listnumber(string key){
 }
 void pop_functional_attributes(){
     while(current_attributes.top()!="INDENT"){
-        cout<<"pop "<<current_attributes.top()<<endl;
         table[curr_func].erase(current_attributes.top());
         current_attributes.pop();
     }
-    //cout<<"pop "<<current_attributes.top()<<endl;
     current_attributes.pop();
 }
 
@@ -150,6 +151,7 @@ struct{
      int jump;
      int list_type;
      int count;
+     int line;
      char* lexeme;
      struct other* other;
    }attributes;
@@ -205,7 +207,7 @@ expr_stmt
 ;
 
 expr_stmt: 
-name annassign  {string c=convert($1.lexeme); c=c+"="+convert($2.reg); code.push_back(c); update_table($1.lexeme,$2.type);
+name annassign  {string c=convert($1.lexeme); c=c+"="+convert($2.reg); code.push_back(c); update_table($1.lexeme,$2.type,$1.line);
                     if($2.type==7){
                         table[curr_func][$1.lexeme].list_type=$2.list_type;
                         table[curr_func][$1.lexeme].list_number=$2.count;
@@ -227,7 +229,7 @@ test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.r
                                 }
 ;
 
-name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str());}
+name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str()); $$.line=yylineno;}
 ;
 
 annassign:
@@ -307,8 +309,8 @@ FOR expr IN test COLON suite %prec low
 ;
 
 funcdef: 
-DEF name parameters COLON suite  {update_table($2.lexeme,6);}
-| DEF name parameters RETURN_ARROW data_type{current_func_type=$5.type;} COLON suite  {update_table($2.lexeme,6);}
+DEF name parameters COLON suite  {update_table($2.lexeme,6,$2.line);}
+| DEF name parameters RETURN_ARROW data_type{current_func_type=$5.type;} COLON suite  {update_table($2.lexeme,6,$2.line);}
 ;
 
 parameters: LEFT_BRACKET RIGHT_BRACKET     
@@ -321,13 +323,13 @@ typedargslist COMMA full_tfpdef
 ;
 
 full_tfpdef: 
-name COLON test %prec low  {update_table($1.lexeme,$3.type);}
+name COLON test %prec low  {update_table($1.lexeme,$3.type,$1.line);}
 |NAME %prec high  
 ;
 
 classdef: 
-CLASS name opt_class_arg COLON suite   {update_table($1.lexeme,5);}
-|CLASS name COLON suite   {update_table($1.lexeme,5);}
+CLASS name opt_class_arg COLON suite   {update_table($2.lexeme,5,$2.line);}
+|CLASS name COLON suite   {update_table($2.lexeme,5,$2.line);}
 ;
 
 opt_class_arg: 
@@ -448,7 +450,7 @@ atom:
 LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;}
 |LEFT_BRACKET  RIGHT_BRACKET                 
 |LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET     
-|LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2.reg;}
+|LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {string c="["; c+=convert($2.lexeme); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($$.lexeme); code.push_back(c); $$.type=$2.type;$$.count=$2.count;}
 |NAME   {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0; $$.type=get_type($1.lexeme);}
 |INT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=1;}
 |FLOAT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=2;}
@@ -470,8 +472,8 @@ LEFT_BRACKET arglist RIGHT_BRACKET
 ;
 
 testlist: 
-testlist COMMA test {int type=check_type($1.type,$3.type);if(!type){return 0;}$$.type=type;$$.count=$1.count+1;$$.reg=$1.reg;}
-| test {$$.type=$1.type;$$.count=1;$$.reg=$1.reg;}
+testlist COMMA test {string c=convert($1.reg); c=c+","+convert($3.reg); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); int type=check_type($1.type,$3.type);if(!type){return 0;}$$.type=type;$$.count=$1.count+1;$$.reg=$1.reg;}
+| test {$$.lexeme=$1.lexeme; $$.type=$1.type;$$.count=1;$$.reg=$1.reg;}
 ;
 
 
@@ -500,6 +502,12 @@ int main ( int argc, char *argv[]){
    yyparse();
    for(auto x:code){
     fprintf(yyout,"%s\n",x.data());
+   }
+   for(auto x: table){
+    cout<<x.first<<'\n';
+    for(auto y: x.second){
+        cout<<y.first<<' '<<y.second.line_number<<'\n';
+    }
    }
    fclose(yyin);
    fclose(yyout);
