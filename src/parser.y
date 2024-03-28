@@ -133,13 +133,7 @@ int match_vector(vector<int>a,vector<int>b){
     }
     return 1;
 }
-void pop_functional_attributes(){
-    while(current_attributes.top()!="INDENT"){
-        table[curr_func].erase(current_attributes.top());
-        current_attributes.pop();
-    }
-    current_attributes.pop();
-}
+
 string convert( string in){
     string out = in;
     return out;
@@ -386,10 +380,8 @@ test   {$$.type=$1.type;}
 
 suite: 
 simple_stmt 
-| NEWLINE INDENT stmt_list DEDENT   {
-                                        pop_functional_attributes();
-                                    }
-| NEWLINE INDENT stmt_list YYEOF {pop_functional_attributes();}
+| NEWLINE INDENT stmt_list DEDENT  
+| NEWLINE INDENT stmt_list YYEOF 
 ;
 stmt_list : 
 stmt_list stmt  
@@ -499,15 +491,15 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;}
 
 
 trailer: 
-LEFT_BRACKET arglist RIGHT_BRACKET   {$$.other=$2.other;}
+LEFT_BRACKET arglist RIGHT_BRACKET   {string c="["; c+=convert($2.reg); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); $$.other=$2.other;}
 | LEFT_BRACKET RIGHT_BRACKET  {$$.other=new other;}         
 | LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {string c="["; c+=convert($2.reg); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); if($2.type!=1){yyerror("type");return 0;}$$.type=$2.type;$$.list_type=1;}
 | DOT name 
 ;
 
 testlist: 
-testlist COMMA test {string c=convert($1.reg); c=c+","+convert($3.reg); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); int type=check_type($1.type,$3.type);if(!type){return 0;}$$.type=type;$$.count=$1.count+1;$$.reg=$1.reg;}
-| test {$$.lexeme=$1.lexeme; $$.type=$1.type;$$.count=1;$$.reg=$1.reg;}
+testlist COMMA test {string c=convert($1.lexeme); c=c+","+convert($3.reg); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); int type=check_type($1.type,$3.type);if(!type){return 0;}$$.type=type;$$.count=$1.count+1;$$.reg=$1.reg;}
+| test {$$.lexeme=$1.reg; $$.type=$1.type;$$.count=1;$$.reg=$1.reg;}
 ;
 
 

@@ -125,16 +125,16 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 146 "parser.y"
+#line 158 "parser.y"
 
    struct{
      int top;
      char * reg;
      int type;
      int jump;
+     int line;
      int list_type;
      int count;
-     int line;
      char* lexeme;
      struct other* other;
    }attributes;
