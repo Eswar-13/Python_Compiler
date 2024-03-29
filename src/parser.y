@@ -90,7 +90,6 @@ int check_type(int type1, int type2){
     }
 }
 vector<string>code;
-
 map<string,map<string,content>>table;
 string curr_func="global";
 string curr_class="None";
@@ -104,13 +103,14 @@ void update_class_type(string key){
 }
 extern stack<string>current_attributes;
 int current_func_type;
-bool check(string s){
-    if(table[curr_func].find(s)==table[curr_func].end() && table["global"].find(s)==table["global"].end()){yyerror("dec");return 1;}
-    else return 0;
-}
 void update_table(string key,int type,int line_number){
     table[curr_func][key]=content(type,line_number);
     current_attributes.push(key);
+}
+bool check(string s){
+    if(s=="__name__"){update_table(s,4,0);return 0;}
+    if(table[curr_func].find(s)==table[curr_func].end() && table["global"].find(s)==table["global"].end()){yyerror("dec");return 1;}
+    else return 0;
 }
 int get_type(string key){
     if(table[curr_func].find(key)==table[curr_func].end()) return table["global"][key].type;
@@ -206,7 +206,7 @@ struct other{
 %token<attributes> LEFT_SQUARE_BRACKET RIGHT_SQUARE_BRACKET NONE TRUE FALSE
 %token<attributes> IN DEF NOT RETURN NEWLINE INDENT DEDENT AND OR XOR BIT_NOT ADD SUB POWER BIT_AND BIT_OR
 %token<attributes> INT FLOAT STRING DOT L_SHIFT R_SHIFT STRING_1
-%token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET INVALID SELF
+%token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET INVALID SELF RANGE LEN PRINT
 
 %type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt if_test elif_test while_stmt while_test for_stmt funcdef classdef suite else_statement elif_statements parameters typedargslist full_tfpdef opt_class_arg opt_arglist arglist argument comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer 
 %type<attributes>  a_o r_o param_list name data_type func_name class_name dec_name
@@ -221,7 +221,7 @@ struct other{
 %precedence low6
 %precedence high
 %precedence high1
-%precedence NEWLINE SEMICOLON STRING_1 COLON ASSIGNMENT_OPERATOR AUGASSIGNMENT_OPERATOR ADD SUB AND ARITHMETIC_OPERATOR BIT_AND BIT_NOT BIT_OR BITWISE_OPERATOR BREAK LEFT_BRACKET RIGHT_BRACKET LEFT_CURLY_BRACKET LEFT_SQUARE_BRACKET RIGHT_CURLY_BRACKET RIGHT_SQUARE_BRACKET CLASS COMMA CONTINUE DATA_TYPE DEDENT DEF DOT ELIF ELSE FALSE FOR IF IN INDENT LIST NAME NONE NOT INT FLOAT OR POWER RELATIONAL_OPERATOR RETURN RETURN_ARROW SHIFT STRING TRUE WHILE XOR YYEOF SELF
+%precedence NEWLINE SEMICOLON STRING_1 COLON ASSIGNMENT_OPERATOR AUGASSIGNMENT_OPERATOR ADD SUB AND ARITHMETIC_OPERATOR BIT_AND BIT_NOT BIT_OR BITWISE_OPERATOR BREAK LEFT_BRACKET RIGHT_BRACKET LEFT_CURLY_BRACKET LEFT_SQUARE_BRACKET RIGHT_CURLY_BRACKET RIGHT_SQUARE_BRACKET CLASS COMMA CONTINUE DATA_TYPE DEDENT DEF DOT ELIF ELSE FALSE FOR IF IN INDENT LIST NAME NONE NOT INT FLOAT OR POWER RELATIONAL_OPERATOR RETURN RETURN_ARROW SHIFT STRING TRUE WHILE XOR YYEOF SELF LEN PRINT
 
 %% 
 module : module stmt %prec high 
@@ -355,8 +355,12 @@ while_test:
 WHILE{$1.jump=code.size()+1;} test  {$3.jump=code.size()+1; string c="if "+convert($3.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {string c=code[$3.jump]; c=c+to_string(code.size()+2); code[$3.jump]=c; c="jump line "+to_string($1.jump); code.push_back(c);}
 
 for_stmt: 
-FOR expr IN test COLON suite %prec low  
-| FOR expr IN test COLON suite else_statement %prec high
+FOR expr IN range COLON suite %prec low  
+| FOR expr IN range COLON suite else_statement %prec high
+;
+range:
+RANGE LEFT_BRACKET test COMMA test RIGHT_BRACKET {if($3.type!=1||$5.type!=1){yyerror("type");return 0;}}
+|RANGE LEFT_BRACKET test  RIGHT_BRACKET {if($3.type!=1){yyerror("type");return 0;}}
 ;
 
 funcdef: 
@@ -446,7 +450,7 @@ and_test: and_test AND not_test   {string c=convert($1.reg); c=c+"="+c+"and"+con
 |not_test {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}              
 ;
 
-not_test: NOT not_test  {string c=convert($2.reg); c=c+"=""not"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if(!($1.type==1||$1.type==3)){yyerror("type");return 0;}$$.type=3;}
+not_test: NOT not_test  {string c=convert($2.reg); c=c+"=""not"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if(!($2.type==1||$2.type==3)){yyerror("type");return 0;}$$.type=3;}
 |comparison  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;} 
 ;
 
@@ -536,6 +540,18 @@ atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme);
                                 if($$.type==6&&!match_vector(table[curr_class][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                             }
                 }
+|LEN LEFT_BRACKET test RIGHT_BRACKET {
+                                if($3.type!=7){yyerror("type");return 0;}
+                                $$.type=1;
+                                $$.lexeme=$3.lexeme;
+                                $$.reg=$$.lexeme;
+                            }
+|PRINT LEFT_BRACKET test RIGHT_BRACKET {
+                                if(!($3.type>0&&$3.type<5||$3.type==7)){yyerror("type");return 0;}
+                                $$.type=0;
+                                $$.lexeme=$3.lexeme;
+                                $$.reg=$$.lexeme;
+                            }
 ;
 
 opt_trailer:
