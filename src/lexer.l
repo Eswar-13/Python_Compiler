@@ -144,6 +144,7 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
 "True"                  { yylval.attributes.lexeme = strdup(yytext); return TRUE;}
 "False"                 { yylval.attributes.lexeme = strdup(yytext); return FALSE;}
 "."                        {  return DOT;}
+"self"                   {return SELF;}
 {identifier}            { yylval.attributes.lexeme = strdup(yytext); return NAME;}
 #[^\n]*                 {;}
 " "                     {;}
