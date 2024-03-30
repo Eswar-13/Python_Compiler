@@ -1,18 +1,136 @@
-r0=1
-r1=5
-r2=6
-r1=r1*r2
-r0=r0+r1
-r3=2
-r4=3
-r5=[r0,r3,r4]
-c=r5
-r6=0
-i=r6
+  r0=2.3
+r0=-r0
+r1=3.14
+r2=0.9
+r3=11
+r4=9.1
+r4=-r4
+r5=[r0,r1,r2,r3,r4]
+data=r5
+r6=data
 r7=0
-a=r7
-r8=bubbleSort
-r9=a
-r10=a
-r11=bubbleSort[r9]
-b=r11
+r8=data[r7]
+r9=2
+r9=-r9
+data[r7]=r9
+r10=0
+i=r10
+r11=0
+j=r11
+
+compute_min :
+r12=popparameter
+r13=100
+min_value=r13
+r14=5
+i=0
+r15=i
+r15=r15<r14
+if r15 jump line 31
+jump line 41
+r16=i
+r17=min_value
+r16=r16<r17
+if r16 jump line 36
+jump line 40
+r18=min_value
+r19=i
+min_value=r19
+jump line 40
+jump line 27
+r20=min_value
+
+
+compute_avg :
+r21=popparameter
+r22=0
+sum_values=r22
+r23=5
+i=0
+r24=i
+r24=r24<r23
+if r24 jump line 54
+jump line 57
+r25=sum_values
+r26=i
+jump line 50
+r27=sum_values
+r28=data
+r27=r27/data
+
+
+compute_mode :
+r29=popparameter
+r30=0
+mode_count=r30
+r31=1
+mode_value=r31
+r32=5
+i=0
+r33=i
+r33=r33<r32
+if r33 jump line 74
+jump line 104
+r34=0
+count_value=r34
+r35=5
+j=0
+r36=j
+r36=r36<r35
+if r36 jump line 82
+jump line 91
+r37=i
+r38=j
+r37=r37==r38
+if r37 jump line 87
+jump line 90
+r39=count_value
+r40=1
+jump line 90
+jump line 78
+r41=count_value
+r42=mode_count
+r41=r41>r42
+if r41 jump line 96
+jump line 103
+r43=mode_count
+r44=count_value
+mode_count=r44
+r45=mode_value
+r46=i
+mode_value=r46
+jump line 103
+jump line 70
+r47=mode_value
+
+
+main :
+r48=compute_min
+r49=data
+param r49
+call compute_min,1
+r50=popparameter
+min_value=r50
+r51=min_value
+r52=compute_avg
+r53=data
+param r53
+call compute_avg,1
+r54=popparameter
+avg_value=r54
+r55=avg_value
+r56=compute_mode
+r57=data
+param r57
+call compute_mode,1
+r58=popparameter
+mode_value=r58
+r59=mode_value
+
+r60=__name__
+r60=r60=="__main__"
+if r60 jump line 134
+jump line 137
+r61=main
+call main,1
+jump line 137

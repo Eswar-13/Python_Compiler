@@ -176,6 +176,7 @@ void fill(int l,int c){
 struct other{
     vector<int>types;
     vector<string>lexemes;
+    vector<string>regs;
 };
 // types
 // 0:None
@@ -210,7 +211,7 @@ struct other{
 %token<attributes> INT FLOAT STRING DOT L_SHIFT R_SHIFT STRING_1
 %token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET INVALID SELF RANGE LEN PRINT
 
-%type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt if_test elif_test while_stmt while_test for_stmt funcdef classdef suite else_statement elif_statements parameters typedargslist full_tfpdef opt_class_arg opt_arglist arglist argument comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer 
+%type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt if_test elif_test while_stmt while_test for_stmt for_test range funcdef classdef suite else_statement elif_statements parameters typedargslist full_tfpdef opt_class_arg opt_arglist arglist argument comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer 
 %type<attributes>  a_o r_o param_list name data_type func_name class_name dec_name
 %start module 
 
@@ -279,7 +280,7 @@ test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.r
 ;
 dec_name: SELF DOT name %prec high{$$.type=1;$$.reg=$3.reg;$$.lexeme=$3.lexeme;$$.line=$3.line;if(!is_self){yyerror("type");return 0;}}
 |name {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.line=$1.line;}
-;
+
 name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str()); $$.line=yylineno;}
 ;
 
@@ -315,7 +316,7 @@ CONTINUE
 return_stmt: 
 RETURN test %prec high  {if(!check_type(current_func_type,$2.type))return 0;is_return=1;}
 | RETURN %prec low  {if(current_func_type!=0||current_func_type==-1){yyerror("type");return 0;}}
- 
+
 ;
 
 compound_stmt: 
@@ -357,16 +358,30 @@ while_test:
 WHILE{$1.jump=code.size()+1;} test  {$3.jump=code.size()+1; string c="if "+convert($3.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {string c=code[$3.jump]; c=c+to_string(code.size()+2); code[$3.jump]=c; c="jump line "+to_string($1.jump); code.push_back(c);}
 
 for_stmt: 
-FOR expr IN range COLON suite %prec low  
-| FOR expr IN range COLON suite else_statement %prec high
+for_test 
+| for_test else_statement 
 ;
+
+for_test:
+FOR name IN range{string c=convert($2.lexeme); c=c+"="+convert($4.lexeme); code.push_back(c); $1.jump=code.size()+1; c="r"+to_string(node); node++; c=c+"="+convert($2.lexeme); code.push_back(c); c="r"+to_string(node-1); c=c+"="+c+"<"+convert($4.reg); code.push_back(c); c="if r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{ fill(code.size()+2,1); string c="jump line "+to_string($1.jump); code.push_back(c);}
+
 range:
-RANGE LEFT_BRACKET test COMMA test RIGHT_BRACKET {if($3.type!=1||$5.type!=1){yyerror("type");return 0;}}
-|RANGE LEFT_BRACKET test  RIGHT_BRACKET {if($3.type!=1){yyerror("type");return 0;}}
+RANGE LEFT_BRACKET test COMMA test RIGHT_BRACKET {$$.lexeme=$3.reg; $$.reg=$5.reg;  if($3.type!=1||$5.type!=1){yyerror("type");return 0;}}
+|RANGE LEFT_BRACKET test  RIGHT_BRACKET {string c="0"; $$.lexeme=new char[c.size()+1]; strcpy($$.lexeme, c.c_str()); $$.reg=$3.reg;  if($3.type!=1){yyerror("type");return 0;}}
 ;
 
 funcdef: 
-DEF func_name parameters COLON{current_func_type=0;} suite{
+DEF func_name parameters COLON {
+                                current_func_type=0; 
+                                string c=""; code.push_back(c); c=convert($2.lexeme);
+                                c=c+" :"; code.push_back(c); 
+                                for(auto x : $3.other->types){
+                                    c="r"+to_string(node); node++;
+                                    c=c+"=popparameter";
+                                    code.push_back(c);
+                                }
+                                } 
+                                suite{
                                         if(curr_class=="None")curr_func="global";
                                         else curr_func=curr_class;
                                         update_table($2.lexeme,6,$2.line);
@@ -377,20 +392,32 @@ DEF func_name parameters COLON{current_func_type=0;} suite{
                                         current_func_type=-1;
                                         is_return=0;
                                         is_self=0;
+
+                                        string c=""; code.push_back(c);
                                     }
-| DEF func_name parameters RETURN_ARROW data_type{current_func_type=$5.type;} COLON suite{
-                                                                                            if(curr_class=="None")curr_func="global";
-                                                                                            else curr_func=curr_class;
-                                                                                            update_table($2.lexeme,6,$2.line);
-                                                                                            copy_content($2.lexeme);
-                                                                                            table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
-                                                                                            table[curr_func][$2.lexeme].funct_return_type=$5.type;
-                                                                                            curr_func="global";
-                                                                                            current_func_type=-1;
-                                                                                            if(!is_return){yyerror("type");return 0;}
-                                                                                            is_return=0;
-                                                                                            is_self=0;
-                                                                                        }
+| DEF func_name parameters RETURN_ARROW data_type{current_func_type=$5.type;  } COLON{
+                                string c=""; code.push_back(c); c=convert($2.lexeme);
+                                c=c+" :"; code.push_back(c); 
+                                for(auto x : $3.other->types){
+                                    c="r"+to_string(node); node++;
+                                    c=c+"=popparameter";
+                                    code.push_back(c);
+                                }
+                                }  
+                                 suite{
+                                        if(curr_class=="None")curr_func="global";
+                                        else curr_func=curr_class;
+                                        update_table($2.lexeme,6,$2.line);
+                                        copy_content($2.lexeme);
+                                        table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
+                                        table[curr_func][$2.lexeme].funct_return_type=$5.type;
+                                        curr_func="global";
+                                        current_func_type=-1;
+                                        //if(!is_return){yyerror("type");return 0;}
+                                        is_return=0;
+                                        is_self=0;
+                                        string c=""; code.push_back(c);
+                                    }
 ;
 func_name:name{curr_func=$1.lexeme;$$.lexeme=$1.lexeme;}
 ;
@@ -409,6 +436,7 @@ name COLON data_type %prec low  {update_table($1.lexeme,$3.type,$1.line);$$.type
 |SELF {$$.type=0;is_self=1;}
 ;
 
+
 classdef: 
 CLASS class_name opt_class_arg COLON suite   {update_table($2.lexeme,5,$2.line);curr_class="None";}
 |CLASS class_name COLON suite   {update_table($2.lexeme,5,$2.line);curr_class="None";}
@@ -426,8 +454,8 @@ arglist COMMA %prec high   {$$.other=$1.other;}
 ;
 
 arglist: 
-arglist COMMA argument %prec high {$$.other=$1.other;if($3.type)(($$.other)->types).push_back($3.type);if($3.type)(($$.other)->lexemes).push_back($3.lexeme);}
-| argument %prec low  {$$.other=new other;if($1.type)(($$.other)->types).push_back($1.type);if($1.type)(($$.other)->lexemes).push_back($1.lexeme);}
+arglist COMMA argument %prec high {$$.other=$1.other;if($3.type)(($$.other)->types).push_back($3.type);if($3.type)(($$.other)->lexemes).push_back($3.lexeme); if($3.type)(($$.other)->regs).push_back($3.reg);}
+| argument %prec low  {$$.other=new other;if($1.type)(($$.other)->types).push_back($1.type); if($1.type)(($$.other)->lexemes).push_back($1.lexeme); if($1.type)(($$.other)->regs).push_back($1.reg);}
 ;
 
 argument: 
@@ -512,8 +540,10 @@ atom_expr POWER factor %prec high {string c=convert($1.reg); c=c+"="+c+"**"+conv
 ;
 
 atom_expr: 
-atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());  c=c+"="+convert($1.lexeme)+convert($2.lexeme); code.push_back(c); 
+atom opt_trailer %prec high { 
                               if(get_type($1.lexeme)==7){
+                                string c=convert($1.lexeme); c+=convert($2.lexeme); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="r"+to_string(node); node++;
+                                $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());  c=c+"="+convert($1.lexeme)+convert($2.lexeme); code.push_back(c); 
                                 if($2.list_type!=1){yyerror("type");return 0;}
                                 $$.type=get_listtype($1.lexeme);
                               }
@@ -521,7 +551,19 @@ atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme);
                                 if($2.list_type==1){yyerror("type");return 0;}
                                 if($1.type==6){
                                     if(!match_vector(get_func_parameter($1.lexeme),$2.other->types)){return 0;}
+                                    //if(!is_self){yyerror("type");return 0;}
+                                    for(auto x: $2.other->regs){
+                                        string c="param ";
+                                        c=c+x;
+                                        code.push_back(c);
+                                    }
+                                    string c= "call ";
+                                    c=c+convert($1.lexeme)+",1";
+                                    code.push_back(c);
                                     $$.type=get_funct_type($1.lexeme);
+                                    if($$.type){c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                    c=c+"=popparameter"; code.push_back(c);
+                                    }
                                 }
                                 if($1.type==5){
                                     if(!$2.dot){
@@ -529,6 +571,7 @@ atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme);
                                         if(!match_vector(table[$1.lexeme]["__init__"].func_parameter,$2.other->types)){return 0;}
                                     }else{
                                         $$.type=table[$1.lexeme][$2.lexeme].type;
+                                        cout<<$$.type<<" "<<$1.lexeme<<endl;
                                         if($$.type==6&&!match_vector(table[$1.lexeme][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                                     }
 
@@ -555,7 +598,7 @@ atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme);
                                 $$.lexeme=$3.lexeme;
                                 $$.reg=$$.lexeme;
                             }
-|PRINT LEFT_BRACKET arglist RIGHT_BRACKET {
+|PRINT LEFT_BRACKET arglist RIGHT_BRACKET{
                                 $$.type=0;
                                 $$.lexeme=$3.lexeme;
                                 $$.reg=$$.lexeme;
@@ -586,14 +629,14 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2
 
 
 trailer: 
-LEFT_BRACKET arglist RIGHT_BRACKET   {string c="["; c+=convert($2.reg); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); $$.other=$2.other;}
+LEFT_BRACKET arglist RIGHT_BRACKET   {$$.other=$2.other;}
 | LEFT_BRACKET RIGHT_BRACKET  {$$.other=new other;}         
 | LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {string c="["; c+=convert($2.reg); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); if($2.type!=1){yyerror("type");return 0;}$$.type=$2.type;$$.list_type=1;}
 | DOT name {$$.lexeme=$2.lexeme;$$.dot=1;}
 ;
 
 testlist: 
-testlist COMMA test {string c=convert($1.lexeme); c=c+","+convert($3.reg); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); int type=check_type($1.type,$3.type);if(!type){return 0;}$$.type=type;$$.count=$1.count+1;$$.reg=$1.reg;}
+testlist COMMA test {string c=convert($1.lexeme); c=c+","+convert($3.reg); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); $$.type=$1.type;$$.count=$1.count+1;$$.reg=$1.reg;}
 | test {$$.lexeme=$1.reg; $$.type=$1.type;$$.count=1;$$.reg=$1.reg;}
 ;
 
@@ -606,8 +649,8 @@ const char* token_name(int t) {
 
 void yyerror(const char *s){
    cout<<endl;
-   if(s=="dec"){cout<<"declaration error"<<endl;return;}
-   if(s=="type"){cout<<"Type error"<<endl;return;}
+   if(s=="dec"){cout<<"declaration error"<<endl;}
+   if(s=="type"){cout<<"Type error"<<endl;}
    cout<<"Error in Line no "<<yylineno<<endl;
    cout<< "The Last Lexeme is "<<yytext<<endl;
    cout<< "The Last Token is "<<token_name(yychar)<<endl;
@@ -619,7 +662,7 @@ int main ( int argc, char *argv[]){
    if(argc==5){ 
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");
-   yydebug=0;
+   yydebug=1;
    yyparse();
    for(auto x:code){
     fprintf(yyout,"%s\n",x.data());

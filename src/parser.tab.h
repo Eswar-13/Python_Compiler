@@ -107,16 +107,20 @@ extern int yydebug;
     LEFT_CURLY_BRACKET = 308,      /* LEFT_CURLY_BRACKET  */
     RIGHT_CURLY_BRACKET = 309,     /* RIGHT_CURLY_BRACKET  */
     INVALID = 310,                 /* INVALID  */
-    low = 311,                     /* low  */
-    low1 = 312,                    /* low1  */
-    low2 = 313,                    /* low2  */
-    low3 = 314,                    /* low3  */
-    low4 = 315,                    /* low4  */
-    low5 = 316,                    /* low5  */
-    low6 = 317,                    /* low6  */
-    high = 318,                    /* high  */
-    high1 = 319,                   /* high1  */
-    SHIFT = 320                    /* SHIFT  */
+    SELF = 311,                    /* SELF  */
+    RANGE = 312,                   /* RANGE  */
+    LEN = 313,                     /* LEN  */
+    PRINT = 314,                   /* PRINT  */
+    low = 315,                     /* low  */
+    low1 = 316,                    /* low1  */
+    low2 = 317,                    /* low2  */
+    low3 = 318,                    /* low3  */
+    low4 = 319,                    /* low4  */
+    low5 = 320,                    /* low5  */
+    low6 = 321,                    /* low6  */
+    high = 322,                    /* high  */
+    high1 = 323,                   /* high1  */
+    SHIFT = 324                    /* SHIFT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -125,7 +129,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 158 "parser.y"
+#line 193 "parser.y"
 
    struct{
      int top;
@@ -133,13 +137,14 @@ union YYSTYPE
      int type;
      int jump;
      int line;
+     int dot;
      int list_type;
      int count;
      char* lexeme;
      struct other* other;
    }attributes;
 
-#line 143 "parser.tab.h"
+#line 148 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
