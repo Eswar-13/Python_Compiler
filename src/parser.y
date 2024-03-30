@@ -102,7 +102,9 @@ void update_class_type(string key){
     total_class_type++;
 }
 extern stack<string>current_attributes;
-int current_func_type;
+int current_func_type=-1;
+int is_return=0;
+int is_self=0;
 void update_table(string key,int type,int line_number){
     table[curr_func][key]=content(type,line_number);
     current_attributes.push(key);
@@ -275,7 +277,7 @@ test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.r
                                     }
                                 }
 ;
-dec_name: SELF DOT name %prec high{$$.type=1;$$.reg=$3.reg;$$.lexeme=$3.lexeme;$$.line=$3.line;}
+dec_name: SELF DOT name %prec high{$$.type=1;$$.reg=$3.reg;$$.lexeme=$3.lexeme;$$.line=$3.line;if(!is_self){yyerror("type");return 0;}}
 |name {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.line=$1.line;}
 ;
 name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str()); $$.line=yylineno;}
@@ -311,8 +313,8 @@ CONTINUE
 ;
 
 return_stmt: 
-RETURN test %prec high  {if(!check_type(current_func_type,$2.type))return 0;}
-| RETURN %prec low  {if(current_func_type!=0){yyerror("type");return 0;}}
+RETURN test %prec high  {if(!check_type(current_func_type,$2.type))return 0;is_return=1;}
+| RETURN %prec low  {if(current_func_type!=0||current_func_type==-1){yyerror("type");return 0;}}
  
 ;
 
@@ -372,6 +374,9 @@ DEF func_name parameters COLON{current_func_type=0;} suite{
                                         table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
                                         table[curr_func][$2.lexeme].funct_return_type=0;
                                         curr_func="global";
+                                        current_func_type=-1;
+                                        is_return=0;
+                                        is_self=0;
                                     }
 | DEF func_name parameters RETURN_ARROW data_type{current_func_type=$5.type;} COLON suite{
                                                                                             if(curr_class=="None")curr_func="global";
@@ -381,6 +386,10 @@ DEF func_name parameters COLON{current_func_type=0;} suite{
                                                                                             table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
                                                                                             table[curr_func][$2.lexeme].funct_return_type=$5.type;
                                                                                             curr_func="global";
+                                                                                            current_func_type=-1;
+                                                                                            if(!is_return){yyerror("type");return 0;}
+                                                                                            is_return=0;
+                                                                                            is_self=0;
                                                                                         }
 ;
 func_name:name{curr_func=$1.lexeme;$$.lexeme=$1.lexeme;}
@@ -395,9 +404,9 @@ typedargslist COMMA full_tfpdef {$$.other=$1.other;if($3.type)(($$.other)->types
 ;
 
 full_tfpdef: 
-name COLON data_type %prec low  {update_table($1.lexeme,$3.type,$1.line);$$.type=$3.type;}
+name COLON data_type %prec low  {update_table($1.lexeme,$3.type,$1.line);$$.type=$3.type;if($$.type==7)table[curr_func][$1.lexeme].list_type=typelist($3.lexeme);}
 |NAME %prec high  
-|SELF {$$.type=0;}
+|SELF {$$.type=0;is_self=1;}
 ;
 
 classdef: 
@@ -520,7 +529,6 @@ atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme);
                                         if(!match_vector(table[$1.lexeme]["__init__"].func_parameter,$2.other->types)){return 0;}
                                     }else{
                                         $$.type=table[$1.lexeme][$2.lexeme].type;
-                                        cout<<$$.type<<" "<<$1.lexeme<<endl;
                                         if($$.type==6&&!match_vector(table[$1.lexeme][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                                     }
 
@@ -539,6 +547,7 @@ atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme);
                                 $$.type=table[curr_class][$2.lexeme].type;
                                 if($$.type==6&&!match_vector(table[curr_class][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                             }
+                            if(!is_self){yyerror("type");return 0;}
                 }
 |LEN LEFT_BRACKET test RIGHT_BRACKET {
                                 if($3.type!=7){yyerror("type");return 0;}
@@ -546,8 +555,7 @@ atom opt_trailer %prec high {string c=convert($1.lexeme); c+=convert($2.lexeme);
                                 $$.lexeme=$3.lexeme;
                                 $$.reg=$$.lexeme;
                             }
-|PRINT LEFT_BRACKET test RIGHT_BRACKET {
-                                if(!($3.type>0&&$3.type<5||$3.type==7)){yyerror("type");return 0;}
+|PRINT LEFT_BRACKET arglist RIGHT_BRACKET {
                                 $$.type=0;
                                 $$.lexeme=$3.lexeme;
                                 $$.reg=$$.lexeme;
@@ -560,7 +568,7 @@ opt_trailer trailer {$$.lexeme=$1.lexeme;$$.other=$2.other;$$.list_type=5;$$.dot
 ;
 
 atom:
-LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;}
+LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2.reg;}
 |LEFT_BRACKET  RIGHT_BRACKET                 
 |LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET     
 |LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {string c="["; c+=convert($2.lexeme); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($$.lexeme); code.push_back(c); $$.type=$2.type;$$.count=$2.count;}
