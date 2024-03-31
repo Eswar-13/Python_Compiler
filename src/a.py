@@ -6,14 +6,14 @@ j:int=0
 def compute_min(data: list[float]) -> float:
   min_value: float = 100
   for i in range(5):
-    if i < min_value:
-      min_value = i
+    if data[i] < min_value:
+      min_value = data[i]
   return min_value
 
 def compute_avg(data: list[float]) -> float:
   sum_values: float = 0
   for i in range(5):
-    sum_values += i
+    sum_values += data[i]
   return sum_values / len(data)
 
 def compute_mode(data: list[float]) -> float:
@@ -22,11 +22,11 @@ def compute_mode(data: list[float]) -> float:
   for i in range(5):
     count_value: int = 0
     for j in range(5):
-      if i == j:
+      if data[i] == data[j]:
         count_value += 1
     if count_value > mode_count:
       mode_count = count_value
-      mode_value = i
+      mode_value = data[i]
   return mode_value
 
 def main() -> None:

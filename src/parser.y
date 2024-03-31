@@ -158,6 +158,18 @@ void copy_content(string key){
     }
     table.erase(key);
 }
+
+void find_and_replace(string a,string b,int l,int r){
+    for(int i=l;i<r;i++){
+        string s=code[i];
+        size_t pos = 0;
+        while ((pos = s.find(a, pos)) != string::npos) {
+            s.replace(pos, a.length(), b);
+            pos += b.length();
+        }
+        code[i]=s;
+    }
+}
 string convert( string in){
     string out = in;
     return out;
@@ -380,6 +392,8 @@ DEF func_name parameters COLON {
                                     c=c+"=popparameter";
                                     code.push_back(c);
                                 }
+                                $1.jump=code.size();
+                                $4.jump=node-1;
                                 } 
                                 suite{
                                         if(curr_class=="None")curr_func="global";
@@ -392,8 +406,14 @@ DEF func_name parameters COLON {
                                         current_func_type=-1;
                                         is_return=0;
                                         is_self=0;
-
-                                        string c=""; code.push_back(c);
+                                        string c;
+                                        int i=0;
+                                        for(auto x : $3.other->lexemes){
+                                            c="r"+to_string($4.jump-i); 
+                                            find_and_replace(x,c,$1.jump,code.size());
+                                            i++;
+                                        }
+                                        c=""; code.push_back(c);
                                     }
 | DEF func_name parameters RETURN_ARROW data_type{current_func_type=$5.type;  } COLON{
                                 string c=""; code.push_back(c); c=convert($2.lexeme);
@@ -403,6 +423,8 @@ DEF func_name parameters COLON {
                                     c=c+"=popparameter";
                                     code.push_back(c);
                                 }
+                                $1.jump=code.size();
+                                $4.jump=node-1;
                                 }  
                                  suite{
                                         if(curr_class=="None")curr_func="global";
@@ -413,10 +435,17 @@ DEF func_name parameters COLON {
                                         table[curr_func][$2.lexeme].funct_return_type=$5.type;
                                         curr_func="global";
                                         current_func_type=-1;
-                                        //if(!is_return){yyerror("type");return 0;}
+                                        if(!is_return && $5.type){yyerror("type");return 0;}
                                         is_return=0;
                                         is_self=0;
-                                        string c=""; code.push_back(c);
+                                        string c;
+                                        int i=0;
+                                        for(auto x : $3.other->lexemes){
+                                            c="r"+to_string($4.jump-i); 
+                                            find_and_replace(x,c,$1.jump,code.size());
+                                            i++;
+                                        }
+                                        c=""; code.push_back(c);
                                     }
 ;
 func_name:name{curr_func=$1.lexeme;$$.lexeme=$1.lexeme;}
@@ -426,13 +455,13 @@ parameters: LEFT_BRACKET RIGHT_BRACKET   {$$.other=new other;}
 ;
 
 typedargslist: 
-typedargslist COMMA full_tfpdef {$$.other=$1.other;if($3.type)(($$.other)->types).push_back($3.type);}
-| full_tfpdef {$$.other=new other;if($1.type)(($$.other)->types).push_back($1.type);}
+typedargslist COMMA full_tfpdef {$$.other=$1.other;if($3.type)(($$.other)->types).push_back($3.type); if($3.type)(($$.other)->lexemes).push_back($3.lexeme);}
+| full_tfpdef {$$.other=new other;if($1.type)(($$.other)->types).push_back($1.type); if($1.type)(($$.other)->lexemes).push_back($1.lexeme);}
 ;
 
 full_tfpdef: 
-name COLON data_type %prec low  {update_table($1.lexeme,$3.type,$1.line);$$.type=$3.type;if($$.type==7)table[curr_func][$1.lexeme].list_type=typelist($3.lexeme);}
-|NAME %prec high  
+name COLON data_type %prec low  {$$.lexeme=strdup($1.lexeme); update_table($1.lexeme,$3.type,$1.line);$$.type=$3.type;if($$.type==7)table[curr_func][$1.lexeme].list_type=typelist($3.lexeme);}
+|NAME %prec high  {$$.lexeme=strdup($1.lexeme);}
 |SELF {$$.type=0;is_self=1;}
 ;
 
@@ -551,7 +580,6 @@ atom opt_trailer %prec high {
                                 if($2.list_type==1){yyerror("type");return 0;}
                                 if($1.type==6){
                                     if(!match_vector(get_func_parameter($1.lexeme),$2.other->types)){return 0;}
-                                    //if(!is_self){yyerror("type");return 0;}
                                     for(auto x: $2.other->regs){
                                         string c="param ";
                                         c=c+x;
@@ -599,6 +627,13 @@ atom opt_trailer %prec high {
                                 $$.reg=$$.lexeme;
                             }
 |PRINT LEFT_BRACKET arglist RIGHT_BRACKET{
+                                for(auto x: $3.other->regs){
+                                        string c="param ";
+                                        c=c+x;
+                                        code.push_back(c);
+                                    }
+                                string c= "call print,1";
+                                code.push_back(c);
                                 $$.type=0;
                                 $$.lexeme=$3.lexeme;
                                 $$.reg=$$.lexeme;
@@ -662,7 +697,7 @@ int main ( int argc, char *argv[]){
    if(argc==5){ 
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");
-   yydebug=1;
+   yydebug=0;
    yyparse();
    for(auto x:code){
     fprintf(yyout,"%s\n",x.data());
