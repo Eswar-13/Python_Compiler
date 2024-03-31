@@ -52,6 +52,7 @@ class content{
         int list_type;
         int list_number;
         int funct_return_type;
+        string parent_class="None";
         vector<int>func_parameter;
         int line_number;
         string class_type;
@@ -80,15 +81,7 @@ int typelist(string s){
     }
     return typedetector(t);
 }
-int check_type(int type1, int type2){
-    if(type1==type2)return type1;
-    else if(type1==1&&type2==3||type1==3&&type2==1)return type1;
-    else if(type1==1&&type2==2||type1==2&&type2==1)return type2;
-    else {
-        yyerror("type");
-        return 0;
-    }
-}
+
 vector<string>code;
 map<string,map<string,content>>table;
 string curr_func="global";
@@ -105,9 +98,29 @@ extern stack<string>current_attributes;
 int current_func_type=-1;
 int is_return=0;
 int is_self=0;
+int check_type(int type1, int type2){
+    if(type1>10&&type2>10){
+        if(type1==type2)return type1;
+        string parent="";
+        while(type1!=type2&&parent!="None"){
+            parent=table["global"][type_to_class[type2]].parent_class;
+            if(parent!="None")type2=table["global"][parent].type;
+            if(type1==type2)return type1;
+        }
+        return 0;
+    }
+    if(type1==type2)return type1;
+    else if(type1==1&&type2==3||type1==3&&type2==1)return type1;
+    else if(type1==1&&type2==2||type1==2&&type2==1)return type2;
+    else {
+        yyerror("type");
+        return 0;
+    }
+}
 void update_table(string key,int type,int line_number){
     table[curr_func][key]=content(type,line_number);
     current_attributes.push(key);
+    cout<<key<<endl;
 }
 bool check(string s){
     if(s=="__name__"){update_table(s,4,0);return 0;}
@@ -145,11 +158,9 @@ int match_vector(vector<int>a,vector<int>b){
     }
     return 1;
 }
-void add_classes(string target,vector<string>input){
-    for(int i=0;i<input.size();i++){
-        for(auto it:table[input[i]]){
-            table[target][it.first]=it.second;
-        }
+void add_class(string target,string input){
+    for(auto it:table[input]){
+        table[target][it.first]=it.second;
     }
 }
 void copy_content(string key){
@@ -223,7 +234,7 @@ struct other{
 %token<attributes> INT FLOAT STRING DOT L_SHIFT R_SHIFT STRING_1
 %token<attributes> LEFT_CURLY_BRACKET RIGHT_CURLY_BRACKET INVALID SELF RANGE LEN PRINT
 
-%type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt if_test elif_test while_stmt while_test for_stmt for_test range funcdef classdef suite else_statement elif_statements parameters typedargslist full_tfpdef opt_class_arg opt_arglist arglist argument comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer 
+%type<attributes>  module stmt simple_stmt compound_stmt testlist expr more_expr small_stmt expr_stmt break_stmt continue_stmt return_stmt annassign Assign_stmt test if_stmt if_test elif_test while_stmt while_test for_stmt for_test range funcdef classdef suite else_statement elif_statements parameters typedargslist full_tfpdef opt_class_arg arglist argument comparison stmt_list or_test and_test not_test xor_expr and_expr shift_expr arith_expr term factor power atom_expr atom opt_trailer trailer 
 %type<attributes>  a_o r_o param_list name data_type func_name class_name dec_name
 %start module 
 
@@ -475,14 +486,13 @@ CLASS class_name opt_class_arg COLON{
                                     string c=""; code.push_back(c);
                                     c=convert($2.lexeme);
                                     c=c+" :"; code.push_back(c);
-                                    for(auto x: $3.other->lexemes){
-                                        c="Parent : ";
-                                        code.push_back(c+x);
-                                    }
+                                    c="Parent : ";
+                                    code.push_back(c+convert($3.lexeme));
                                     code.push_back("classbegin");
+                                    cout<<curr_class<<endl;
                                 } 
                                suite   {
-                                update_table($2.lexeme,5,$2.line);curr_class="None";
+                                update_table($2.lexeme,5,$2.line);curr_class="None";table["global"][$2.lexeme].parent_class=$3.lexeme;
                                 string c="classend"; code.push_back(c);
                                 c=""; code.push_back(c);
                                 }
@@ -501,13 +511,8 @@ CLASS class_name opt_class_arg COLON{
 class_name:name{curr_class=$1.lexeme;$$.lexeme=$1.lexeme;update_class_type(curr_class);}
 ;
 opt_class_arg: 
-LEFT_BRACKET RIGHT_BRACKET  
-|LEFT_BRACKET opt_arglist RIGHT_BRACKET  {$$.other =$2.other; add_classes(curr_class,($2.other)->lexemes);}  
-;
-
-opt_arglist: 
-arglist COMMA %prec high   {$$.other=$1.other;}
-|arglist %prec low   {$$.other=$1.other;}         
+LEFT_BRACKET RIGHT_BRACKET  {$$.lexeme=(char*)"None";}
+|LEFT_BRACKET argument RIGHT_BRACKET  {add_class(curr_class,$2.lexeme);$$.lexeme=$2.lexeme;$$.other =$2.other;}  
 ;
 
 arglist: 
