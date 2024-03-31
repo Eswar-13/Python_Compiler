@@ -1,7 +1,6 @@
 class Transport:
-  def __init__(self, f_name: str):
+  def __init__(self, f_name: str) :
     self.name: str = f_name
-
 
 class Train(Transport):
   def __init__(self, f_train_name: str, f_transport_name: str):
@@ -36,13 +35,13 @@ def main():
   flight_obj: Flight = Flight("Boeing 747", "Flight")
   car_obj: Car = Car("SUV", "Car")
 
-  # trip1: Trip = Trip("Train Trip", train_obj)
-  # trip2: Trip = Trip("Flight Trip", flight_obj)
-  # trip3: Trip = Trip("Car Trip", car_obj)
+  trip1: Trip = Trip("Train Trip", train_obj)
+  trip2: Trip = Trip("Flight Trip", flight_obj)
+  trip3: Trip = Trip("Car Trip", car_obj)
 
-  # trip1.print_trip()
-  # trip2.print_trip()
-  # trip3.print_trip()
+  trip1.print_trip()
+  trip2.print_trip()
+  trip3.print_trip()
 
 
 if __name__ == "__main__":

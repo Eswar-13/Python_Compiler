@@ -1,4 +1,4 @@
-            
+
 Transport :
 classbegin
 
@@ -25,11 +25,16 @@ r5=r4
 train_name=r5
 r6=Transport
 r7=r3
+param r7
+stackpointer +xxx
+call Transport.__init__,1
+stackpointer -xxx
+r8=popparameter
 funcend
 
 classend
 
-r8=Transport
+r9=Transport
 
 Flight :
 Parent : Transport
@@ -37,17 +42,22 @@ classbegin
 
 __init__ :
 funcbegin
-r9=popparameter
 r10=popparameter
-r11=r10
-flight_name=r11
-r12=Transport
-r13=r9
+r11=popparameter
+r12=r11
+flight_name=r12
+r13=Transport
+r14=r10
+param r14
+stackpointer +xxx
+call Transport.__init__,1
+stackpointer -xxx
+r15=popparameter
 funcend
 
 classend
 
-r14=Transport
+r16=Transport
 
 Car :
 Parent : Transport
@@ -55,12 +65,17 @@ classbegin
 
 __init__ :
 funcbegin
-r15=popparameter
-r16=popparameter
-r17=r16
-r16=r17
-r18=Transport
-r19=r15
+r17=popparameter
+r18=popparameter
+r19=r18
+r18=r19
+r20=Transport
+r21=r17
+param r21
+stackpointer +xxx
+call Transport.__init__,1
+stackpointer -xxx
+r22=popparameter
 funcend
 
 classend
@@ -71,12 +86,12 @@ classbegin
 
 __init__ :
 funcbegin
-r20=popparameter
-r21=popparameter
-r22=r21
-r21=r22
-r23=r20
-r20=r23
+r23=popparameter
+r24=popparameter
+r25=r24
+r24=r25
+r26=r23
+r23=r26
 funcend
 
 
@@ -84,10 +99,14 @@ print_trip :
 funcbegin
 param "Trip Name:"
 param trip_name
-call print,1
+stackpointer +xxx
+call print,2
+stackpointer -xxx
 param "Transport Name:"
 param transport
-call print,1
+stackpointer +xxx
+call print,2
+stackpointer -xxx
 funcend
 
 classend
@@ -95,18 +114,80 @@ classend
 
 main :
 funcbegin
-r24=Train
-train_obj=r24
-r25=Flight
-flight_obj=r25
-r26=Car
-car_obj=r26
+r27=Train
+param "Express"
+param "Train"
+stackpointer +xxx
+call Train.__init__,2
+stackpointer -xxx
+r28=popparameter
+train_obj=r28
+r29=Flight
+param "Boeing 747"
+param "Flight"
+stackpointer +xxx
+call Flight.__init__,2
+stackpointer -xxx
+r30=popparameter
+flight_obj=r30
+r31=Car
+param "SUV"
+param "Car"
+stackpointer +xxx
+call Car.__init__,2
+stackpointer -xxx
+r32=popparameter
+car_obj=r32
+r33=Trip
+r34=train_obj
+param "Train Trip"
+param r34
+stackpointer +xxx
+call Trip.__init__,2
+stackpointer -xxx
+r35=popparameter
+trip1=r35
+r36=Trip
+r37=flight_obj
+param "Flight Trip"
+param r37
+stackpointer +xxx
+call Trip.__init__,2
+stackpointer -xxx
+r38=popparameter
+trip2=r38
+r39=Trip
+r40=car_obj
+param "Car Trip"
+param r40
+stackpointer +xxx
+call Trip.__init__,2
+stackpointer -xxx
+r41=popparameter
+trip3=r41
+r42=trip1
+stackpointer +xxx
+call trip1.print_trip,0
+stackpointer +xxx
+r43=popparameter
+r44=trip2
+stackpointer +xxx
+call trip2.print_trip,0
+stackpointer +xxx
+r45=popparameter
+r46=trip3
+stackpointer +xxx
+call trip3.print_trip,0
+stackpointer +xxx
+r47=popparameter
 funcend
 
-r27=__name__
-r27=r27=="__main__"
-if r27 jump line 110
-jump line 113
-r28=main
-call main,1
-jump line 113
+r48=__name__
+r48=r48=="__main__"
+if r48 jump line 189
+jump line 194
+r49=main
+stackpointer +xxx
+call main,0
+stackpointer -xxx
+jump line 194

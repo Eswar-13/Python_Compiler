@@ -104,10 +104,10 @@ int check_type(int type1, int type2){
         string parent="";
         while(type1!=type2&&parent!="None"){
             parent=table["global"][type_to_class[type2]].parent_class;
-            if(parent!="None")type2=table["global"][parent].type;
+            if(parent!="None")type2=classes_type[parent];
             if(type1==type2)return type1;
         }
-        return 0;
+        yyerror("type");return 0;
     }
     if(type1==type2)return type1;
     else if(type1==1&&type2==3||type1==3&&type2==1)return type1;
@@ -120,7 +120,6 @@ int check_type(int type1, int type2){
 void update_table(string key,int type,int line_number){
     table[curr_func][key]=content(type,line_number);
     current_attributes.push(key);
-    cout<<key<<endl;
 }
 bool check(string s){
     if(s=="__name__"){update_table(s,4,0);return 0;}
@@ -337,7 +336,12 @@ CONTINUE
 ;
 
 return_stmt: 
-RETURN test %prec high  {if(!check_type(current_func_type,$2.type))return 0;is_return=1;}
+RETURN test %prec high  {
+    if(!check_type(current_func_type,$2.type))return 0;is_return=1;
+    string c="push "+convert($2.reg);
+    code.push_back(c);
+    code.push_back("return");
+}
 | RETURN %prec low  {if(current_func_type!=0||current_func_type==-1){yyerror("type");return 0;}}
 
 ;
@@ -486,10 +490,9 @@ CLASS class_name opt_class_arg COLON{
                                     string c=""; code.push_back(c);
                                     c=convert($2.lexeme);
                                     c=c+" :"; code.push_back(c);
-                                    c="Parent : ";
-                                    code.push_back(c+convert($3.lexeme));
+                                    c="Parent : "+convert($3.lexeme);
+                                    code.push_back(c);
                                     code.push_back("classbegin");
-                                    cout<<curr_class<<endl;
                                 } 
                                suite   {
                                 update_table($2.lexeme,5,$2.line);curr_class="None";table["global"][$2.lexeme].parent_class=$3.lexeme;
@@ -525,8 +528,6 @@ test   {$$.type=$1.type; $$.lexeme=$1.lexeme; $$.reg=$1.reg;}
 |test ASSIGNMENT_OPERATOR test  {if(!check_type($1.type,$3.type))return 0;}
 |SELF  {$$.type=0; string c="self"; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str());}
 ;
-
-
 
 suite: 
 simple_stmt 
@@ -613,16 +614,21 @@ atom opt_trailer %prec high {
                                 if($2.list_type==1){yyerror("type");return 0;}
                                 if($1.type==6){
                                     if(!match_vector(get_func_parameter($1.lexeme),$2.other->types)){return 0;}
+                                    int i=0;
                                     for(auto x: $2.other->regs){
+                                        i++;
                                         string c="param ";
                                         c=c+x;
                                         code.push_back(c);
                                     }
+                                    code.push_back("stackpointer +xxx"); 
                                     string c= "call ";
-                                    c=c+convert($1.lexeme)+",1";
+                                    c=c+convert($1.lexeme)+","+to_string(i);
                                     code.push_back(c);
+                                    code.push_back("stackpointer -xxx"); 
                                     $$.type=get_funct_type($1.lexeme);
-                                    if($$.type){c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                    if($$.type){
+                                    c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
                                     c=c+"=popparameter"; code.push_back(c);
                                     }
                                 }
@@ -630,10 +636,38 @@ atom opt_trailer %prec high {
                                     if(!$2.dot){
                                         $$.type=classes_type[$1.lexeme];
                                         if(!match_vector(table[$1.lexeme]["__init__"].func_parameter,$2.other->types)){return 0;}
+                                        int i=0;
+                                        for(auto x: $2.other->regs){
+                                            i++;
+                                            string c="param ";
+                                            c=c+x;
+                                            code.push_back(c);
+                                        }
+                                        code.push_back("stackpointer +xxx"); 
+                                        string c= "call ";
+                                        c=c+convert($1.lexeme)+".__init__,"+to_string(i);
+                                        code.push_back(c);
+                                        code.push_back("stackpointer -xxx"); 
+                                        c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                        c=c+"=popparameter"; code.push_back(c);
                                     }else{
                                         $$.type=table[$1.lexeme][$2.lexeme].type;
-                                        //cout<<$$.type<<" "<<$1.lexeme<<endl;
                                         if($$.type==6&&!match_vector(table[$1.lexeme][$2.lexeme].func_parameter,$2.other->types)){return 0;}
+                                        int i=0;
+                                        for(auto x: $2.other->regs){
+                                            i++;
+                                            string c="param ";
+                                            c=c+x;
+                                            code.push_back(c);
+                                        }
+                                        code.push_back("stackpointer +xxx"); 
+                                        string c= "call ";
+                                        c=c+convert($1.lexeme)+"."+convert($2.lexeme)+","+to_string(i);
+                                        code.push_back(c);
+                                        code.push_back("stackpointer -xxx"); 
+                                        if($$.type){c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                        c=c+"=popparameter"; code.push_back(c);
+                                        }
                                     }
 
                                 }
@@ -641,6 +675,21 @@ atom opt_trailer %prec high {
                                     if($2.dot){
                                         $$.type=table[type_to_class[$1.type]][$2.lexeme].type;
                                         if($$.type==6&&!match_vector(table[type_to_class[$1.type]][$2.lexeme].func_parameter,$2.other->types)){return 0;}
+                                        int i=0;
+                                        for(auto x: $2.other->regs){
+                                            i++;
+                                            string c="param ";
+                                            c=c+x;
+                                            code.push_back(c);
+                                        }
+                                        code.push_back("stackpointer +xxx"); 
+                                        string c= "call ";
+                                        c=c+convert($1.lexeme)+"."+convert($2.lexeme)+","+to_string(i);
+                                        code.push_back(c);
+                                        code.push_back("stackpointer +xxx"); 
+                                        if($$.type){c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                        c=c+"=popparameter"; code.push_back(c);
+                                        }
                                     }
                                 }
                               }
@@ -658,17 +707,21 @@ atom opt_trailer %prec high {
 |LEN LEFT_BRACKET test RIGHT_BRACKET {
                                 if($3.type!=7){yyerror("type");return 0;}
                                 $$.type=1;
-                                $$.lexeme=$3.lexeme;
-                                $$.reg=$$.lexeme;
+                                string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+to_string(get_listnumber($3.lexeme));
+                                code.push_back(c);
                             }
 |PRINT LEFT_BRACKET arglist RIGHT_BRACKET{
+                                int i=0;
                                 for(auto x: $3.other->regs){
+                                        i++;
                                         string c="param ";
                                         c=c+x;
                                         code.push_back(c);
                                     }
-                                string c= "call print,1";
+                                code.push_back("stackpointer +xxx"); 
+                                string c= "call print,"+to_string(i);
                                 code.push_back(c);
+                                code.push_back("stackpointer -xxx"); 
                                 $$.type=0;
                                 $$.lexeme=$3.lexeme;
                                 $$.reg=$$.lexeme;
@@ -737,13 +790,27 @@ int main ( int argc, char *argv[]){
    for(auto x:code){
     fprintf(yyout,"%s\n",x.data());
    }
+   FILE *fpt;
+   string c;
+   char * path;
+   int i=0;
    for(auto x: table){
-    cout<<x.first<<'\n';
-    for(auto y: x.second){
-        cout<<" "<<y.first<<' '<<y.second.line_number<<'\n';
-        if(y.second.type==6){
-            for(auto it:y.second.func_content){
-                cout<<"  "<<it.first<<' '<<it.second.line_number<<'\n';
+    if(classes_type.count(x.first)){
+
+    }
+    else{
+        c=x.first+to_string(i)+".csv";
+        path=new char[c.size() + 1]; 
+        strcpy(path, c.c_str());
+        fpt = fopen(path, "w+");
+        cout<<x.first<<'\n';
+        fprintf(fpt, "%s, %s, %d, %s\n", id, name, email, phone);
+        for(auto y: x.second){
+            cout<<" "<<y.first<<' '<<y.second.line_number<<'\n';
+            if(y.second.type==6){
+                for(auto it:y.second.func_content){
+                    cout<<"  "<<it.first<<' '<<it.second.line_number<<'\n';
+                }
             }
         }
     }
