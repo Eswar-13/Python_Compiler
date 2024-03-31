@@ -1,157 +1,112 @@
-  r0=2.3
-r0=-r0
-r1=3.14
-r2=0.9
-r3=11
-r4=9.1
-r4=-r4
-r5=[r0,r1,r2,r3,r4]
-data=r5
-r6=data
-r7=0
-r8=data[r7]
-r9=2
-r9=-r9
-data[r7]=r9
-r10=0
-i=r10
-r11=0
-j=r11
+            
+Transport :
+classbegin
 
-compute_min :
-r12=popparameter
-r13=100
-min_value=r13
-r14=5
-i=0
-r15=i
-r15=r15<r14
-if r15 jump line 31
-jump line 45
-r16=r12
-r17=i
-r18=r12[r17]
-r19=min_value
-r18=r18<r19
-if r18 jump line 38
-jump line 44
-r20=min_value
-r21=r12
-r22=i
-r23=r12[r22]
-min_value=r23
-jump line 44
-jump line 27
-r24=min_value
+__init__ :
+funcbegin
+r0=popparameter
+r1=r0
+name=r1
+funcend
+
+classend
+
+r2=Transport
+
+Train :
+Parent : Transport
+classbegin
+
+__init__ :
+funcbegin
+r3=popparameter
+r4=popparameter
+r5=r4
+train_name=r5
+r6=Transport
+r7=r3
+funcend
+
+classend
+
+r8=Transport
+
+Flight :
+Parent : Transport
+classbegin
+
+__init__ :
+funcbegin
+r9=popparameter
+r10=popparameter
+r11=r10
+flight_name=r11
+r12=Transport
+r13=r9
+funcend
+
+classend
+
+r14=Transport
+
+Car :
+Parent : Transport
+classbegin
+
+__init__ :
+funcbegin
+r15=popparameter
+r16=popparameter
+r17=r16
+r16=r17
+r18=Transport
+r19=r15
+funcend
+
+classend
 
 
-compute_avg :
-r25=popparameter
-r26=0
-sum_values=r26
-r27=5
-i=0
-r28=i
-r28=r28<r27
-if r28 jump line 58
-jump line 63
-r29=sum_values
-r30=r25
-r31=i
-r32=r25[r31]
-jump line 54
-r33=sum_values
-r34=r25
-r33=r33/r25
+Trip :
+classbegin
+
+__init__ :
+funcbegin
+r20=popparameter
+r21=popparameter
+r22=r21
+r21=r22
+r23=r20
+r20=r23
+funcend
 
 
-compute_mode :
-r35=popparameter
-r36=0
-mode_count=r36
-r37=1
-mode_value=r37
-r38=5
-i=0
-r39=i
-r39=r39<r38
-if r39 jump line 80
-jump line 116
-r40=0
-count_value=r40
-r41=5
-j=0
-r42=j
-r42=r42<r41
-if r42 jump line 88
-jump line 101
-r43=r35
-r44=i
-r45=r35[r44]
-r46=r35
-r47=j
-r48=r35[r47]
-r45=r45==r48
-if r45 jump line 97
-jump line 100
-r49=count_value
-r50=1
-jump line 100
-jump line 84
-r51=count_value
-r52=mode_count
-r51=r51>r52
-if r51 jump line 106
-jump line 115
-r53=mode_count
-r54=count_value
-mode_count=r54
-r55=mode_value
-r56=r35
-r57=i
-r58=r35[r57]
-mode_value=r58
-jump line 115
-jump line 76
-r59=mode_value
+print_trip :
+funcbegin
+param "Trip Name:"
+param trip_name
+call print,1
+param "Transport Name:"
+param transport
+call print,1
+funcend
+
+classend
 
 
 main :
-r60=compute_min
-r61=data
-param r61
-call compute_min,1
-r62=popparameter
-min_value=r62
-r63=min_value
-param "Minimum i: "
-param r63
-call print,1
-r64=compute_avg
-r65=data
-param r65
-call compute_avg,1
-r66=popparameter
-avg_value=r66
-r67=avg_value
-param "Average i: "
-param r67
-call print,1
-r68=compute_mode
-r69=data
-param r69
-call compute_mode,1
-r70=popparameter
-mode_value=r70
-r71=mode_value
-param "Mode i: "
-param r71
-call print,1
+funcbegin
+r24=Train
+train_obj=r24
+r25=Flight
+flight_obj=r25
+r26=Car
+car_obj=r26
+funcend
 
-r72=__name__
-r72=r72=="__main__"
-if r72 jump line 155
-jump line 158
-r73=main
+r27=__name__
+r27=r27=="__main__"
+if r27 jump line 110
+jump line 113
+r28=main
 call main,1
-jump line 158
+jump line 113

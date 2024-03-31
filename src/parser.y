@@ -387,6 +387,7 @@ DEF func_name parameters COLON {
                                 current_func_type=0; 
                                 string c=""; code.push_back(c); c=convert($2.lexeme);
                                 c=c+" :"; code.push_back(c); 
+                                code.push_back("funcbegin");
                                 for(auto x : $3.other->types){
                                     c="r"+to_string(node); node++;
                                     c=c+"=popparameter";
@@ -413,11 +414,13 @@ DEF func_name parameters COLON {
                                             find_and_replace(x,c,$1.jump,code.size());
                                             i++;
                                         }
+                                        c="funcend"; code.push_back(c);
                                         c=""; code.push_back(c);
                                     }
 | DEF func_name parameters RETURN_ARROW data_type{current_func_type=$5.type;  } COLON{
                                 string c=""; code.push_back(c); c=convert($2.lexeme);
                                 c=c+" :"; code.push_back(c); 
+                                code.push_back("funcbegin");
                                 for(auto x : $3.other->types){
                                     c="r"+to_string(node); node++;
                                     c=c+"=popparameter";
@@ -445,6 +448,7 @@ DEF func_name parameters COLON {
                                             find_and_replace(x,c,$1.jump,code.size());
                                             i++;
                                         }
+                                        c="funcend"; code.push_back(c);
                                         c=""; code.push_back(c);
                                     }
 ;
@@ -467,14 +471,38 @@ name COLON data_type %prec low  {$$.lexeme=strdup($1.lexeme); update_table($1.le
 
 
 classdef: 
-CLASS class_name opt_class_arg COLON suite   {update_table($2.lexeme,5,$2.line);curr_class="None";}
-|CLASS class_name COLON suite   {update_table($2.lexeme,5,$2.line);curr_class="None";}
+CLASS class_name opt_class_arg COLON{
+                                    string c=""; code.push_back(c);
+                                    c=convert($2.lexeme);
+                                    c=c+" :"; code.push_back(c);
+                                    for(auto x: $3.other->lexemes){
+                                        c="Parent : ";
+                                        code.push_back(c+x);
+                                    }
+                                    code.push_back("classbegin");
+                                } 
+                               suite   {
+                                update_table($2.lexeme,5,$2.line);curr_class="None";
+                                string c="classend"; code.push_back(c);
+                                c=""; code.push_back(c);
+                                }
+|CLASS class_name COLON {
+                        string c=""; code.push_back(c);
+                        c=convert($2.lexeme);
+                        c=c+" :"; code.push_back(c);
+                        code.push_back("classbegin");
+}
+                  suite   {
+                            update_table($2.lexeme,5,$2.line);curr_class="None";
+                            string c="classend"; code.push_back(c);
+                                c=""; code.push_back(c);
+                                }
 ;
 class_name:name{curr_class=$1.lexeme;$$.lexeme=$1.lexeme;update_class_type(curr_class);}
 ;
 opt_class_arg: 
 LEFT_BRACKET RIGHT_BRACKET  
-|LEFT_BRACKET opt_arglist RIGHT_BRACKET  {add_classes(curr_class,($2.other)->lexemes);}  
+|LEFT_BRACKET opt_arglist RIGHT_BRACKET  {$$.other =$2.other; add_classes(curr_class,($2.other)->lexemes);}  
 ;
 
 opt_arglist: 
@@ -488,9 +516,9 @@ arglist COMMA argument %prec high {$$.other=$1.other;if($3.type)(($$.other)->typ
 ;
 
 argument: 
-test   {$$.type=$1.type;$$.reg=$1.reg;}     
+test   {$$.type=$1.type; $$.lexeme=$1.lexeme; $$.reg=$1.reg;}     
 |test ASSIGNMENT_OPERATOR test  {if(!check_type($1.type,$3.type))return 0;}
-|SELF  {$$.type=0;$$.reg=(char*)"self";}
+|SELF  {$$.type=0; string c="self"; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str());}
 ;
 
 
@@ -599,7 +627,7 @@ atom opt_trailer %prec high {
                                         if(!match_vector(table[$1.lexeme]["__init__"].func_parameter,$2.other->types)){return 0;}
                                     }else{
                                         $$.type=table[$1.lexeme][$2.lexeme].type;
-                                        cout<<$$.type<<" "<<$1.lexeme<<endl;
+                                        //cout<<$$.type<<" "<<$1.lexeme<<endl;
                                         if($$.type==6&&!match_vector(table[$1.lexeme][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                                     }
 
@@ -614,12 +642,14 @@ atom opt_trailer %prec high {
                             }
 |atom %prec low {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
 ;
-|SELF opt_trailer %prec low{if($2.dot){
+|SELF opt_trailer %prec low{
+                            if($2.dot){
                                 $$.type=table[curr_class][$2.lexeme].type;
                                 if($$.type==6&&!match_vector(table[curr_class][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                             }
                             if(!is_self){yyerror("type");return 0;}
-                }
+                            $$.lexeme=$2.lexeme; $$.reg=$2.reg;
+                        }
 |LEN LEFT_BRACKET test RIGHT_BRACKET {
                                 if($3.type!=7){yyerror("type");return 0;}
                                 $$.type=1;
@@ -667,7 +697,7 @@ trailer:
 LEFT_BRACKET arglist RIGHT_BRACKET   {$$.other=$2.other;}
 | LEFT_BRACKET RIGHT_BRACKET  {$$.other=new other;}         
 | LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {string c="["; c+=convert($2.reg); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); if($2.type!=1){yyerror("type");return 0;}$$.type=$2.type;$$.list_type=1;}
-| DOT name {$$.lexeme=$2.lexeme;$$.dot=1;}
+| DOT name {$$.lexeme=$2.lexeme; $$.reg=$2.reg; $$.dot=1;}
 ;
 
 testlist: 
