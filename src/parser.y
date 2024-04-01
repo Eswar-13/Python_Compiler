@@ -294,7 +294,6 @@ test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.r
                                     if($1.type==7){
                                         int list_type=get_listtype($1.lexeme);
                                         if(!check_type(list_type,$3.type))return 0;
-                                        if(get_listnumber($1.lexeme)!=$3.count){yyerror("type");return 0;}
                                     }else{
                                         if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;
                                     }
@@ -804,7 +803,7 @@ int main ( int argc, char *argv[]){
         strcpy(path, c.c_str());
         fpt = fopen(path, "w+");
         cout<<x.first<<'\n';
-        fprintf(fpt, "%s, %s, %d, %s\n", id, name, email, phone);
+        // fprintf(fpt, "%s, %s, %d, %s\n", id, name, email, phone);
         for(auto y: x.second){
             cout<<" "<<y.first<<' '<<y.second.line_number<<'\n';
             if(y.second.type==6){
