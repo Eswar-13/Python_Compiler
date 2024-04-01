@@ -706,8 +706,14 @@ atom opt_trailer %prec high {
 |LEN LEFT_BRACKET test RIGHT_BRACKET {
                                 if($3.type!=7){yyerror("type");return 0;}
                                 $$.type=1;
-                                string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+to_string(get_listnumber($3.lexeme));
+                                string c="param ";
+                                c=c+convert($3.reg);
                                 code.push_back(c);
+                                code.push_back("stackpointer +xxx"); 
+                                c= "call len,1";
+                                code.push_back(c);
+                                code.push_back("stackpointer -xxx"); 
+                                c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=popparameter"; code.push_back(c);
                             }
 |PRINT LEFT_BRACKET arglist RIGHT_BRACKET{
                                 int i=0;
@@ -742,10 +748,10 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2
 |FLOAT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=2;}
 |DATA_TYPE  {$$.type=typedetector($1.lexeme);$$.lexeme=$1.lexeme;}
 |STRING   {$$.type=4;$$.reg=$1.lexeme;}
-|STRING_1  {$$.type=4;}
+|STRING_1  {$$.type=4;$$.reg=$1.lexeme;}
 |NONE       {$$.type=0;}
-|TRUE {$$.lexeme=$1.lexeme;$$.type=3;}
-|FALSE {$$.lexeme=$1.lexeme;$$.type=3;}
+|TRUE {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=3;}
+|FALSE {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=3;}
 |LIST {$$.type=7;}
 ;
 
