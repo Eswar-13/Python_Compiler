@@ -73,6 +73,7 @@ int typedetector(string s){
     if(s=="class")return 5;
     return 0;
 }
+
 int typelist(string s){
     int a=0;
     string t="";
@@ -119,12 +120,24 @@ int check_type(int type1, int type2){
         return 0;
     }
 }
-
+char* convert_to_string(int list_type,int type){
+    if(type==1)return (char*)"int";
+    if(type==2)return (char*)"float";
+    if(type==3)return (char*)"bool";
+    if(type==4)return (char*)"str";
+    if(type==5)return (char*)"class";
+    if(type==6)return (char*)"Function";
+    if(type==7){string c="list("+(string)convert_to_string(0,list_type)+")";char* a=new char[c.size() + 1]; strcpy(a, c.c_str());return a;}
+    if(type>10){string c=type_to_class[type];char* a=new char[c.size() + 1]; strcpy(a, c.c_str());return a;}
+    return (char*)"None";
+}
 void update_table(string key,int type,int line_number){
+    //cout<<curr_func<<" "<<key<<endl;
     table[curr_func][key]=content(type,line_number);
     current_attributes.push(key);
 }
 bool check(string s){
+    // cout<<s<<" "<<curr_func<<endl;
     if(s=="__name__"){update_table(s,4,0);return 0;}
     if(table[curr_func].find(s)==table[curr_func].end() && table["global"].find(s)==table["global"].end()){yyerror("dec");return 1;}
     else return 0;
@@ -293,12 +306,9 @@ dec_name annassign  {string c=convert($1.lexeme); c=c+"="+convert($2.reg); code.
 ;
 
 Assign_stmt:  
-test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;
+test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;
                                     if($1.type==7){
-                                        int list_type=get_listtype($1.lexeme);
-                                        if(!check_type(list_type,$3.type))return 0;
-                                    }else{
-                                        if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;
+                                        if(!check_type($1.list_type,$3.list_type))return 0;
                                     }
                                 }
 ;
@@ -309,14 +319,12 @@ name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.
 ;
 
 annassign:
-COLON data_type param_list %prec high{  $$.reg=$3.reg;$$.type=$2.type;
+COLON data_type param_list %prec high{  $$.reg=$3.reg;$$.type=$2.type;if(!check_type($2.type,$3.type))return 0;
                                         if($2.type==7){
                                             int list_type=typelist($2.lexeme);
-                                            if(!check_type(list_type,$3.type))return 0;
                                             $$.list_type=list_type;
+                                            if(!check_type(list_type,$3.list_type))return 0;
                                             $$.count=$3.count;
-                                        }else{
-                                            if(!check_type($2.type,$3.type))return 0;
                                         }
                                     }
 |COLON data_type %prec low  {$$.type=$2.type;if($2.type==8)$$.lexeme=$2.lexeme;}
@@ -327,7 +335,7 @@ data_type: DATA_TYPE {$$.type=typedetector($1.lexeme);}
 |NAME {if(check($1.lexeme)&&get_type($1.lexeme)!=5)return 0;$$.type=classes_type[$1.lexeme]; }
 ;
 param_list:
-ASSIGNMENT_OPERATOR test  {$$.reg=$2.reg; $$.type=$2.type;$$.count=$2.count;}
+ASSIGNMENT_OPERATOR test  {$$.reg=$2.reg; $$.type=$2.type;$$.list_type=$2.list_type;$$.count=$2.count;}
 
 break_stmt: 
 BREAK  {code.push_back("jump line "); curr_break++;}
@@ -364,7 +372,7 @@ if_test  {fill(code.size()+1,1);}
 ;
 
 if_test:
-IF test {$1.jump=code.size()+1; string c="if "+convert($2.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {string c=code[$1.jump]; c=c+to_string(code.size()+2); code[$1.jump]=c; c="jump line "; code.push_back(c);}
+IF test {if($2.type!=1&&$2.type!=3){yyerror("type");return 0;}$1.jump=code.size()+1; string c="if "+convert($2.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {string c=code[$1.jump]; c=c+to_string(code.size()+2); code[$1.jump]=c; c="jump line "; code.push_back(c);}
 
 elif_statements: 
 elif_statements elif_test {$$.jump=$1.jump+1;}
@@ -372,7 +380,7 @@ elif_statements elif_test {$$.jump=$1.jump+1;}
 ;
 
 elif_test:
-ELIF test {$1.jump=code.size()+1; string c="if "+convert($2.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {string c=code[$1.jump]; c=c+to_string(code.size()+2); code[$1.jump]=c; c="jump line "; code.push_back(c);}
+ELIF test {if($2.type!=1&&$2.type!=3){yyerror("type");return 0;}$1.jump=code.size()+1; string c="if "+convert($2.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {string c=code[$1.jump]; c=c+to_string(code.size()+2); code[$1.jump]=c; c="jump line "; code.push_back(c);}
 
 else_statement: 
 ELSE COLON suite  
@@ -384,7 +392,7 @@ while_test
 ;
 
 while_test:
-WHILE{$1.jump=code.size()+1;} test  {$3.jump=code.size()+1; string c="if "+convert($3.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {fill(code.size()+2,curr_break); curr_break=0; string c=code[$3.jump]; c=c+to_string(code.size()+2); code[$3.jump]=c; c="jump line "+to_string($1.jump); code.push_back(c);}
+WHILE{$1.jump=code.size()+1;} test  {if($3.type!=1&&$3.type!=3){yyerror("type");return 0;}$3.jump=code.size()+1; string c="if "+convert($3.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {fill(code.size()+2,curr_break); curr_break=0; string c=code[$3.jump]; c=c+to_string(code.size()+2); code[$3.jump]=c; c="jump line "+to_string($1.jump); code.push_back(c);}
 
 for_stmt: 
 for_test 
@@ -392,7 +400,7 @@ for_test
 ;
 
 for_test:
-FOR name IN range{string c=convert($2.lexeme); c=c+"="+convert($4.lexeme)+"-1"; code.push_back(c); $1.jump=code.size()+1; curr_for.push($1.jump); c=convert($2.lexeme); c=c+"="+c+"+1"; code.push_back(c); c="r"+to_string(node); node++; c=c+"="+convert($2.lexeme); code.push_back(c); c="r"+to_string(node-1); c=c+"="+c+"<"+convert($4.reg); code.push_back(c); c="if r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{ fill(code.size()+2,1); fill(code.size()+2,curr_break); curr_break=0; string c="jump line "+to_string($1.jump); curr_for.pop(); code.push_back(c);}
+FOR name IN range{string c=convert($2.lexeme); c=c+"="+convert($4.lexeme); code.push_back(c); $1.jump=code.size()+1; c="r"+to_string(node); node++; c=c+"="+convert($2.lexeme); code.push_back(c); c="r"+to_string(node-1); c=c+"="+c+"<"+convert($4.reg); code.push_back(c); c="if r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{fill(code.size()+2,curr_break); curr_break=0;  fill(code.size()+2,1); string c="jump line "+to_string($1.jump); code.push_back(c);}
 
 range:
 RANGE LEFT_BRACKET test COMMA test RIGHT_BRACKET {$$.lexeme=$3.reg; $$.reg=$5.reg;  if($3.type!=1||$5.type!=1){yyerror("type");return 0;}}
@@ -412,14 +420,19 @@ DEF func_name parameters COLON {
                                 }
                                 $1.jump=code.size();
                                 $4.jump=node-1;
+                                string temp=curr_func;
+                                if(curr_class=="None")curr_func="global";
+                                else curr_func=curr_class;
+                                update_table($2.lexeme,6,$2.line);
+                                        
+                                table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
+                                table[curr_func][$2.lexeme].funct_return_type=0;
+                                curr_func=temp;
                                 } 
                                 suite{
                                         if(curr_class=="None")curr_func="global";
                                         else curr_func=curr_class;
-                                        update_table($2.lexeme,6,$2.line);
                                         copy_content($2.lexeme);
-                                        table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
-                                        table[curr_func][$2.lexeme].funct_return_type=0;
                                         curr_func="global";
                                         current_func_type=-1;
                                         is_return=0;
@@ -445,14 +458,18 @@ DEF func_name parameters COLON {
                                 }
                                 $1.jump=code.size();
                                 $4.jump=node-1;
+                                string temp=curr_func;
+                                if(curr_class=="None")curr_func="global";
+                                else curr_func=curr_class;
+                                update_table($2.lexeme,6,$2.line);
+                                table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
+                                table[curr_func][$2.lexeme].funct_return_type=current_func_type;
+                                curr_func=temp;
                                 }  
                                  suite{
                                         if(curr_class=="None")curr_func="global";
                                         else curr_func=curr_class;
-                                        update_table($2.lexeme,6,$2.line);
                                         copy_content($2.lexeme);
-                                        table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
-                                        table[curr_func][$2.lexeme].funct_return_type=$5.type;
                                         curr_func="global";
                                         current_func_type=-1;
                                         if(!is_return && $5.type){yyerror("type");return 0;}
@@ -744,14 +761,14 @@ opt_trailer trailer {$$.lexeme=$1.lexeme;$$.other=$2.other;$$.list_type=5;$$.dot
 atom:
 LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2.reg;}
 |LEFT_BRACKET  RIGHT_BRACKET                 
-|LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET     
-|LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {string c="["; c+=convert($2.lexeme); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($$.lexeme); code.push_back(c); $$.type=$2.type;$$.count=$2.count;}
-|NAME   {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0; $$.type=get_type($1.lexeme);}
+|LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET  
+|LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {string c="["; c+=convert($2.lexeme); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($$.lexeme); code.push_back(c); $$.type=7;$$.list_type=$2.type;$$.count=$2.count;}
+|NAME   {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0; $$.type=get_type($1.lexeme);if($$.type==7)$$.list_type=get_listtype($1.lexeme);}
 |INT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=1;}
 |FLOAT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=2;}
 |DATA_TYPE  {$$.type=typedetector($1.lexeme);$$.lexeme=$1.lexeme;}
-|STRING   {$$.type=4;$$.reg=$1.lexeme;}
-|STRING_1  {$$.type=4;$$.reg=$1.lexeme;}
+|STRING   {$$.type=4;string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;}
+|STRING_1  {$$.type=4;string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;}
 |NONE       {$$.type=0;}
 |TRUE {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=3;}
 |FALSE {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=3;}
@@ -813,7 +830,7 @@ int main ( int argc, char *argv[]){
         fprintf(fpt1, "lexeme, token, line_number, type\n");
         for(auto y: x.second){
             char * t1=new char[y.first.size() + 1]; strcpy(t1, y.first.c_str());
-            fprintf(fpt1, "%s, IDENTIFER, %d, %d\n",t1,y.second.line_number,y.second.type);
+            fprintf(fpt1, "%s, IDENTIFER, %d, %s\n",t1,y.second.line_number,convert_to_string(y.second.list_type,y.second.type));
             if(y.second.type==6){
                 i++;
                 c=x.first+"."+y.first+to_string(i)+".csv";
@@ -823,7 +840,7 @@ int main ( int argc, char *argv[]){
                 fprintf(fpt2, "lexeme, token, line_number, type\n");
                 for(auto it:y.second.func_content){
                     char * t2=new char[it.first.size() + 1]; strcpy(t2, it.first.c_str());
-                    fprintf(fpt2, "%s, IDENTIFER, %d, %d\n",t2,it.second.line_number,it.second.type);
+                    fprintf(fpt2, "%s, IDENTIFER, %d, %s\n",t2,it.second.line_number,convert_to_string(it.second.list_type,it.second.type));
                 }
             }
         }

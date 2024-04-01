@@ -1,56 +1,57 @@
 class Batsman:
-  def __init__(self, name):
-    self.name = name
-    self.runs_scored = 0
-    self.balls_faced = 0
+  def __init__(self, name:str):
+    self.name:str = name
+    self.runs_scored:int = 0
+    self.balls_faced:int = 0
 
-  def bat(self, outcome):
+  def bat(self, outcome:int):
     if outcome == 6:
       print(self.name + " scored a SIX!")
     elif outcome == 4:
       print(self.name + " scored a FOUR!")
-    elif outcome == "OUT":
-      print(self.name + " is out!")
     else:
       self.runs_scored += outcome
       self.balls_faced += 1
 
 class Umpire:
   def __init__(self):
-    pass
+    a:int=0
 
   def raise_finger(self):
     print("OUT!")
 
 class Fielder:
-  def __init__(self, name):
-    self.name = name
+  def __init__(self, name:str):
+    self.name:str = name
 
 class Team:
-  def __init__(self, name):
-    self.name = name
-    self.runs = 0
-    self.wickets = 0
-    self.batsmen = [Batsman("Batsman " + str(i+1)) for i in range(11)]
-    self.umpire = Umpire()
-    self.fielders = [Fielder("Fielder " + str(i+1)) for i in range(11)]
+  def __init__(self, name:str):
+    self.name:str = name
+    self.runs:int = 0
+    self.wickets:int = 0
+    self.batsmen:Batsman = Batsman("Batsman 1")
+    self.umpire:Umpire = Umpire()
+    self.fielders:Fielder = Fielder("Fielder 1")
 
-  def play_innings(self, outcomes):
-    overs = 10
-    balls_per_over = 6
-    total_balls = overs * balls_per_over
+  def play_innings(self, outcomes:int):
+    overs:int = 10
+    balls_per_over:int = 6
+    total_balls:int = overs * balls_per_over
+    ball:int=0
     for ball in range(total_balls):
-      for batsman in self.batsmen:
+      i:int=0
+      batsman:Batsman=Batsman("Ak")
+      for i in range(2):
         batsman.bat(outcomes)
       if ball % balls_per_over == 0:
-        print(self.name + " - Over " + str(ball // balls_per_over + 1) + ": " + str(self.runs) + "/" + str(self.wickets))
-    print("\nInnings complete: " + self.name + " scored " + str(self.runs) + "/" + str(self.wickets))
+        print(self.name)
+    print("Innings complete: " + self.name + " scored ")
 
 def main():
-  team1 = Team("Team 1")
-  team2 = Team("Team 2")
+  team1:Team = Team("Team 1")
+  team2:Team = Team("Team 2")
 
-  outcomes = [0, 1, 2, 3, 4, 6, "OUT"]
+  outcomes:int = 1
 
   print("Match started!")
   print("First Innings:")

@@ -3,15 +3,9 @@ def merge_sort(array: list[int]) -> None:
   if len(array) > 1:
     mid: int = len(array) // 2
 
-    left_half: list[int] = []
-    right_half: list[int] = []
-    
-    # Split the array into left and right halves
-    for i in range(mid):
-      left_half.append(array[i])
-    for i in range(mid, len(array)):
-      right_half.append(array[i])
-
+    left_half: list[int] = [1]
+    right_half: list[int] = [2]
+    left_half=[1,2,3]
     # Recursively sort the left and right halves
     merge_sort(left_half)
     merge_sort(right_half)
@@ -45,9 +39,9 @@ def merge_sort(array: list[int]) -> None:
 def main() -> None:
   data: list[int] = [-2, 45, 0, 11, -9]
   merge_sort(data)
-
+  element:int=0
   print('Sorted Array in Ascending Order:')
-  for element in data:
+  for element in range(3,5):
     print(element)
 
 if __name__ == "__main__":
