@@ -832,7 +832,7 @@ int main ( int argc, char *argv[]){
         fprintf(fpt1, "lexeme, token, line_number, type\n");
         for(auto y: x.second){
             char * t1=new char[y.first.size() + 1]; strcpy(t1, y.first.c_str());
-            fprintf(fpt1, "%s, IDENTIFER, %d, %s\n",t1,y.second.line_number,convert_to_string(y.second.list_type,y.second.type));
+            fprintf(fpt1, "%s, IDENTIFIER, %d, %s\n",t1,y.second.line_number,convert_to_string(y.second.list_type,y.second.type));
             if(y.second.type==6){
                 i++;
                 c=x.first+"."+y.first+to_string(i)+".csv";
@@ -842,7 +842,7 @@ int main ( int argc, char *argv[]){
                 fprintf(fpt2, "lexeme, token, line_number, type\n");
                 for(auto it:y.second.func_content){
                     char * t2=new char[it.first.size() + 1]; strcpy(t2, it.first.c_str());
-                    fprintf(fpt2, "%s, IDENTIFER, %d, %s\n",t2,it.second.line_number,convert_to_string(it.second.list_type,it.second.type));
+                    fprintf(fpt2, "%s, IDENTIFIER, %d, %s\n",t2,it.second.line_number,convert_to_string(it.second.list_type,it.second.type));
                 }
             }
         }
