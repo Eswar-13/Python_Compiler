@@ -119,6 +119,7 @@ int check_type(int type1, int type2){
         return 0;
     }
 }
+
 void update_table(string key,int type,int line_number){
     table[curr_func][key]=content(type,line_number);
     current_attributes.push(key);
@@ -789,7 +790,9 @@ void yyerror(const char *s){
 
 int main ( int argc, char *argv[]){
    
-   if(argc==5){ 
+   int flag = 0;
+   if(argc == 5)  flag=1;
+   if(flag){ 
    yyin = fopen(argv[2], "r");
    yyout = fopen(argv[4], "w");
    yydebug=0;
