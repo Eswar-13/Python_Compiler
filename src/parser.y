@@ -15,6 +15,8 @@ extern int yychar;
 extern char * yytext;
 
 int node=0;
+stack<int> curr_for;
+int curr_break=0;
 
 char* integerToOperator(int value) {
     // Map each integer value to its corresponding operator string
@@ -327,11 +329,11 @@ param_list:
 ASSIGNMENT_OPERATOR test  {$$.reg=$2.reg; $$.type=$2.type;$$.count=$2.count;}
 
 break_stmt: 
-BREAK  
+BREAK  {code.push_back("jump line "); curr_break++;}
 ;
 
 continue_stmt: 
-CONTINUE  
+CONTINUE  {code.push_back("jump line "+to_string(curr_for.top()));}
 ;
 
 return_stmt: 
@@ -369,7 +371,7 @@ elif_statements elif_test {$$.jump=$1.jump+1;}
 ;
 
 elif_test:
-ELIF test {$1.jump=code.size()+1; string c="if "+convert($2.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {string c=code[$1.jump]; c=c+to_string(code.size()+2); code[$1.jump]=c; c="jump line "; code.push_back(c);}
+ELIF test {$1.jump=code.size()+1; string c="if "+convert($2.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {fill(code.size()+2,curr_break); curr_break=0;string c=code[$1.jump]; c=c+to_string(code.size()+2); code[$1.jump]=c; c="jump line "; code.push_back(c);}
 
 else_statement: 
 ELSE COLON suite  
@@ -381,7 +383,7 @@ while_test
 ;
 
 while_test:
-WHILE{$1.jump=code.size()+1;} test  {$3.jump=code.size()+1; string c="if "+convert($3.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {string c=code[$3.jump]; c=c+to_string(code.size()+2); code[$3.jump]=c; c="jump line "+to_string($1.jump); code.push_back(c);}
+WHILE{$1.jump=code.size()+1;} test  {$3.jump=code.size()+1; string c="if "+convert($3.reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);} COLON suite {fill(code.size()+2,curr_break); curr_break=0; string c=code[$3.jump]; c=c+to_string(code.size()+2); code[$3.jump]=c; c="jump line "+to_string($1.jump); code.push_back(c);}
 
 for_stmt: 
 for_test 
@@ -389,7 +391,7 @@ for_test
 ;
 
 for_test:
-FOR name IN range{string c=convert($2.lexeme); c=c+"="+convert($4.lexeme); code.push_back(c); $1.jump=code.size()+1; c="r"+to_string(node); node++; c=c+"="+convert($2.lexeme); code.push_back(c); c="r"+to_string(node-1); c=c+"="+c+"<"+convert($4.reg); code.push_back(c); c="if r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{ fill(code.size()+2,1); string c="jump line "+to_string($1.jump); code.push_back(c);}
+FOR name IN range{string c=convert($2.lexeme); c=c+"="+convert($4.lexeme)+"-1"; code.push_back(c); $1.jump=code.size()+1; curr_for.push($1.jump); c=convert($2.lexeme); c=c+"="+c+"+1"; code.push_back(c); c="r"+to_string(node); node++; c=c+"="+convert($2.lexeme); code.push_back(c); c="r"+to_string(node-1); c=c+"="+c+"<"+convert($4.reg); code.push_back(c); c="if r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{ fill(code.size()+2,1); fill(code.size()+2,curr_break); curr_break=0; string c="jump line "+to_string($1.jump); curr_for.pop(); code.push_back(c);}
 
 range:
 RANGE LEFT_BRACKET test COMMA test RIGHT_BRACKET {$$.lexeme=$3.reg; $$.reg=$5.reg;  if($3.type!=1||$5.type!=1){yyerror("type");return 0;}}

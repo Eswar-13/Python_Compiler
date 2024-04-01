@@ -1,5 +1,6 @@
-def bubbleSort(array: list[int]) -> None:
+def bubbleSort(array: list[int],check :int) -> None:
   i: int = 0
+  check = 1
   for i in range(len(array)):
     swapped: bool = False
     j : int = 0
@@ -11,11 +12,13 @@ def bubbleSort(array: list[int]) -> None:
         swapped = True
     if not swapped:
       break
+    if swapped:
+      continue
 
 
 def main():
   data: list[int] = [-2, 45, 0, 11, -9]
-  bubbleSort(data)
+  bubbleSort(data,0)
 
   print('Sorted Array in Ascending Order:')
   i: int = 0
