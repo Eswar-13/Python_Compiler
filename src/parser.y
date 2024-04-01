@@ -312,7 +312,7 @@ test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.r
                                     }
                                 }
 ;
-dec_name: SELF DOT name %prec high{$$.type=1;$$.reg=$3.reg;$$.lexeme=$3.lexeme;$$.line=$3.line;if(!is_self){yyerror("type");return 0;}}
+dec_name: SELF DOT name %prec high{$$.type=1;$$.reg=$3.reg;$$.lexeme=$3.lexeme;string c = "self.";c=c+convert($3.lexeme);$$.lexeme=new char[c.size()]; strcpy($$.lexeme, c.c_str());$$.line=$3.line;if(!is_self){yyerror("type");return 0;}}
 |name {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.line=$1.line;}
 
 name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str()); $$.line=yylineno;}
@@ -705,7 +705,7 @@ atom opt_trailer %prec high {
                                         string c= "call ";
                                         c=c+convert($1.lexeme)+"."+convert($2.lexeme)+","+to_string(i);
                                         code.push_back(c);
-                                        code.push_back("stackpointer +xxx"); 
+                                        code.push_back("stackpointer -xxx"); 
                                         if($$.type){c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
                                         c=c+"=popparameter"; code.push_back(c);
                                         }
@@ -717,11 +717,13 @@ atom opt_trailer %prec high {
 ;
 |SELF opt_trailer %prec low{
                             if($2.dot){
+                                string c = "self.";c=c+convert($2.lexeme);$2.lexeme=new char[c.size()]; strcpy($2.lexeme, c.c_str());
                                 $$.type=table[curr_class][$2.lexeme].type;
                                 if($$.type==6&&!match_vector(table[curr_class][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                             }
                             if(!is_self){yyerror("type");return 0;}
-                            $$.lexeme=$2.lexeme; $$.reg=$2.reg;
+                            $$.lexeme=$2.lexeme;
+                            $$.reg=$2.reg;
                         }
 |LEN LEFT_BRACKET test RIGHT_BRACKET {
                                 if($3.type!=7){yyerror("type");return 0;}

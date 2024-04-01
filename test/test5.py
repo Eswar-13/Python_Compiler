@@ -1,6 +1,6 @@
 class Batsman:
-  def __init__(self, name:str):
-    self.name:str = name
+  def __init__(self, name_:str):
+    self.name:str = name_
     self.runs_scored:int = 0
     self.balls_faced:int = 0
 
@@ -21,12 +21,12 @@ class Umpire:
     print("OUT!")
 
 class Fielder:
-  def __init__(self, name:str):
-    self.name:str = name
+  def __init__(self, name_:str):
+    self.name:str = name_
 
 class Team:
-  def __init__(self, name:str):
-    self.name:str = name
+  def __init__(self, name_:str):
+    self.name:str = name_
     self.runs:int = 0
     self.wickets:int = 0
     self.batsmen:Batsman = Batsman("Batsman 1")

@@ -4,26 +4,26 @@ class Transport:
 
 
 class Train(Transport):
-  def __init__(self, train_name: str, transport_name: str):
-    self.train_name: str = train_name
+  def __init__(self, train_name_: str, transport_name: str):
+    self.train_name: str = train_name_
     Transport.__init__(self, transport_name)
 
 
 class Flight(Transport):
-  def __init__(self, flight_name: str, transport_name: str):
-    self.flight_name: str = flight_name
+  def __init__(self, flight_name_: str, transport_name: str):
+    self.flight_name: str = flight_name_
     Transport.__init__(self, transport_name)
 
 
 class Car(Transport):
-  def __init__(self, car_name: str, transport_name: str):
-    self.car_name: str = car_name
+  def __init__(self, car_name_: str, transport_name: str):
+    self.car_name: str = car_name_
     Transport.__init__(self, transport_name)
 
 
 class Trip:
-  def __init__(self, trip_name: str, transport: Transport):
-    self.trip_name: str = trip_name
+  def __init__(self, trip_name_: str, transport: Transport):
+    self.trip_name: str = trip_name_
     self.transport: Transport = transport
 
   def print_trip(self):

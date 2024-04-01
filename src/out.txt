@@ -1,150 +1,149 @@
+  
+ShiftReduceParser :
+classbegin
 
-bubbleSort :
+__init__ :
 funcbegin
 r0=popparameter
-r1=popparameter
-r2=0
-i=r2
-r3=r0
-r4=1
-r0=r4
-r5=r1
-param r5
-stackpointer +xxx
-call len,1
-stackpointer -xxx
-r6=popparameter
-i=0-1
-i=i+1
-r7=i
-r7=r7<r6
-if r7 jump line 23
-jump line 92
-r8=False
-swapped=r8
-r9=0
-j=r9
-r10=0
-r11=r1
-param r11
-stackpointer +xxx
-call len,1
-stackpointer -xxx
-r12=popparameter
-r13=i
-r12=r12-r13
-r14=1
-r12=r12-r14
-j=r10-1
-j=j+1
-r15=j
-r15=r15<r12
-if r15 jump line 44
-jump line 80
-r16=r1
-r17=j
-r18=r1[r17]
-r19=r1
-r20=j
-r21=1
-r20=r20+r21
-r22=r1[r20]
-r18=r18>r22
-if r18 jump line 55
-jump line 79
-r23=r1
-r24=j
-r25=r1[r24]
-temp=r25
-r26=r1
-r27=j
-r28=r1[r27]
-r29=r1
-r30=j
-r31=1
-r30=r30+r31
-r32=r1[r30]
-r1[r27]=r32
-r33=r1
-r34=j
-r35=1
-r34=r34+r35
-r36=r1[r34]
-r37=temp
-r1[r34]=r37
-r38=swapped
-r39=True
-swapped=r39
-jump line 79
-jump line 39
-r40=swapped
-r40=notr40
-if r40 jump line 84
-jump line 86
-jump line 92
-jump line 86
-r41=swapped
-if r41 jump line 89
-jump line 91
-jump line 18
-jump line 91
-jump line 18
+r1=r0
+self.srname=r1
 funcend
+
+classend
+
+r2=ShiftReduceParser
+
+LR0Parser :
+Parent : ShiftReduceParser
+classbegin
+
+__init__ :
+funcbegin
+r3=popparameter
+r4=popparameter
+r5=r4
+self.lr0name=r5
+r6=ShiftReduceParser
+r7=r3
+param r7
+stackpointer +xxx
+call ShiftReduceParser.__init__,1
+stackpointer -xxx
+r8=popparameter
+funcend
+
+classend
+
+r9=ShiftReduceParser
+
+CLRParser :
+Parent : ShiftReduceParser
+classbegin
+
+__init__ :
+funcbegin
+r10=popparameter
+r11=popparameter
+r12=r11
+self.clrname=r12
+r13=ShiftReduceParser
+r14=r10
+param r14
+stackpointer +xxx
+call ShiftReduceParser.__init__,1
+stackpointer -xxx
+r15=popparameter
+funcend
+
+classend
+
+r16=CLRParser
+
+LALRParser :
+Parent : CLRParser
+classbegin
+
+__init__ :
+funcbegin
+r17=popparameter
+r18=popparameter
+r19=popparameter
+r20=r19
+self.lalrname=r20
+r21=CLRParser
+r22=r18
+r23=r17
+param r22
+param r23
+stackpointer +xxx
+call CLRParser.__init__,2
+stackpointer -xxx
+r24=popparameter
+funcend
+
+
+print_name :
+funcbegin
+r25="SLR name:"
+param r25
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+param srname
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r26="CLR name:"
+param r26
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+param clrname
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r27="LALR name:"
+param r27
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+param lalrname
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+funcend
+
+classend
 
 
 main :
 funcbegin
-r42=2
-r42=-r42
-r43=45
-r44=0
-r45=11
-r46=9
-r46=-r46
-r47=[r42,r43,r44,r45,r46]
-data=r47
-r48=bubbleSort
-r49=data
-r50=0
-param r49
-param r50
+r28=LALRParser
+r29="LALR"
+r30="CLR"
+r31="Shift-Reduce"
+param r29
+param r30
+param r31
 stackpointer +xxx
-call bubbleSort,2
+call LALRParser.__init__,3
 stackpointer -xxx
-param 'Sorted Array in Ascending Order:'
+r32=popparameter
+obj=r32
+r33=obj
 stackpointer +xxx
-call print,1
+call obj.print_name,0
 stackpointer -xxx
-r51=0
-i=r51
-r52=data
-param r52
-stackpointer +xxx
-call len,1
-stackpointer -xxx
-r53=popparameter
-i=0-1
-i=i+1
-r54=i
-r54=r54<r53
-if r54 jump line 132
-jump line 140
-r55=data
-r56=i
-r57=data[r56]
-param r57
-stackpointer +xxx
-call print,1
-stackpointer -xxx
-jump line 127
+r34=popparameter
 funcend
 
-r58=__name__
-r58=r58=="__main__"
-if r58 jump line 146
-jump line 151
-r59=main
+r35=__name__
+r36="__main__"
+r35=r35==r36
+if r35 jump line 145
+jump line 150
+r37=main
 stackpointer +xxx
 call main,0
 stackpointer -xxx
-jump line 151
+jump line 150
