@@ -800,30 +800,34 @@ int main ( int argc, char *argv[]){
    for(auto x:code){
     fprintf(yyout,"%s\n",x.data());
    }
-   FILE *fpt;
+   FILE *fpt1;
+   FILE *fpt2;
    string c;
    char * path;
    int i=0;
    for(auto x: table){
-    if(classes_type.count(x.first)){
-
-    }
-    else{
         c=x.first+to_string(i)+".csv";
         path=new char[c.size() + 1]; 
         strcpy(path, c.c_str());
-        fpt = fopen(path, "w+");
-        cout<<x.first<<'\n';
-        // fprintf(fpt, "%s, %s, %d, %s\n", id, name, email, phone);
+        fpt1 = fopen(path, "w+");
+        fprintf(fpt1, "lexeme, token, line_number, type\n");
         for(auto y: x.second){
-            cout<<" "<<y.first<<' '<<y.second.line_number<<'\n';
+            char * t1=new char[y.first.size() + 1]; strcpy(t1, y.first.c_str());
+            fprintf(fpt1, "%s, IDENTIFER, %d, %d\n",t1,y.second.line_number,y.second.type);
             if(y.second.type==6){
+                i++;
+                c=x.first+"."+y.first+to_string(i)+".csv";
+                path=new char[c.size() + 1]; 
+                strcpy(path, c.c_str());
+                fpt2 = fopen(path, "w+");
+                fprintf(fpt2, "lexeme, token, line_number, type\n");
                 for(auto it:y.second.func_content){
-                    cout<<"  "<<it.first<<' '<<it.second.line_number<<'\n';
+                    char * t2=new char[it.first.size() + 1]; strcpy(t2, it.first.c_str());
+                    fprintf(fpt2, "%s, IDENTIFER, %d, %d\n",t2,it.second.line_number,it.second.type);
                 }
             }
         }
-    }
+        i++;
    }
    fclose(yyin);
    fclose(yyout);

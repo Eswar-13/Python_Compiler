@@ -1,0 +1,7 @@
+lexeme, token, line_number, type
+array, IDENTIFER, 1, 7
+check, IDENTIFER, 1, 1
+i, IDENTIFER, 2, 1
+j, IDENTIFER, 6, 1
+swapped, IDENTIFER, 5, 3
+temp, IDENTIFER, 9, 1
