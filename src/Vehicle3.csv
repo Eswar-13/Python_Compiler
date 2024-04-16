@@ -1,0 +1,5 @@
+lexeme, token, line_number, type
+__init__, IDENTIFIER, 18, Function
+self.make, IDENTIFIER, 19, str
+self.model, IDENTIFIER, 20, str
+start, IDENTIFIER, 22, Function

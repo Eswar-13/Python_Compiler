@@ -413,9 +413,9 @@ DEF func_name parameters COLON {
                                 string c=""; code.push_back(c); c=convert($2.lexeme);
                                 c=c+" :"; code.push_back(c); 
                                 code.push_back("funcbegin");
-                                for(auto x : $3.other->types){
-                                    c="r"+to_string(node); node++;
-                                    c=c+"=popparameter";
+                                for(auto x : $3.other->lexemes){
+                                    
+                                    c=x+"=popparameter";
                                     code.push_back(c);
                                 }
                                 $1.jump=code.size();
@@ -438,12 +438,6 @@ DEF func_name parameters COLON {
                                         is_return=0;
                                         is_self=0;
                                         string c;
-                                        int i=0;
-                                        for(auto x : $3.other->lexemes){
-                                            c="r"+to_string($4.jump-i); 
-                                            find_and_replace(x,c,$1.jump,code.size());
-                                            i++;
-                                        }
                                         c="funcend"; code.push_back(c);
                                         c=""; code.push_back(c);
                                     }
@@ -451,9 +445,9 @@ DEF func_name parameters COLON {
                                 string c=""; code.push_back(c); c=convert($2.lexeme);
                                 c=c+" :"; code.push_back(c); 
                                 code.push_back("funcbegin");
-                                for(auto x : $3.other->types){
-                                    c="r"+to_string(node); node++;
-                                    c=c+"=popparameter";
+                                for(auto x : $3.other->lexemes){
+                                    
+                                    c=x+"=popparameter";
                                     code.push_back(c);
                                 }
                                 $1.jump=code.size();
@@ -476,12 +470,6 @@ DEF func_name parameters COLON {
                                         is_return=0;
                                         is_self=0;
                                         string c;
-                                        int i=0;
-                                        for(auto x : $3.other->lexemes){
-                                            c="r"+to_string($4.jump-i); 
-                                            find_and_replace(x,c,$1.jump,code.size());
-                                            i++;
-                                        }
                                         c="funcend"; code.push_back(c);
                                         c=""; code.push_back(c);
                                     }

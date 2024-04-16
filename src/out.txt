@@ -1,113 +1,103 @@
-  
-ShiftReduceParser :
+                  
+factorial :
+funcbegin
+n=popparameter
+r0=n
+r1=0
+r0=r0<=r1
+if r0 jump line 10
+jump line 14
+r2=1
+push r2
+return
+jump line 27
+r3=n
+r4=factorial
+r5=n
+r6=1
+r5=r5-r6
+param r5
+stackpointer +xxx
+call factorial,1
+stackpointer -xxx
+r7=popparameter
+r3=r3*r7
+push r3
+return
+funcend
+
+
+area :
+funcbegin
+length=popparameter
+width=popparameter
+r8=0
+a=r8
+r9=a
+push r9
+return
+funcend
+
+
+Vehicle :
 classbegin
 
 __init__ :
 funcbegin
-r0=popparameter
-r1=r0
-self.srname=r1
+make=popparameter
+model=popparameter
+r10=make
+self.make=r10
+r11=model
+self.model=r11
+funcend
+
+
+start :
+funcbegin
+param make
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+param model
+stackpointer +xxx
+call print,1
+stackpointer -xxx
 funcend
 
 classend
 
-r2=ShiftReduceParser
+r12=Vehicle
 
-LR0Parser :
-Parent : ShiftReduceParser
+Car :
+Parent : Vehicle
 classbegin
 
 __init__ :
 funcbegin
-r3=popparameter
-r4=popparameter
-r5=r4
-self.lr0name=r5
-r6=ShiftReduceParser
-r7=r3
-param r7
-stackpointer +xxx
-call ShiftReduceParser.__init__,1
-stackpointer -xxx
-r8=popparameter
-funcend
-
-classend
-
-r9=ShiftReduceParser
-
-CLRParser :
-Parent : ShiftReduceParser
-classbegin
-
-__init__ :
-funcbegin
-r10=popparameter
-r11=popparameter
-r12=r11
-self.clrname=r12
-r13=ShiftReduceParser
-r14=r10
-param r14
-stackpointer +xxx
-call ShiftReduceParser.__init__,1
-stackpointer -xxx
-r15=popparameter
-funcend
-
-classend
-
-r16=CLRParser
-
-LALRParser :
-Parent : CLRParser
-classbegin
-
-__init__ :
-funcbegin
-r17=popparameter
-r18=popparameter
-r19=popparameter
-r20=r19
-self.lalrname=r20
-r21=CLRParser
-r22=r18
-r23=r17
-param r22
-param r23
-stackpointer +xxx
-call CLRParser.__init__,2
-stackpointer -xxx
-r24=popparameter
+make=popparameter
+model=popparameter
+year=popparameter
+r13=make
+self.make=r13
+r14=model
+self.model=r14
+r15=year
+self.year=r15
 funcend
 
 
-print_name :
+start :
 funcbegin
-r25="SLR name:"
-param r25
+param year
 stackpointer +xxx
 call print,1
 stackpointer -xxx
-param srname
+param make
 stackpointer +xxx
 call print,1
 stackpointer -xxx
-r26="CLR name:"
-param r26
-stackpointer +xxx
-call print,1
-stackpointer -xxx
-param clrname
-stackpointer +xxx
-call print,1
-stackpointer -xxx
-r27="LALR name:"
-param r27
-stackpointer +xxx
-call print,1
-stackpointer -xxx
-param lalrname
+param model
 stackpointer +xxx
 call print,1
 stackpointer -xxx
@@ -118,32 +108,287 @@ classend
 
 main :
 funcbegin
-r28=LALRParser
-r29="LALR"
-r30="CLR"
-r31="Shift-Reduce"
-param r29
-param r30
-param r31
+r16=42
+x=r16
+r17=3.14
+y=r17
+r18="hello"
+s=r18
+r19=True
+b=r19
+r20=1
+r21=2
+r22=3
+r23=4
+r24=5
+r25=[r20,r21,r22,r23,r24]
+lst=r25
+r26=x
+r27=y
+r26=r26+r27
+a=r26
+r28=x
+r29=y
+r28=r28-r29
+b=r28
+r30=x
+r31=y
+r30=r30*r31
+c=r30
+r32=x
+r33=y
+r32=r32/r33
+d=r32
+r34=x
+r35=y
+r34=r34//r35
+e=r34
+r36=x
+r37=y
+r36=r36%r37
+f=r36
+r38=x
+r39=y
+r38=r38==r39
+param r38
 stackpointer +xxx
-call LALRParser.__init__,3
+call print,1
 stackpointer -xxx
-r32=popparameter
-obj=r32
-r33=obj
+r40=x
+r41=y
+r40=r40!=r41
+param r40
 stackpointer +xxx
-call obj.print_name,0
+call print,1
 stackpointer -xxx
-r34=popparameter
+r42=x
+r43=y
+r42=r42>r43
+param r42
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r44=x
+r45=y
+r44=r44<r45
+param r44
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r46=x
+r47=y
+r46=r46>=r47
+param r46
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r48=x
+r49=y
+r48=r48<=r49
+param r48
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r50=True
+r51=False
+r50=r50andr51
+param r50
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r52=True
+r53=False
+r52=r52orr53
+param r52
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r54=True
+r54=notr54
+param r54
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r55=10
+p=r55
+r56=11
+q=r56
+r57=p
+r58=q
+r57=r57&r58
+param r57
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r59=p
+r60=q
+r59=r59|r60
+param r59
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r61=p
+r62=q
+r61=r61^r62
+param r61
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r63=p
+r63=~r63
+param r63
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r64=x
+r65=5
+x=r65
+r66=x
+r67=3
+r68=x
+r69=2
+r70=x
+r71=4
+r72=x
+r73=3
+r74=x
+r75=2
+r76=x
+r77=3
+r78=x
+r79=2
+r80=y
+r81=2
+y=r81
+r82=y
+r83=7
+r84=y
+r85=8
+r86=y
+r87=18
+r88=y
+r89=2
+r90=y
+r91=2
+r92=x
+r93=10
+r92=r92>r93
+if r92 jump line 278
+jump line 284
+r94="x is greater than 10"
+param r94
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+jump line 300
+r95=x
+r96=5
+r95=r95<r96
+if r95 jump line 289
+jump line 295
+r97="x is less than 5"
+param r97
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+jump line 300
+r98="x is between 5 and 10"
+param r98
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r99=0
+i=r99
+r100=1
+r101=5
+i=r100
+r102=i
+r102=r102<r101
+if r102 jump line 309
+jump line 315
+r103=i
+param r103
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+jump line 305
+r104=i
+r105=0
+i=r105
+r106=i
+r107=5
+r106=r106<r107
+if r106 jump line 323
+jump line 338
+r108=i
+param r108
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r109=i
+r110=1
+r111=i
+r112=3
+r111=r111==r112
+if r111 jump line 335
+jump line 337
+jump line 338
+jump line 337
+jump line 318
+r113=factorial
+r114=5
+param r114
+stackpointer +xxx
+call factorial,1
+stackpointer -xxx
+r115=popparameter
+fact=r115
+r116=fact
+param r116
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r117=area
+r118=5
+r119=3
+param r118
+param r119
+stackpointer +xxx
+call area,2
+stackpointer -xxx
+r120=popparameter
+ar=r120
+r121=ar
+param r121
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r122=Car
+r123="Toyota"
+r124="Camry"
+r125=2020
+param r123
+param r124
+param r125
+stackpointer +xxx
+call Car.__init__,3
+stackpointer -xxx
+r126=popparameter
+car=r126
+r127=car
+stackpointer +xxx
+call car.start,0
+stackpointer -xxx
+r128=popparameter
 funcend
 
-r35=__name__
-r36="__main__"
-r35=r35==r36
-if r35 jump line 145
-jump line 150
-r37=main
+r129=__name__
+r130='_main_'
+r129=r129==r130
+if r129 jump line 390
+jump line 395
+r131=main
 stackpointer +xxx
 call main,0
 stackpointer -xxx
-jump line 150
+jump line 395

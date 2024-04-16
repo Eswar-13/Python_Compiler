@@ -55,7 +55,7 @@ arithmetic     "*"|"/"|"//"|"%"
 relational      "=="|"!="|">"|"<"|">="|"<="          
 bitwise         "&"|"|"|"^"|"~"|"<<"|">>"
 assignment      "="
-augassignment   "+="|"-="|"="|"/="|"//="|"%="|"*="|"&="|"|="|"^="|"<<="|">>="
+augassignment   "+="|"-="|"="|"/="|"//="|"**="|"%="|"*="|"&="|"|="|"^="|"<<="|">>="
 data_type       "int"|"float"|"bool"|"str"
 WS              [ \t\f\n\r]*
 identifier      [A-Za-z_][A-Za-z_0-9]*

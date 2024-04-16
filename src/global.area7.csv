@@ -1,0 +1,4 @@
+lexeme, token, line_number, type
+a, IDENTIFIER, 11, int
+length, IDENTIFIER, 10, int
+width, IDENTIFIER, 10, int

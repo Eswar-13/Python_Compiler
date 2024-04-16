@@ -1,0 +1,5 @@
+lexeme, token, line_number, type
+make, IDENTIFIER, 29, str
+model, IDENTIFIER, 29, str
+self.year, IDENTIFIER, 32, int
+year, IDENTIFIER, 29, int

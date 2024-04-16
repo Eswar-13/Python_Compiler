@@ -1,0 +1,2 @@
+lexeme, token, line_number, type
+n, IDENTIFIER, 2, int
