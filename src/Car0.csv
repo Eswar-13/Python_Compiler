@@ -1,6 +1,0 @@
-lexeme, token, line_number, type
-__init__, IDENTIFIER, 29, Function
-self.make, IDENTIFIER, 19, str
-self.model, IDENTIFIER, 20, str
-self.year, IDENTIFIER, 32, int
-start, IDENTIFIER, 34, Function

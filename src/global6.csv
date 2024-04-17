@@ -1,7 +1,0 @@
-lexeme, token, line_number, type
-Car, IDENTIFIER, 27, class
-Vehicle, IDENTIFIER, 16, class
-__name__, IDENTIFIER, 0, str
-area, IDENTIFIER, 10, Function
-factorial, IDENTIFIER, 2, Function
-main, IDENTIFIER, 40, Function

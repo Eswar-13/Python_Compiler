@@ -54,6 +54,7 @@ class content{
         int list_type;
         int list_number;
         int funct_return_type;
+        int size=8;
         string parent_class="None";
         vector<int>func_parameter;
         int line_number;
@@ -298,6 +299,7 @@ dec_name annassign  {string c=convert($1.lexeme); c=c+"="+convert($2.reg); code.
                     if($2.type==7){
                         table[curr_func][$1.lexeme].list_type=$2.list_type;
                         table[curr_func][$1.lexeme].list_number=$2.count;
+                        table[curr_func][$1.lexeme].size=($2.count)*8;
                     }
                     if($1.type==1)table[curr_class][$1.lexeme]=table[curr_func][$1.lexeme];
                 }
@@ -309,6 +311,7 @@ Assign_stmt:
 test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;
                                     if($1.type==7){
                                         if(!check_type($1.list_type,$3.list_type))return 0;
+
                                     }
                                 }
 ;
@@ -820,7 +823,7 @@ int main ( int argc, char *argv[]){
         fprintf(fpt1, "lexeme, token, line_number, type\n");
         for(auto y: x.second){
             char * t1=new char[y.first.size() + 1]; strcpy(t1, y.first.c_str());
-            fprintf(fpt1, "%s, IDENTIFIER, %d, %s\n",t1,y.second.line_number,convert_to_string(y.second.list_type,y.second.type));
+            fprintf(fpt1, "%s, IDENTIFIER, %d, %s, %d\n",t1,y.second.line_number,convert_to_string(y.second.list_type,y.second.type),y.second.size);
             if(y.second.type==6){
                 i++;
                 c=x.first+"."+y.first+to_string(i)+".csv";

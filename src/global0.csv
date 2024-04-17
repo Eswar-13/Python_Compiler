@@ -1,0 +1,3 @@
+lexeme, token, line_number, type
+a, IDENTIFIER, 2, int, 8
+data, IDENTIFIER, 1, list(float), 40

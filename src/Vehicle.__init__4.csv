@@ -1,5 +1,0 @@
-lexeme, token, line_number, type
-make, IDENTIFIER, 18, str
-model, IDENTIFIER, 18, str
-self.make, IDENTIFIER, 19, str
-self.model, IDENTIFIER, 20, str
