@@ -3,6 +3,11 @@ main :
 funcbegin
 #r0 = 0
 a = #r0
+#r1 = a
+param #r1
+stackpointer +xxx
+call print_int 1
+stackpointer -xxx
 funcend
 
 exit

@@ -8,10 +8,39 @@ format_print_false: .asciz "False\n"
 main:
 pushq %rbp
 movq %rsp, %rbp
-movq $0, %rdx
+movq $2, %rdx
 movq %rdx, -8(%rbp)
 movq -8(%rbp), %rdx
 movq %rdx, -16(%rbp)
+movq -16(%rbp), %rdx
+movq %rdx, -24(%rbp)
+pushq %rax
+pushq %rcx
+pushq %rdx
+pushq %rdi
+pushq %rsi
+pushq %r8
+pushq %r9
+pushq %r10
+pushq %r11
+movq %rsp, %rbx
+movq %rsp, %rcx
+addq $-8, %rcx
+andq $15, %rcx
+subq %rcx, %rsp
+movq -24(%rbp), %rdx
+pushq %rdx
+call print_int
+movq %rbx, %rsp
+popq %r11
+popq %r10
+popq %r9
+popq %r8
+popq %rsi
+popq %rdi
+popq %rdx
+popq %rcx
+popq %rax
 leave
 ret
 print_int:

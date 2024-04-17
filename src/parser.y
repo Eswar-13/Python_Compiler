@@ -732,18 +732,16 @@ atom opt_trailer %prec high {
                                 code.push_back("stackpointer -xxx"); 
                                 c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=popparameter"; code.push_back(c);
                             }
-|PRINT LEFT_BRACKET arglist RIGHT_BRACKET{
-                                int i=0;
-                                for(auto x: $3.other->regs){
-                                        i++;
-                                        string c="param ";
-                                        c=c+x;
-                                        code.push_back(c);
-                                    }
-                                code.push_back("stackpointer +xxx"); 
-                                string c= "call print , "+to_string(i);
+|PRINT LEFT_BRACKET test RIGHT_BRACKET{
+                                string c="param ";
+                                c=c+convert($3.reg);
+                                code.push_back("stackpointer +8"); 
                                 code.push_back(c);
-                                code.push_back("stackpointer -xxx"); 
+                                if($3.type==1)c= "call print_int 1";
+                                if($3.type==3)c= "call print_bool 1";
+                                if($3.type==4)c= "call print_str 1";
+                                code.push_back(c);
+                                code.push_back("stackpointer -8"); 
                                 $$.type=0;
                                 $$.lexeme=$3.lexeme;
                                 $$.reg=$$.lexeme;
