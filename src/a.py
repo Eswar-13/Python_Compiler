@@ -1,3 +1,3 @@
 def main():
-  a:int=2
+  a:int=0
   print(a)

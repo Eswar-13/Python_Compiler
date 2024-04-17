@@ -3,8 +3,8 @@
 #include <string>
 using namespace std;
 map<string,string>m;
-int prev_offset=-8;
 int curr_offset=-8;
+int param=0;
 bool check_identifier(string s){
     if(s[0]=='#')return 1;
     for(char ch:s){
@@ -91,9 +91,25 @@ int main(int argc, char *argv[] ) {
         if(a[0]=="funcend"){
             modifiedString+="leave\n";
             modifiedString+="ret\n";
+            curr_offset=-8;
             continue;
         }
         check(a);
+        if(a[0]=="param"){
+            if(!param)modifiedString+="pushq %rax\npushq %rcx\npushq %rdx\npushq %rdi\npushq %rsi\npushq %r8\npushq %r9\npushq %r10\npushq %r11\nmovq %rsp, %rbx\nmovq %rsp, %rcx\naddq $-8, %rcx\nandq $15, %rcx\nsubq %rcx, %rsp\n";
+            param=1;
+            modifiedString+="movq "+m[a[1]]+", %rdx\n";
+            modifiedString+="pushq %rdx\n";
+            continue;
+        }
+        if(a[0]=="stackpointer"&&a[1][0]=='-'){
+            param=0;
+            modifiedString+="movq %rbx, %rsp\npopq %r11\npopq %r10\npopq %r9\npopq %r8\npopq %rsi\npopq %rdi\npopq %rdx\npopq %rcx\npopq %rax\n";
+            continue;
+        }
+        if(a[0]=="call"){
+            modifiedString+="call "+a[1]+"\n";
+        }
         if(a[3]==""&&a[1]=="="){
             if(check_identifier(a[2])){
                 modifiedString+="movq "+m[a[2]]+", %rdx\n";

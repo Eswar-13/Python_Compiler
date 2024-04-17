@@ -735,8 +735,8 @@ atom opt_trailer %prec high {
 |PRINT LEFT_BRACKET test RIGHT_BRACKET{
                                 string c="param ";
                                 c=c+convert($3.reg);
-                                code.push_back("stackpointer +8"); 
                                 code.push_back(c);
+                                code.push_back("stackpointer +8"); 
                                 if($3.type==1)c= "call print_int 1";
                                 if($3.type==3)c= "call print_bool 1";
                                 if($3.type==4)c= "call print_str 1";
