@@ -18,34 +18,34 @@ int node=0;
 stack<int> curr_for;
 int curr_break=0;
 
-char* integerToOperator(int value) {
+string integerToOperator(int value) {
     // Map each integer value to its corresponding operator string
     if (value == 0) {
-        return (char *) "+=";
+        return  "+";
     } else if (value == 1) {
-        return (char *) "-=";
+        return  "-";
     } else if (value == 2) {
-        return (char *) "*=";
+        return  "*";
     } else if (value == 3) {
-        return (char *) "/=";
+        return  "/";
     } else if (value == 4) {
-        return (char *) "//=";
+        return  "//";
     } else if (value == 5) {
-        return (char *) "%=";
+        return  "%";
     } else if (value == 6) {
-        return (char *) "**=";
+        return  "**";
     } else if (value == 7) {
-        return (char *) "&=";
+        return  "&";
     } else if (value == 8) {
-        return (char *) "|=";
+        return  "|";
     } else if (value == 9) {
-        return (char *) "^=";
+        return  "^";
     } else if (value == 10) {
-        return (char *) "<<=";
+        return  "<<";
     } else if (value == 11) {
-        return (char *) ">>=";
+        return  ">>";
     } else {
-        return (char *)""; // Return empty string for invalid integer values
+        return ""; // Return empty string for invalid integer values
     }
 }
 class content{
@@ -294,7 +294,7 @@ expr_stmt
 ;
 
 expr_stmt: 
-dec_name annassign  {string c=convert($1.lexeme); c=c+"="+convert($2.reg); code.push_back(c); 
+dec_name annassign  {string c=convert($1.lexeme); c=c+" = "+convert($2.reg); code.push_back(c); 
                     update_table($1.lexeme,$2.type,$1.line);
                     if($2.type==7){
                         table[curr_func][$1.lexeme].list_type=$2.list_type;
@@ -303,12 +303,17 @@ dec_name annassign  {string c=convert($1.lexeme); c=c+"="+convert($2.reg); code.
                     }
                     if($1.type==1)table[curr_class][$1.lexeme]=table[curr_func][$1.lexeme];
                 }
-|test AUGASSIGNMENT_OPERATOR test {if(!check_type($1.type,$3.type))return 0;}
+|test AUGASSIGNMENT_OPERATOR test {
+    if(!check_type($1.type,$3.type))return 0;
+    string c=convert($1.lexeme)+ " = "+convert($1.reg);
+    c=c+" "+integerToOperator($2.top)+" "+convert($3.reg);
+    code.push_back(c);
+    }
 |Assign_stmt   
 ;
 
 Assign_stmt:  
-test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+"="+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;
+test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+" = "+convert($3.reg); code.push_back(c);  $$.reg=$3.reg;if(!check_type($1.type,$3.type))return 0;$$.type=$1.type;
                                     if($1.type==7){
                                         if(!check_type($1.list_type,$3.list_type))return 0;
 
@@ -403,7 +408,7 @@ for_test
 ;
 
 for_test:
-FOR name IN range{string c=convert($2.lexeme); c=c+"="+convert($4.lexeme); code.push_back(c); $1.jump=code.size()+1; c="r"+to_string(node); node++; c=c+"="+convert($2.lexeme); code.push_back(c); c="r"+to_string(node-1); c=c+"="+c+"<"+convert($4.reg); code.push_back(c); c="if r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{fill(code.size()+2,curr_break); curr_break=0;  fill(code.size()+2,1); string c="jump line "+to_string($1.jump); code.push_back(c);}
+FOR name IN range{string c=convert($2.lexeme); c=c+" = "+convert($4.lexeme); code.push_back(c); $1.jump=code.size()+1; c="#r"+to_string(node); node++; c=c+" = "+convert($2.lexeme); code.push_back(c); c="#r"+to_string(node-1); c=c+" = "+c+" < "+convert($4.reg); code.push_back(c); c="if r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{fill(code.size()+2,curr_break); curr_break=0;  fill(code.size()+2,1); string c="jump line "+to_string($1.jump); code.push_back(c);}
 
 range:
 RANGE LEFT_BRACKET test COMMA test RIGHT_BRACKET {$$.lexeme=$3.reg; $$.reg=$5.reg;  if($3.type!=1||$5.type!=1){yyerror("type");return 0;}}
@@ -417,8 +422,7 @@ DEF func_name parameters COLON {
                                 c=c+" :"; code.push_back(c); 
                                 code.push_back("funcbegin");
                                 for(auto x : $3.other->lexemes){
-                                    
-                                    c=x+"=popparameter";
+                                    c=x+" = popparameter";
                                     code.push_back(c);
                                 }
                                 $1.jump=code.size();
@@ -450,7 +454,7 @@ DEF func_name parameters COLON {
                                 code.push_back("funcbegin");
                                 for(auto x : $3.other->lexemes){
                                     
-                                    c=x+"=popparameter";
+                                    c=x+" = popparameter";
                                     code.push_back(c);
                                 }
                                 $1.jump=code.size();
@@ -552,71 +556,71 @@ stmt_list stmt
 test: or_test %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.count=$1.count;}    
 ;
 
-or_test: or_test OR and_test %prec high {string c=convert($1.reg); c=c+"="+c+"or"+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}   
+or_test: or_test OR and_test %prec high {string c=convert($1.reg); c=c+" = "+c+" or "+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}   
 |and_test %prec low {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}       
 ;
 
-and_test: and_test AND not_test   {string c=convert($1.reg); c=c+"="+c+"and"+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}  
+and_test: and_test AND not_test   {string c=convert($1.reg); c=c+" = "+c+" and "+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}  
 |not_test {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}              
 ;
 
-not_test: NOT not_test  {string c=convert($2.reg); c=c+"=""not"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if(!($2.type==1||$2.type==3)){yyerror("type");return 0;}$$.type=3;}
+not_test: NOT not_test  {string c=convert($2.reg); c=c+" = not "+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if(!($2.type==1||$2.type==3)){yyerror("type");return 0;}$$.type=3;}
 |comparison  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;} 
 ;
 
-comparison: comparison r_o expr %prec high  {string c=convert($1.reg); c=c+"="+c+convert($2.reg)+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!check_type($1.type,$3.type))return 0;$$.type=3;} 
+comparison: comparison r_o expr %prec high  {string c=convert($1.reg); c=c+" = "+c+" "+convert($2.reg)+" "+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!check_type($1.type,$3.type))return 0;$$.type=3;} 
 |expr %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}   
 ;
 
 r_o: RELATIONAL_OPERATOR {string c=convert($1.lexeme); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); }
 ;
 
-expr: expr BIT_OR xor_expr %prec high    {string c=convert($1.reg); c=c+"="+convert($1.reg)+"|"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
+expr: expr BIT_OR xor_expr %prec high    {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" | "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
 |xor_expr  %prec low   {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}     
 ;
 
-xor_expr: xor_expr XOR and_expr  %prec high {string c=convert($1.reg); c=c+"="+convert($1.reg)+"^"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
+xor_expr: xor_expr XOR and_expr  %prec high {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" ^ "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
 |and_expr   %prec low    {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}    
 ;
 
-and_expr: and_expr BIT_AND shift_expr  %prec high {string c=convert($1.reg); c=c+"="+convert($1.reg)+"&"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
+and_expr: and_expr BIT_AND shift_expr  %prec high {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" & "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
 |shift_expr  %prec low     {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
 ;
 
-shift_expr: shift_expr L_SHIFT arith_expr %prec high  {string c=convert($1.reg); c=c+"="+convert($1.reg)+"<<"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
-|shift_expr R_SHIFT arith_expr %prec high   {string c=convert($1.reg); c=c+"="+convert($1.reg)+">>"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
+shift_expr: shift_expr L_SHIFT arith_expr %prec high  {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" << "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
+|shift_expr R_SHIFT arith_expr %prec high   {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" >> "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
 |arith_expr %prec low    {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
 ;
 
 arith_expr: 
-arith_expr ADD term %prec high    {string c=convert($1.reg); c=c+"="+convert($1.reg)+"+"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;int type=check_type($1.type,$3.type);if(!type){return 0;}$$.type=type;}
-|arith_expr SUB term %prec high   {string c=convert($1.reg); c=c+"="+convert($1.reg)+"-"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;int type=check_type($1.type,$3.type);if(type>3)yyerror("type");if(type<1||type>3)return 0;$$.type=type;}
+arith_expr ADD term %prec high    {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" + "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;int type=check_type($1.type,$3.type);if(!type){return 0;}$$.type=type;}
+|arith_expr SUB term %prec high   {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" - "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;int type=check_type($1.type,$3.type);if(type>3)yyerror("type");if(type<1||type>3)return 0;$$.type=type;}
 |term %prec low   {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
 ;
 
-term: term a_o factor %prec high   {string c=convert($1.reg); c=c+"="+c+convert($2.reg)+convert($3.reg); code.push_back(c); $$.reg=$1.reg;int type=check_type($1.type,$3.type);if(type>2)yyerror("type");if(type<1||type>2)return 0;if($2.lexeme!="//"){$$.type=type;}else $$.type=1;  }
+term: term a_o factor %prec high   {string c=convert($1.reg); c=c+" = "+c+" "+convert($2.reg)+" "+convert($3.reg); code.push_back(c); $$.reg=$1.reg;int type=check_type($1.type,$3.type);if(type>2)yyerror("type");if(type<1||type>2)return 0;if($2.lexeme!="//"){$$.type=type;}else $$.type=1;  }
 |factor %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
 
 a_o: ARITHMETIC_OPERATOR  {string c=convert($1.lexeme); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());$$.lexeme=$1.lexeme; }
 ;
 
 factor:
-ADD  factor {string c=convert($2.reg); c=c+"=""+"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if($2.type!=1&&$2.type!=2){yyerror("type");return 0;}$$.type=$2.type;}
-|SUB factor {string c=convert($2.reg); c=c+"=""-"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if($2.type!=1&&$2.type!=2){yyerror("type");return 0;}$$.type=$2.type;}
-|BIT_NOT factor {string c=convert($2.reg); c=c+"=""~"+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if($2.type<1||$2.type>3){yyerror("type");return 0;}$$.type=$2.type;}
+ADD  factor {string c=convert($2.reg); c=c+" = + "+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if($2.type!=1&&$2.type!=2){yyerror("type");return 0;}$$.type=$2.type;}
+|SUB factor {string c=convert($2.reg); c=c+" = - "+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if($2.type!=1&&$2.type!=2){yyerror("type");return 0;}$$.type=$2.type;}
+|BIT_NOT factor {string c=convert($2.reg); c=c+" = ~ "+convert($2.reg); code.push_back(c);  $$.reg=$2.reg;if($2.type<1||$2.type>3){yyerror("type");return 0;}$$.type=$2.type;}
 |power {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
 ;
 
 power:
-atom_expr POWER factor %prec high {string c=convert($1.reg); c=c+"="+c+"**"+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;int type=check_type($1.type,$3.type);if(type>2)yyerror("type");if(type<1||type>2)return 0;$$.type=type;}
+atom_expr POWER factor %prec high {string c=convert($1.reg); c=c+" = "+c+" ** "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;int type=check_type($1.type,$3.type);if(type>2)yyerror("type");if(type<1||type>2)return 0;$$.type=type;}
 |atom_expr %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
 ;
 
 atom_expr: 
 atom opt_trailer %prec high { 
                               if(get_type($1.lexeme)==7){
-                                string c=convert($1.lexeme); c+=convert($2.lexeme); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="r"+to_string(node); node++;
-                                $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());  c=c+"="+convert($1.lexeme)+convert($2.lexeme); code.push_back(c); 
+                                string c=convert($1.lexeme); c+=convert($2.lexeme); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="#r"+to_string(node); node++;
+                                $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());  c=c+" = "+convert($1.lexeme)+convert($2.lexeme); code.push_back(c); 
                                 if($2.list_type!=1){yyerror("type");return 0;}
                                 $$.type=get_listtype($1.lexeme);
                               }
@@ -633,13 +637,13 @@ atom opt_trailer %prec high {
                                     }
                                     code.push_back("stackpointer +xxx"); 
                                     string c= "call ";
-                                    c=c+convert($1.lexeme)+","+to_string(i);
+                                    c=c+convert($1.lexeme)+" , "+to_string(i);
                                     code.push_back(c);
                                     code.push_back("stackpointer -xxx"); 
                                     $$.type=get_funct_type($1.lexeme);
                                     if($$.type){
-                                    c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
-                                    c=c+"=popparameter"; code.push_back(c);
+                                    c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                    c=c+" = popparameter"; code.push_back(c);
                                     }
                                 }
                                 if($1.type==5){
@@ -655,11 +659,11 @@ atom opt_trailer %prec high {
                                         }
                                         code.push_back("stackpointer +xxx"); 
                                         string c= "call ";
-                                        c=c+convert($1.lexeme)+".__init__,"+to_string(i);
+                                        c=c+convert($1.lexeme)+".__init__ , "+to_string(i);
                                         code.push_back(c);
                                         code.push_back("stackpointer -xxx"); 
-                                        c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
-                                        c=c+"=popparameter"; code.push_back(c);
+                                        c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                        c=c+" = popparameter"; code.push_back(c);
                                     }else{
                                         $$.type=table[$1.lexeme][$2.lexeme].type;
                                         if($$.type==6&&!match_vector(table[$1.lexeme][$2.lexeme].func_parameter,$2.other->types)){return 0;}
@@ -672,11 +676,11 @@ atom opt_trailer %prec high {
                                         }
                                         code.push_back("stackpointer +xxx"); 
                                         string c= "call ";
-                                        c=c+convert($1.lexeme)+"."+convert($2.lexeme)+","+to_string(i);
+                                        c=c+convert($1.lexeme)+"."+convert($2.lexeme)+" , "+to_string(i);
                                         code.push_back(c);
                                         code.push_back("stackpointer -xxx"); 
-                                        if($$.type){c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
-                                        c=c+"=popparameter"; code.push_back(c);
+                                        if($$.type){c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                        c=c+" = popparameter"; code.push_back(c);
                                         }
                                     }
 
@@ -694,11 +698,11 @@ atom opt_trailer %prec high {
                                         }
                                         code.push_back("stackpointer +xxx"); 
                                         string c= "call ";
-                                        c=c+convert($1.lexeme)+"."+convert($2.lexeme)+","+to_string(i);
+                                        c=c+convert($1.lexeme)+"."+convert($2.lexeme)+" , "+to_string(i);
                                         code.push_back(c);
                                         code.push_back("stackpointer -xxx"); 
-                                        if($$.type){c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
-                                        c=c+"=popparameter"; code.push_back(c);
+                                        if($$.type){c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                        c=c+" = popparameter"; code.push_back(c);
                                         }
                                     }
                                 }
@@ -723,10 +727,10 @@ atom opt_trailer %prec high {
                                 c=c+convert($3.reg);
                                 code.push_back(c);
                                 code.push_back("stackpointer +xxx"); 
-                                c= "call len,1";
+                                c= "call len , 1";
                                 code.push_back(c);
                                 code.push_back("stackpointer -xxx"); 
-                                c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=popparameter"; code.push_back(c);
+                                c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=popparameter"; code.push_back(c);
                             }
 |PRINT LEFT_BRACKET arglist RIGHT_BRACKET{
                                 int i=0;
@@ -737,7 +741,7 @@ atom opt_trailer %prec high {
                                         code.push_back(c);
                                     }
                                 code.push_back("stackpointer +xxx"); 
-                                string c= "call print,"+to_string(i);
+                                string c= "call print , "+to_string(i);
                                 code.push_back(c);
                                 code.push_back("stackpointer -xxx"); 
                                 $$.type=0;
@@ -755,16 +759,26 @@ atom:
 LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2.reg;}
 |LEFT_BRACKET  RIGHT_BRACKET                 
 |LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET  
-|LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {string c="["; c+=convert($2.lexeme); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($$.lexeme); code.push_back(c); $$.type=7;$$.list_type=$2.type;$$.count=$2.count;}
-|NAME   {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0; $$.type=get_type($1.lexeme);if($$.type==7)$$.list_type=get_listtype($1.lexeme);}
-|INT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=1;}
-|FLOAT  {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=2;}
+|LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {
+    string c="#r"+to_string(node); node++; c=c+" = "+to_string(($2.count+1)*8); code.push_back(c); code.push_back("stackpointer + 8"); code.push_back("param #r"+to_string(node-1)); code.push_back("call mem_alloc , 1"); code.push_back("stackpointer - 8");
+    c="#r"+to_string(node); node++; code.push_back(c+"=popparameter"); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); $$.type=7;$$.list_type=$2.type;$$.count=$2.count;
+    c="#r"+to_string(node); node++; 
+    code.push_back(c+" = "+convert($$.reg));
+    code.push_back("* ( "+c+" ) = r"+to_string(node-3));
+    for(auto x:$2.other->regs){
+       code.push_back(c+" = "+c+" + 8");
+       code.push_back("* ( "+c+" ) = "+x);
+    }
+    }
+|NAME   {string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = ";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0; $$.type=get_type($1.lexeme);if($$.type==7)$$.list_type=get_listtype($1.lexeme);}
+|INT  {string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = ";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=1;}
+|FLOAT  {string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = ";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=2;}
 |DATA_TYPE  {$$.type=typedetector($1.lexeme);$$.lexeme=$1.lexeme;}
-|STRING   {$$.type=4;string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;}
-|STRING_1  {$$.type=4;string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;}
+|STRING   {$$.type=4;string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = ";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;}
+|STRING_1  {$$.type=4;string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = ";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;}
 |NONE       {$$.type=0;}
-|TRUE {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=3;}
-|FALSE {string c="r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=3;}
+|TRUE {string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = ";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=3;}
+|FALSE {string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = ";  c=c+convert($1.lexeme); code.push_back(c); $$.lexeme=$1.lexeme;$$.type=3;}
 |LIST {$$.type=7;}
 ;
 
@@ -772,13 +786,13 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2
 trailer: 
 LEFT_BRACKET arglist RIGHT_BRACKET   {$$.other=$2.other;}
 | LEFT_BRACKET RIGHT_BRACKET  {$$.other=new other;}         
-| LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {string c="["; c+=convert($2.reg); c+="]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); if($2.type!=1){yyerror("type");return 0;}$$.type=$2.type;$$.list_type=1;}
+| LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {string c="[ "; c+=convert($2.reg); c+=" ]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); if($2.type!=1){yyerror("type");return 0;}$$.type=$2.type;$$.list_type=1;}
 | DOT name {$$.lexeme=$2.lexeme; $$.reg=$2.reg; $$.dot=1;}
 ;
 
 testlist: 
-testlist COMMA test {string c=convert($1.lexeme); c=c+","+convert($3.reg); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); $$.type=$1.type;$$.count=$1.count+1;$$.reg=$1.reg;}
-| test {$$.lexeme=$1.reg; $$.type=$1.type;$$.count=1;$$.reg=$1.reg;}
+testlist COMMA test {$$.type=$1.type; $$.count=$1.count+1; $$.other=$1.other; (($$.other)->regs).push_back($3.reg);}
+| test {$$.type=$1.type; $$.count=1; $$.other=new other; (($$.other)->regs).push_back($1.reg);}
 ;
 
 
