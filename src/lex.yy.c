@@ -1,5 +1,5 @@
 
-#line 2 "lex.yy.c"
+#line 3 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -643,9 +643,9 @@ char *yytext;
     }
 }
 
-#line 646 "lex.yy.c"
+#line 647 "lex.yy.c"
 
-#line 648 "lex.yy.c"
+#line 649 "lex.yy.c"
 
 #define INITIAL 0
 #define DEDENTATION 1
@@ -869,7 +869,7 @@ YY_DECL
 	{
 #line 70 "lexer.l"
 
-#line 872 "lex.yy.c"
+#line 873 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1276,7 +1276,7 @@ YY_RULE_SETUP
 #line 157 "lexer.l"
 ECHO;
 	YY_BREAK
-#line 1279 "lex.yy.c"
+#line 1280 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(DEDENTATION):
 case YY_STATE_EOF(LINE_START):

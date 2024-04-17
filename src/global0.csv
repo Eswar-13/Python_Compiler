@@ -1,0 +1,2 @@
+lexeme, token, line_number, type
+main, IDENTIFIER, 1, Function, 8
