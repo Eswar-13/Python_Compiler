@@ -1910,13 +1910,13 @@ yyreduce:
 
   case 57: /* $@5: %empty  */
 #line 411 "parser.y"
-                 {string c=convert((yyvsp[-2].attributes).lexeme); c=c+" = "+convert((yyvsp[0].attributes).lexeme); code.push_back(c); (yyvsp[-3].attributes).jump=code.size()+1; c="#r"+to_string(node); node++; c=c+" = "+convert((yyvsp[-2].attributes).lexeme); code.push_back(c); c="#r"+to_string(node-1); c=c+" = "+c+" < "+convert((yyvsp[0].attributes).reg); code.push_back(c); c="if r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);}
+                 {string c=convert((yyvsp[-2].attributes).lexeme); c=c+" = "+convert((yyvsp[0].attributes).lexeme)+" - 1"; code.push_back(c); (yyvsp[-3].attributes).jump=code.size()+1; curr_for.push((yyvsp[-3].attributes).jump); c=convert((yyvsp[-2].attributes).lexeme); c=c+" = "+c+" + 1"; code.push_back(c); c="#r"+to_string(node); node++; c=c+" = "+convert((yyvsp[-2].attributes).lexeme); code.push_back(c); c="#r"+to_string(node-1); c=c+" = "+c+" < " +convert((yyvsp[0].attributes).reg); code.push_back(c); c="if #r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);}
 #line 1915 "parser.tab.c"
     break;
 
   case 58: /* for_test: FOR name IN range $@5 COLON suite  */
 #line 411 "parser.y"
-                                                                                                                                                                                                                                                                                                                                                                                                                             {fill(code.size()+2,curr_break); curr_break=0;  fill(code.size()+2,1); string c="jump line "+to_string((yyvsp[-6].attributes).jump); code.push_back(c);}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           { fill(code.size()+2,1); fill(code.size()+2,curr_break); curr_break=0; string c="jump line "+to_string((yyvsp[-6].attributes).jump); curr_for.pop(); code.push_back(c);}
 #line 1921 "parser.tab.c"
     break;
 
@@ -2528,10 +2528,10 @@ yyreduce:
     c="#r"+to_string(node); node++; code.push_back(c+"=popparameter"); (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); (yyval.attributes).type=7;(yyval.attributes).list_type=(yyvsp[-1].attributes).type;(yyval.attributes).count=(yyvsp[-1].attributes).count;
     c="#r"+to_string(node); node++; 
     code.push_back(c+" = "+convert((yyval.attributes).reg));
-    code.push_back("* ( "+c+" ) = r"+to_string(node-3));
+    code.push_back("*"+c+" = r"+to_string(node-3));
     for(auto x:(yyvsp[-1].attributes).other->regs){
        code.push_back(c+" = "+c+" + 8");
-       code.push_back("* ( "+c+" ) = "+x);
+       code.push_back("*"+c+" = "+x);
     }
     }
 #line 2538 "parser.tab.c"
@@ -2856,6 +2856,7 @@ int main ( int argc, char *argv[]){
    for(auto x:code){
     fprintf(yyout,"%s\n",x.data());
    }
+   fprintf(yyout,"exit\n");
    FILE *fpt1;
    FILE *fpt2;
    string c;

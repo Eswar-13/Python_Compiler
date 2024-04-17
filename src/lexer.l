@@ -87,6 +87,7 @@ SIGNIFICAND     ({INTEGER}"."{DIGIT}*)|"."{INTEGER}
                             }
                         }
 <LINE_START>#[^\n]*   {;}
+<LINE_START>" "       {;}
 <LINE_START>"\n"+     {;}
 <DEDENTATION>.        { 
                         unput(yytext[0]);

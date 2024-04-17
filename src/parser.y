@@ -408,7 +408,7 @@ for_test
 ;
 
 for_test:
-FOR name IN range{string c=convert($2.lexeme); c=c+" = "+convert($4.lexeme); code.push_back(c); $1.jump=code.size()+1; c="#r"+to_string(node); node++; c=c+" = "+convert($2.lexeme); code.push_back(c); c="#r"+to_string(node-1); c=c+" = "+c+" < "+convert($4.reg); code.push_back(c); c="if r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{fill(code.size()+2,curr_break); curr_break=0;  fill(code.size()+2,1); string c="jump line "+to_string($1.jump); code.push_back(c);}
+FOR name IN range{string c=convert($2.lexeme); c=c+" = "+convert($4.lexeme)+" - 1"; code.push_back(c); $1.jump=code.size()+1; curr_for.push($1.jump); c=convert($2.lexeme); c=c+" = "+c+" + 1"; code.push_back(c); c="#r"+to_string(node); node++; c=c+" = "+convert($2.lexeme); code.push_back(c); c="#r"+to_string(node-1); c=c+" = "+c+" < " +convert($4.reg); code.push_back(c); c="if #r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{ fill(code.size()+2,1); fill(code.size()+2,curr_break); curr_break=0; string c="jump line "+to_string($1.jump); curr_for.pop(); code.push_back(c);}
 
 range:
 RANGE LEFT_BRACKET test COMMA test RIGHT_BRACKET {$$.lexeme=$3.reg; $$.reg=$5.reg;  if($3.type!=1||$5.type!=1){yyerror("type");return 0;}}
@@ -764,10 +764,10 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2
     c="#r"+to_string(node); node++; code.push_back(c+"=popparameter"); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); $$.type=7;$$.list_type=$2.type;$$.count=$2.count;
     c="#r"+to_string(node); node++; 
     code.push_back(c+" = "+convert($$.reg));
-    code.push_back("* ( "+c+" ) = r"+to_string(node-3));
+    code.push_back("*"+c+" = r"+to_string(node-3));
     for(auto x:$2.other->regs){
        code.push_back(c+" = "+c+" + 8");
-       code.push_back("* ( "+c+" ) = "+x);
+       code.push_back("*"+c+" = "+x);
     }
     }
 |NAME   {string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = ";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0; $$.type=get_type($1.lexeme);if($$.type==7)$$.list_type=get_listtype($1.lexeme);}
@@ -824,6 +824,7 @@ int main ( int argc, char *argv[]){
    for(auto x:code){
     fprintf(yyout,"%s\n",x.data());
    }
+   fprintf(yyout,"exit\n");
    FILE *fpt1;
    FILE *fpt2;
    string c;

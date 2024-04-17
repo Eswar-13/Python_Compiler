@@ -1,3 +1,0 @@
-lexeme, token, line_number, type
-add, IDENTIFIER, 1, Function, 8
-main, IDENTIFIER, 3, Function, 8
