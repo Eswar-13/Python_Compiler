@@ -510,11 +510,11 @@ CLASS class_name opt_class_arg COLON{
                                 func_class="";
                                 }
 |CLASS class_name COLON {
-                         func_class=convert($2.lexeme)+".";
+                        func_class=convert($2.lexeme)+".";
 }
                   suite   {
                             update_table($2.lexeme,5,$2.line);curr_class="None";
-                                func_class="";
+                                 func_class="";
                                 }
 ;
 class_name:name{curr_class=$1.lexeme;$$.lexeme=$1.lexeme;update_class_type(curr_class);}
@@ -750,14 +750,14 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2
 |LEFT_BRACKET  RIGHT_BRACKET                 
 |LEFT_SQUARE_BRACKET  RIGHT_SQUARE_BRACKET  
 |LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET {
-    string c="#r"+to_string(node); node++; c=c+" = "+to_string(($2.count+1)*8); code.push_back(c); code.push_back("stackpointer + 8"); code.push_back("param #r"+to_string(node-1)); code.push_back("call mem_alloc , 1"); code.push_back("stackpointer - 8");
-    c="#r"+to_string(node); node++; code.push_back(c+"=popparameter"); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); $$.type=7;$$.list_type=$2.type;$$.count=$2.count;
+    string c="#r"+to_string(node); node++; c=c+" = "+to_string(($2.count+1)*8); code.push_back(c);code.push_back("param #r"+to_string(node-1)); code.push_back("stackpointer + 8"); code.push_back("call mem_alloc , 1"); code.push_back("stackpointer - 8");
+    c="#r"+to_string(node); node++; code.push_back(c+" = popparameter"); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); $$.type=7;$$.list_type=$2.type;$$.count=$2.count;
     c="#r"+to_string(node); node++; 
     code.push_back(c+" = "+convert($$.reg));
-    code.push_back("*"+c+" = r"+to_string(node-3));
+    code.push_back("*("+c+") = "+to_string($2.count));
     for(auto x:$2.other->regs){
        code.push_back(c+" = "+c+" + 8");
-       code.push_back("*"+c+" = "+x);
+       code.push_back("*("+c+") = "+x);
     }
     }
 |NAME   {string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = ";  c=c+convert($1.lexeme); code.push_back(c);  $$.lexeme=$1.lexeme;if(check($1.lexeme))return 0; $$.type=get_type($1.lexeme);if($$.type==7)$$.list_type=get_listtype($1.lexeme);}
@@ -776,7 +776,7 @@ LEFT_BRACKET testlist RIGHT_BRACKET {$$.type=$2.type;$$.count=$2.count;$$.reg=$2
 trailer: 
 LEFT_BRACKET arglist RIGHT_BRACKET   {$$.other=$2.other;}
 | LEFT_BRACKET RIGHT_BRACKET  {$$.other=new other;}         
-| LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {string c="[ "; c+=convert($2.reg); c+=" ]"; $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); if($2.type!=1){yyerror("type");return 0;}$$.type=$2.type;$$.list_type=1;}
+| LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  {string c=" [] "; c+=convert($2.reg); $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str()); if($2.type!=1){yyerror("type");return 0;}$$.type=$2.type;$$.list_type=1;}
 | DOT name {$$.lexeme=$2.lexeme; $$.reg=$2.reg; $$.dot=1;}
 ;
 

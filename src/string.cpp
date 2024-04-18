@@ -27,6 +27,7 @@ bool check_identifier(string s){
     return 0;
 }
 void check(vector<string>&a){
+    int i=0;
     for(string s:a){
         // cout<<s<<" ";
         if(check_identifier(s)){
@@ -34,7 +35,9 @@ void check(vector<string>&a){
                 m[curr_function][s]=to_string(curr_offset)+"(%rbp)";
                 curr_offset-=8;
             }
-        }
+        }else{
+                m[curr_function][s]="$"+s;
+            }
     }
     // cout<<endl;
 }
@@ -156,21 +159,45 @@ int main(int argc, char *argv[] ) {
             param=0;
             continue;
         }
-        if(a[3]==""&&a[1]=="="){
-            if(check_identifier(a[2])){
-                temp_string+="movq "+m[curr_function][a[2]]+", %rdx\n";
-            }else  temp_string+="movq $"+a[2]+", %rdx\n";
+        if(a[3]=="[]"&&a[1]=="="){
+            temp_string+="movq "+m[curr_function][a[2]]+", %rcx\n";
+            temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
+            temp_string+="addq %rdx, %rcx\n";
+            temp_string+="movq (%rcx), %rdx\n";
             temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
             continue;
         }
-        if(check_identifier(a[2])&&check_identifier(a[4])&&arith_oper(a[3])!=""){
+        if(a[1]=="[]"&&a[3]=="="){
+            temp_string+="movq "+m[curr_function][a[0]]+", %rcx\n";
+            temp_string+="movq "+m[curr_function][a[2]]+", %rdx\n";
+            temp_string+="addq %rdx, %rcx\n";
+            temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
+            temp_string+="movq %rdx, (%rcx)\n";
+            continue;
+        }
+        if(a[0][0]=='*'){
+            string y="";
+            for(int i=2;i<a[0].length()-1;i++){
+                y+=a[0][i];
+            }
+            temp_string+="movq "+m[curr_function][y]+", %rdx\n";
+            temp_string+="movq "+m[curr_function][a[2]]+", %rcx\n";
+            temp_string+="movq %rcx, (%rdx)\n";
+            continue;
+        }
+        if(a[3]==""&&a[1]=="="){
+            temp_string+="movq "+m[curr_function][a[2]]+", %rdx\n";
+            temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(arith_oper(a[3])!=""){
             temp_string+="movq "+m[curr_function][a[2]]+", %rcx\n";
             temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
             temp_string+=arith_oper(a[3])+" %rdx, %rcx\n";
             temp_string+="movq %rcx, "+m[curr_function][a[0]]+"\n";
             continue;
         }
-        if(check_identifier(a[2])&&check_identifier(a[4])&&rel_oper(a[3])!=""){
+        if(rel_oper(a[3])!=""){
             temp_string+="movq "+m[curr_function][a[2]]+", %rdx\n";
             temp_string+="movq "+m[curr_function][a[4]]+", %rcx\n";
             temp_string+="cmp %rcx, %rdx\n";
@@ -194,6 +221,7 @@ int main(int argc, char *argv[] ) {
     modifiedString+="print_int:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rsi\nlea format_print_int(%rip), %rdi\nxorq %rax, %rax\ncallq printf@plt\nleave\nret\n";
     modifiedString+="print_bool:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rcx\ncmp $0, %rcx\njne print_true_label\nlea format_print_false(%rip), %rdi\njmp print_false_exit\nprint_true_label:\nlea format_print_true(%rip), %rdi\nprint_false_exit:\nxorq %rax, %rax\ncallq printf@plt\nleave\nret\n";
     modifiedString+="print_str:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rsi\nlea format_print_str(%rip), %rdi\nxorq %rax, %rax\ncallq printf@plt\nleave\nret\n";
+    modifiedString+="mem_alloc:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rdi\ncallq malloc\nleave\nret\n";
     // Close the input file
     inputFile.close();
 

@@ -12,49 +12,30 @@ funcend
 
 main :
 funcbegin
-#r2 = 6
-a = #r2
-#r3 = add
-#r4 = a
-#r5 = 9
+#r2 = 1
+#r3 = 2
+#r4 = 24
 param #r4
-param #r5
-stackpointer +xxx
-call add , 2
-stackpointer -xxx
-#r6 = popparameter
-b = #r6
-#r7 = 0
-i = #r7
-#r8 = a
-#r9 = 1
-#r10 = 2
-#r9 = #r9 + #r10
-#r11 = 3
-#r9 = #r9 + #r11
-#r12 = 4
-#r9 = #r9 + #r12
-a = #r9
-#r13 = 3
-#r14 = 5
-#r15 = 1
-#r16 = #r13 - #r15
-i = #r16
-.L4 :
-#r17 = i
-#r17 = #r17 + #r15
-i = #r17
-#r17 = #r17 < #r14
-if #r17 jump .L5
-jump .L6
-.L5 :
-#r18 = i
-param #r18
+stackpointer + 8
+call mem_alloc , 1
+stackpointer - 8
+#r5 = popparameter
+#r6 = #r5
+*(#r6) = 2
+#r6 = #r6 + 8
+*(#r6) = #r2
+#r6 = #r6 + 8
+*(#r6) = #r3
+l = #r5
+#r8 = 0
+#r10 = 3
+l [] #r8 = #r10
+#r12 = 0
+#r13 = l [] #r12
+param #r13
 stackpointer +8
 call print_int , 1
 stackpointer -8
-jump .L4
-.L6 :
 funcend
 
 exit

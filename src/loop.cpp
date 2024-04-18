@@ -74,6 +74,9 @@ int main(int argc, char *argv[] ) {
         ind.insert({x,i});
         i++;
     }
+    // for(auto x:regs){
+    //     cout<<x.first<<" "<<x.second<<endl;
+    // }
     i=1;
     for(auto s : content){
         string c;
@@ -92,7 +95,7 @@ int main(int argc, char *argv[] ) {
         }
         a.push_back(temp);
         if(a[0].size()>2){
-            if(a[0][0]=='.' && a[0][1]=='r') {
+            if(a[0][0]=='#' && a[0][1]=='r') {
                 string temp=a[0];
                 temp[0]='0';
                 temp[1]='0';
