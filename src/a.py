@@ -1,6 +1,11 @@
-def add(a:int,b:int)->int:
-  return a+b
 def main():
-  l:list[int]=[1,2]
-  l[0]=3
-  print(l[0])
+  a:int = 2
+  b:int = 4
+  c:int = b/2
+  print(c)
+  k:int = 158
+  p:int = 34
+  o:int = k/p
+  r:int = k%p
+  print(o)
+  print(r)

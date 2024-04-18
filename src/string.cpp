@@ -44,11 +44,16 @@ void check(vector<string>&a){
 string arith_oper(string s){
     if(s=="+")return "addq";
     if(s=="-")return "subq";
+    if(s=="*")return "imulq";
     return "";
 }
 string rel_oper(string s){
     if(s=="<")return "setl";
     if(s==">")return "setg";
+    if(s=="<=")return "setle";
+    if(s==">=")return "setge";
+    if(s=="==")return "sete";
+    if(s=="!=")return "setne";
     return "";
 }
 int main(int argc, char *argv[] ) {
@@ -190,6 +195,22 @@ int main(int argc, char *argv[] ) {
             temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
             continue;
         }
+        if(a[3]=="/"||a[3]=="//"){
+            temp_string+="movq "+m[curr_function][a[2]]+", %rax\n";
+            temp_string+="cdq\n";
+            // temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
+            temp_string+="idivq "+m[curr_function][a[4]]+"\n";
+            temp_string+="movq %rax, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(a[3]=="%"){
+            temp_string+="movq "+m[curr_function][a[2]]+", %rax\n";
+            temp_string+="cdq\n";
+            // temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
+            temp_string+="idivq "+m[curr_function][a[4]]+"\n";
+            temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
         if(arith_oper(a[3])!=""){
             temp_string+="movq "+m[curr_function][a[2]]+", %rcx\n";
             temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
@@ -222,6 +243,13 @@ int main(int argc, char *argv[] ) {
     modifiedString+="print_bool:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rcx\ncmp $0, %rcx\njne print_true_label\nlea format_print_false(%rip), %rdi\njmp print_false_exit\nprint_true_label:\nlea format_print_true(%rip), %rdi\nprint_false_exit:\nxorq %rax, %rax\ncallq printf@plt\nleave\nret\n";
     modifiedString+="print_str:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rsi\nlea format_print_str(%rip), %rdi\nxorq %rax, %rax\ncallq printf@plt\nleave\nret\n";
     modifiedString+="mem_alloc:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rdi\ncallq malloc\nleave\nret\n";
+    modifiedString+="strcmpl:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rdi\nmovq 24(%rbp), %rsi\ncallq strcmp\ncmp $0, %eax\nmovq $0, %rdx\nsetl %dl\nmovq %rdx, %rax\nleave\nret\n";
+    modifiedString+="strcmpg:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rdi\nmovq 24(%rbp), %rsi\ncallq strcmp\ncmp $0, %eax\nmovq $0, %rdx\nsetg %dl\nmovq %rdx, %rax\nleave\nret\n";
+    modifiedString+="strcmpe:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rdi\nmovq 24(%rbp), %rsi\ncallq strcmp\ncmp $0, %eax\nmovq $0, %rdx\nsete %dl\nmovq %rdx, %rax\nleave\nret\n";
+    modifiedString+="strcmpne:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rdi\nmovq 24(%rbp), %rsi\ncallq strcmp\ncmp $0, %eax\nmovq $0, %rdx\nsetne %dl\nmovq %rdx, %rax\nleave\nret\n";
+    modifiedString+="strcmple:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rdi\nmovq 24(%rbp), %rsi\ncallq strcmp\ncmp $0, %eax\nmovq $0, %rdx\nsetle %dl\nmovq %rdx, %rax\nleave\nret\n";
+    modifiedString+="strcmpge:\npushq %rbp\nmovq %rsp, %rbp\nmovq 16(%rbp), %rdi\nmovq 24(%rbp), %rsi\ncallq strcmp\ncmp $0, %eax\nmovq $0, %rdx\nsetge %dl\nmovq %rdx, %rax\nleave\nret\n";
+    modifiedString+=".power:\npushq %rbp\nmovq %rsp, %rbp\nsubq $-32, %rsp\nmovq $0, -24(%rbp)\nmovq $1, -32(%rbp)\njmp .L2\n.L3:\nmovq -32(%rbp), %rax\nimulq 16(%rbp), %rax\nmovq %rax, -32(%rbp)\naddq $1, -24(%rbp)\n.L2:\nmovq -24(%rbp), %rax\ncmpq 24(%rbp), %rax\njl .L3\nmovq -32(%rbp), %rax\nleave\nret\n";
     // Close the input file
     inputFile.close();
 
