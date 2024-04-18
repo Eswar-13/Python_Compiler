@@ -5,15 +5,37 @@ format_print_true: .asciz "True\n"
 format_print_false: .asciz "False\n"
 .text
 .globl main
+add:
+pushq %rbp
+movq %rsp, %rbp
+movq 16(%rbp), %rdx
+movq %rdx, -8(%rbp)
+movq 24(%rbp), %rdx
+movq %rdx, -16(%rbp)
+movq -8(%rbp), %rdx
+movq %rdx, -24(%rbp)
+movq -16(%rbp), %rdx
+movq %rdx, -32(%rbp)
+movq -24(%rbp), %rcx
+movq -32(%rbp), %rdx
+addq %rdx, %rcx
+movq %rcx, -24(%rbp)
+movq -24(%rbp), %rax
+leave
+ret
 main:
 pushq %rbp
 movq %rsp, %rbp
-movq $2, %rdx
+movq $0, %rdx
 movq %rdx, -8(%rbp)
 movq -8(%rbp), %rdx
 movq %rdx, -16(%rbp)
-movq -16(%rbp), %rdx
+movq -32(%rbp), %rdx
 movq %rdx, -24(%rbp)
+movq -16(%rbp), %rdx
+movq %rdx, -40(%rbp)
+movq $1, %rdx
+movq %rdx, -48(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -28,9 +50,12 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -24(%rbp), %rdx
+movq -40(%rbp), %rdx
 pushq %rdx
-call print_int
+movq -48(%rbp), %rdx
+pushq %rdx
+call add
+movq %rax, -56(%rbp)
 movq %rbx, %rsp
 popq %r11
 popq %r10

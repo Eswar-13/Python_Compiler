@@ -356,9 +356,8 @@ CONTINUE  {code.push_back("jump line "+to_string(curr_for.top()));}
 return_stmt: 
 RETURN test %prec high  {
     if(!check_type(current_func_type,$2.type))return 0;is_return=1;
-    string c="push "+convert($2.reg);
+    string c="return "+convert($2.reg);
     code.push_back(c);
-    code.push_back("return");
 }
 | RETURN %prec low  {if(current_func_type!=0||current_func_type==-1){yyerror("type");return 0;}}
 
