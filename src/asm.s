@@ -27,7 +27,7 @@ ret
 main:
 pushq %rbp
 movq %rsp, %rbp
-subq $136, %rsp
+subq $184, %rsp
 movq $6, %rdx
 movq %rdx, -8(%rbp)
 movq -8(%rbp), %rdx
@@ -98,16 +98,40 @@ addq %rdx, %rcx
 movq %rcx, -96(%rbp)
 movq -96(%rbp), %rdx
 movq %rdx, -16(%rbp)
-movq -16(%rbp), %rdx
+movq $3, %rdx
 movq %rdx, -128(%rbp)
-movq $1, %rdx
+movq $5, %rdx
 movq %rdx, -136(%rbp)
-movq -128(%rbp), %rdx
+movq $1, %rdx
+movq %rdx, -144(%rbp)
+movq -128(%rbp), %rcx
+movq -144(%rbp), %rdx
+subq %rdx, %rcx
+movq %rcx, -152(%rbp)
+movq -152(%rbp), %rdx
+movq %rdx, -80(%rbp)
+.L4:
+movq -80(%rbp), %rdx
+movq %rdx, -160(%rbp)
+movq -160(%rbp), %rcx
+movq -144(%rbp), %rdx
+addq %rdx, %rcx
+movq %rcx, -160(%rbp)
+movq -160(%rbp), %rdx
+movq %rdx, -80(%rbp)
+movq -160(%rbp), %rdx
 movq -136(%rbp), %rcx
 cmp %rcx, %rdx
 movq $0, %rdx
-setg %dl
-movq %rdx, -128(%rbp)
+setl %dl
+movq %rdx, -160(%rbp)
+movq -160(%rbp), %rdx
+cmp $1, %rdx
+je .L5
+jmp .L6
+.L5:
+movq -80(%rbp), %rdx
+movq %rdx, -184(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -122,9 +146,9 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -128(%rbp), %rdx
+movq -184(%rbp), %rdx
 pushq %rdx
-call print_bool
+call print_int
 movq %rbx, %rsp
 popq %r11
 popq %r10
@@ -135,6 +159,8 @@ popq %rdi
 popq %rdx
 popq %rcx
 popq %rax
+jmp .L4
+.L6:
 leave
 ret
 print_int:

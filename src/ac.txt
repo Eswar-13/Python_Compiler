@@ -35,13 +35,26 @@ i = #r7
 #r12 = 4
 #r9 = #r9 + #r12
 a = #r9
-#r13 = a
-#r14 = 1
-#r13 = #r13 > #r14
-param #r13
+#r13 = 3
+#r14 = 5
+#r15 = 1
+#r16 = #r13 - #r15
+i = #r16
+.L4 :
+#r17 = i
+#r17 = #r17 + #r15
+i = #r17
+#r17 = #r17 < #r14
+if #r17 jump .L5
+jump .L6
+.L5 :
+#r18 = i
+param #r18
 stackpointer +8
-call print_bool , 1
+call print_int , 1
 stackpointer -8
+jump .L4
+.L6 :
 funcend
 
 exit

@@ -17,6 +17,7 @@ extern char * yytext;
 int node=0;
 stack<int> curr_for;
 int curr_break=0;
+string func_class="";
 
 string integerToOperator(int value) {
     // Map each integer value to its corresponding operator string
@@ -407,17 +408,18 @@ for_test
 ;
 
 for_test:
-FOR name IN range{string c=convert($2.lexeme); c=c+" = "+convert($4.lexeme)+" - 1"; code.push_back(c); $1.jump=code.size()+1; curr_for.push($1.jump); c=convert($2.lexeme); c=c+" = "+c+" + 1"; code.push_back(c); c="#r"+to_string(node); node++; c=c+" = "+convert($2.lexeme); code.push_back(c); c="#r"+to_string(node-1); c=c+" = "+c+" < " +convert($4.reg); code.push_back(c); c="if #r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{ fill(code.size()+2,1); fill(code.size()+2,curr_break); curr_break=0; string c="jump line "+to_string($1.jump); curr_for.pop(); code.push_back(c);}
+FOR name IN range{ string c="#r"+to_string(node); node++; c=c+" = 1"; code.push_back(c); c="#r"+to_string(node); node++; c="#r"+to_string(node-1)+" = "+convert($4.lexeme)+" - #r"+to_string(node-2); code.push_back(c); c=convert($2.lexeme)+" = #r"+to_string(node-1);code.push_back(c); $1.jump=code.size()+1; curr_for.push($1.jump); c="#r"+to_string(node); node++; c=c+" = "+convert($2.lexeme); code.push_back(c); c="#r"+to_string(node-1)+" = "+"#r"+to_string(node-1)+" + #r"+to_string(node-3); code.push_back(c); c=convert($2.lexeme)+" = #r"+to_string(node-1);code.push_back(c); c="#r"+to_string(node-1); c=c+" = "+c+" < " +convert($4.reg); code.push_back(c); c="if #r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);} COLON suite{ fill(code.size()+2,1); fill(code.size()+2,curr_break); curr_break=0; string c="jump line "+to_string($1.jump); curr_for.pop(); code.push_back(c);}
 
 range:
 RANGE LEFT_BRACKET test COMMA test RIGHT_BRACKET {$$.lexeme=$3.reg; $$.reg=$5.reg;  if($3.type!=1||$5.type!=1){yyerror("type");return 0;}}
-|RANGE LEFT_BRACKET test  RIGHT_BRACKET {string c="0"; $$.lexeme=new char[c.size()+1]; strcpy($$.lexeme, c.c_str()); $$.reg=$3.reg;  if($3.type!=1){yyerror("type");return 0;}}
+|RANGE LEFT_BRACKET test  RIGHT_BRACKET {string c="#r"+to_string(node); code.push_back(c+" = 0"); node++; $$.lexeme=new char[c.size()+1]; strcpy($$.lexeme, c.c_str()); $$.reg=$3.reg;  if($3.type!=1){yyerror("type");return 0;}}
 ;
 
 funcdef: 
 DEF func_name parameters COLON {
                                 current_func_type=0; 
                                 string c=""; code.push_back(c); c=convert($2.lexeme);
+                                if(func_class.size()) c=func_class+c;
                                 c=c+" :"; code.push_back(c); 
                                 code.push_back("funcbegin");
                                 for(auto x : $3.other->lexemes){
@@ -449,6 +451,7 @@ DEF func_name parameters COLON {
                                     }
 | DEF func_name parameters RETURN_ARROW data_type{current_func_type=$5.type;  } COLON{
                                 string c=""; code.push_back(c); c=convert($2.lexeme);
+                                if(func_class.size()) c=func_class+c;
                                 c=c+" :"; code.push_back(c); 
                                 code.push_back("funcbegin");
                                 for(auto x : $3.other->lexemes){
@@ -500,28 +503,18 @@ name COLON data_type %prec low  {$$.lexeme=strdup($1.lexeme); update_table($1.le
 
 classdef: 
 CLASS class_name opt_class_arg COLON{
-                                    string c=""; code.push_back(c);
-                                    c=convert($2.lexeme);
-                                    c=c+" :"; code.push_back(c);
-                                    c="Parent : "+convert($3.lexeme);
-                                    code.push_back(c);
-                                    code.push_back("classbegin");
+                                    func_class=convert($2.lexeme)+".";
                                 } 
                                suite   {
                                 update_table($2.lexeme,5,$2.line);curr_class="None";table["global"][$2.lexeme].parent_class=$3.lexeme;
-                                string c="classend"; code.push_back(c);
-                                c=""; code.push_back(c);
+                                func_class="";
                                 }
 |CLASS class_name COLON {
-                        string c=""; code.push_back(c);
-                        c=convert($2.lexeme);
-                        c=c+" :"; code.push_back(c);
-                        code.push_back("classbegin");
+                         func_class=convert($2.lexeme)+".";
 }
                   suite   {
                             update_table($2.lexeme,5,$2.line);curr_class="None";
-                            string c="classend"; code.push_back(c);
-                                c=""; code.push_back(c);
+                                func_class="";
                                 }
 ;
 class_name:name{curr_class=$1.lexeme;$$.lexeme=$1.lexeme;update_class_type(curr_class);}
