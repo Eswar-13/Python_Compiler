@@ -12,11 +12,10 @@ funcend
 
 main :
 funcbegin
-#r2 = 0
+#r2 = 1078
 a = #r2
-#r3 = add
 #r4 = a
-#r5 = 1
+#r5 = 9
 param #r4
 param #r5
 stackpointer +xxx
@@ -24,6 +23,11 @@ call add , 2
 stackpointer -xxx
 #r6 = popparameter
 b = #r6
+#r7 = b
+param #r7
+stackpointer +8
+call print_int , 1
+stackpointer -8
 funcend
 
 exit

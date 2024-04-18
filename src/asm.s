@@ -8,6 +8,7 @@ format_print_false: .asciz "False\n"
 add:
 pushq %rbp
 movq %rsp, %rbp
+subq $32, %rsp
 movq 16(%rbp), %rdx
 movq %rdx, -8(%rbp)
 movq 24(%rbp), %rdx
@@ -26,16 +27,15 @@ ret
 main:
 pushq %rbp
 movq %rsp, %rbp
-movq $0, %rdx
+subq $56, %rsp
+movq $1078, %rdx
 movq %rdx, -8(%rbp)
 movq -8(%rbp), %rdx
 movq %rdx, -16(%rbp)
-movq -32(%rbp), %rdx
-movq %rdx, -24(%rbp)
 movq -16(%rbp), %rdx
-movq %rdx, -40(%rbp)
-movq $1, %rdx
-movq %rdx, -48(%rbp)
+movq %rdx, -24(%rbp)
+movq $9, %rdx
+movq %rdx, -32(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -50,12 +50,43 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -40(%rbp), %rdx
+movq -24(%rbp), %rdx
 pushq %rdx
-movq -48(%rbp), %rdx
+movq -32(%rbp), %rdx
 pushq %rdx
 call add
-movq %rax, -56(%rbp)
+movq %rax, -40(%rbp)
+movq %rbx, %rsp
+popq %r11
+popq %r10
+popq %r9
+popq %r8
+popq %rsi
+popq %rdi
+popq %rdx
+popq %rcx
+popq %rax
+movq -40(%rbp), %rdx
+movq %rdx, -48(%rbp)
+movq -48(%rbp), %rdx
+movq %rdx, -56(%rbp)
+pushq %rax
+pushq %rcx
+pushq %rdx
+pushq %rdi
+pushq %rsi
+pushq %r8
+pushq %r9
+pushq %r10
+pushq %r11
+movq %rsp, %rbx
+movq %rsp, %rcx
+addq $-8, %rcx
+andq $15, %rcx
+subq %rcx, %rsp
+movq -56(%rbp), %rdx
+pushq %rdx
+call print_int
 movq %rbx, %rsp
 popq %r11
 popq %r10

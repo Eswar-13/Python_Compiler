@@ -2488,9 +2488,9 @@ yyreduce:
                                 c=c+convert((yyvsp[-1].attributes).reg);
                                 code.push_back(c);
                                 code.push_back("stackpointer +8"); 
-                                if((yyvsp[-1].attributes).type==1)c= "call print_int 1";
-                                if((yyvsp[-1].attributes).type==3)c= "call print_bool 1";
-                                if((yyvsp[-1].attributes).type==4)c= "call print_str 1";
+                                if((yyvsp[-1].attributes).type==1)c= "call print_int , 1";
+                                if((yyvsp[-1].attributes).type==3)c= "call print_bool , 1";
+                                if((yyvsp[-1].attributes).type==4)c= "call print_str , 1";
                                 code.push_back(c);
                                 code.push_back("stackpointer -8"); 
                                 (yyval.attributes).type=0;

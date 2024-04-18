@@ -8,6 +8,7 @@ map<string,map<string,string>>m;
 int curr_offset=-8;
 int param=0;
 string curr_function="global";
+string temp_string="";
 int param_offset=16;
 int is_return=0;
 bool check_identifier(string s){
@@ -73,7 +74,7 @@ int main(int argc, char *argv[] ) {
     for (string s : content) {
         if(s=="")continue;
         // cout<<s<<endl;
-        vector<string>a(5);
+        vector<string>a(5,"");
         int i=0;
         string temp="";
         for(char ch:s){
@@ -89,9 +90,8 @@ int main(int argc, char *argv[] ) {
         // cout<<temp<<endl;
         a[i]=temp;
         if(is_return&&a[2]!="popparameter"){
-            modifiedString+="movq %rbx, %rsp\npopq %r11\npopq %r10\npopq %r9\npopq %r8\npopq %rsi\npopq %rdi\npopq %rdx\npopq %rcx\npopq %rax\n";
+            temp_string+="movq %rbx, %rsp\npopq %r11\npopq %r10\npopq %r9\npopq %r8\npopq %rsi\npopq %rdi\npopq %rdx\npopq %rcx\npopq %rax\n";
             is_return=0;
-            continue;
         }
         if(a[1]==":"){
             curr_function=a[0];
@@ -101,40 +101,43 @@ int main(int argc, char *argv[] ) {
         if(a[0]=="funcbegin"){
             modifiedString+="pushq %rbp\n";
             modifiedString+="movq %rsp, %rbp\n";
+            temp_string="";
             continue;
         }
         if(a[0]=="funcend"){
             curr_function="global";
+            modifiedString+="subq $"+to_string(-curr_offset-8)+", %rsp\n";
+            modifiedString+=temp_string;
             modifiedString+="leave\n";
             modifiedString+="ret\n";
             curr_offset=-8;
             continue;
         }
         if(a[0]=="call"){
-            modifiedString+="call "+a[1]+"\n";
+            temp_string+="call "+a[1]+"\n";
             continue;
         }
         check(a);
         if(a[0]=="return"&&a[1]!=""){
-            modifiedString+="movq "+m[curr_function][a[1]]+", %rax\n";
+            temp_string+="movq "+m[curr_function][a[1]]+", %rax\n";
             continue;
         }
         if(a[2]=="popparameter"&&!is_return){
-            modifiedString+="movq "+to_string(param_offset)+"(%rbp), %rdx\n";
-            modifiedString+="movq %rdx, "+m[curr_function][a[0]]+"\n";
+            temp_string+="movq "+to_string(param_offset)+"(%rbp), %rdx\n";
+            temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
             param_offset+=8;
             continue;
         }
         if(a[2]=="popparameter"&&is_return){
             // cout<<a[0]<<endl;
-            modifiedString+="movq %rax, "+m[curr_function][a[0]]+"\n";
+            temp_string+="movq %rax, "+m[curr_function][a[0]]+"\n";
             continue;
         }
         if(a[0]=="param"){
-            if(!param)modifiedString+="pushq %rax\npushq %rcx\npushq %rdx\npushq %rdi\npushq %rsi\npushq %r8\npushq %r9\npushq %r10\npushq %r11\nmovq %rsp, %rbx\nmovq %rsp, %rcx\naddq $-8, %rcx\nandq $15, %rcx\nsubq %rcx, %rsp\n";
+            if(!param)temp_string+="pushq %rax\npushq %rcx\npushq %rdx\npushq %rdi\npushq %rsi\npushq %r8\npushq %r9\npushq %r10\npushq %r11\nmovq %rsp, %rbx\nmovq %rsp, %rcx\naddq $-8, %rcx\nandq $15, %rcx\nsubq %rcx, %rsp\n";
             param=1;
-            modifiedString+="movq "+m[curr_function][a[1]]+", %rdx\n";
-            modifiedString+="pushq %rdx\n";
+            temp_string+="movq "+m[curr_function][a[1]]+", %rdx\n";
+            temp_string+="pushq %rdx\n";
             continue;
         }
         if(a[0]=="stackpointer"&&a[1][0]=='-'){
@@ -145,16 +148,16 @@ int main(int argc, char *argv[] ) {
         }
         if(a[3]==""&&a[1]=="="){
             if(check_identifier(a[2])){
-                modifiedString+="movq "+m[curr_function][a[2]]+", %rdx\n";
-            }else  modifiedString+="movq $"+a[2]+", %rdx\n";
-            modifiedString+="movq %rdx, "+m[curr_function][a[0]]+"\n";
+                temp_string+="movq "+m[curr_function][a[2]]+", %rdx\n";
+            }else  temp_string+="movq $"+a[2]+", %rdx\n";
+            temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
             continue;
         }
         if(check_identifier(a[2])&&check_identifier(a[4])){
-            modifiedString+="movq "+m[curr_function][a[2]]+", %rcx\n";
-            modifiedString+="movq "+m[curr_function][a[4]]+", %rdx\n";
-            modifiedString+=arith_oper(a[3])+" %rdx, %rcx\n";
-            modifiedString+="movq %rcx, "+m[curr_function][a[0]]+"\n";
+            temp_string+="movq "+m[curr_function][a[2]]+", %rcx\n";
+            temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
+            temp_string+=arith_oper(a[3])+" %rdx, %rcx\n";
+            temp_string+="movq %rcx, "+m[curr_function][a[0]]+"\n";
             continue;
         }
     }
