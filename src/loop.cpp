@@ -28,6 +28,7 @@ int main(int argc, char *argv[] ) {
     int lino=1;
     set<int>breaks;
     map<int,int>jumps;
+    map<int,int>regs;
     for (string s : content) {
         if(s==""){lino++; continue;}
         vector<string>a;
@@ -41,6 +42,18 @@ int main(int argc, char *argv[] ) {
             }
         }
         a.push_back(temp);
+        for(auto x : a){
+            if(x.size()>2){
+                if(x[0]=='#' && x[1]=='r') {
+                    string temp=x;
+                    temp[0]='0';
+                    temp[1]='0';
+                    char * num = new char[temp.size()];
+                    strcpy(num, temp.c_str());
+                    regs[atoi(num)]++;
+                }
+            }
+        }
         if(a.size()>4 && a[2]=="jump" && a[3]=="line"){
             char * num = new char[a[4].size()];
             strcpy(num, a[4].c_str());
@@ -61,25 +74,35 @@ int main(int argc, char *argv[] ) {
         ind.insert({x,i});
         i++;
     }
-    
     i=1;
     for(auto s : content){
         string c;
         if(breaks.count(i)){
         modifiedString+=("L"+to_string(ind[i])+" :\n");
         }
-        if(jumps.count(i)){
-            vector<string>a;
-            string temp="";
-            for(char ch:s){
-                if(ch==' '){
-                    a.push_back(temp);
-                    temp="";
-                }else{
-                    temp+=ch;
-                }
+        vector<string>a;
+        string temp="";
+        for(char ch:s){
+            if(ch==' '){
+                a.push_back(temp);
+                temp="";
+            }else{
+                temp+=ch;
             }
-            a.push_back(temp);
+        }
+        a.push_back(temp);
+        if(a[0].size()>2){
+            if(a[0][0]=='#' && a[0][1]=='r') {
+                string temp=a[0];
+                temp[0]='0';
+                temp[1]='0';
+                char * num = new char[temp.size()];
+                strcpy(num, temp.c_str());
+                if(regs[atoi(num)]==1) {i++; continue;}
+            }
+        }
+        if(jumps.count(i)){
+            
             if(a.size()>4 && a[2]=="jump" && a[3]=="line"){
                 a[3]="L"+to_string(ind[jumps[i]])+"\n";
                 c=a[0]+' '+a[1]+' '+a[2]+' '+a[3];
@@ -88,7 +111,8 @@ int main(int argc, char *argv[] ) {
                 a[1]="L"+to_string(ind[jumps[i]])+"\n";
                 c=a[0]+' '+a[1];
             }
-        }else c=s+"\n";
+        }
+        else c=s+"\n";
         // cout<<s<<'@'<<c<<'\n';
         modifiedString+=c;
         i++;

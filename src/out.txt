@@ -6,11 +6,10 @@ n = popparameter
 #r1 = 0
 #r0 = #r0 <= #r1
 if #r0 jump line 10
-jump line 14
+jump line 13
 #r2 = 1
-push #r2
-return
-jump line 27
+return #r2
+jump line 25
 #r3 = n
 #r4 = factorial
 #r5 = n
@@ -22,12 +21,10 @@ call factorial , 1
 stackpointer -xxx
 #r7 = popparameter
 #r3 = #r3 * #r7
-push #r3
-return
+return #r3
 #r8 = 1
 #r8 = - #r8
-push #r8
-return
+return #r8
 funcend
 
 
@@ -38,8 +35,7 @@ width = popparameter
 #r9 = 0
 a = #r9
 #r10 = a
-push #r10
-return
+return #r10
 funcend
 
 
@@ -60,13 +56,13 @@ funcend
 start :
 funcbegin
 param make
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_str 1
+stackpointer -8
 param model
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_str 1
+stackpointer -8
 funcend
 
 classend
@@ -94,17 +90,17 @@ funcend
 start :
 funcbegin
 param year
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_int 1
+stackpointer -8
 param make
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_str 1
+stackpointer -8
 param model
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_str 1
+stackpointer -8
 funcend
 
 classend
@@ -170,64 +166,64 @@ f = #r38
 #r41 = y
 #r40 = #r40 == #r41
 param #r40
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r42 = x
 #r43 = y
 #r42 = #r42 != #r43
 param #r42
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r44 = x
 #r45 = y
 #r44 = #r44 > #r45
 param #r44
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r46 = x
 #r47 = y
 #r46 = #r46 < #r47
 param #r46
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r48 = x
 #r49 = y
 #r48 = #r48 >= #r49
 param #r48
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r50 = x
 #r51 = y
 #r50 = #r50 <= #r51
 param #r50
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r52 = True
 #r53 = False
 #r52 = #r52 and #r53
 param #r52
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r54 = True
 #r55 = False
 #r54 = #r54 or #r55
 param #r54
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r56 = True
 #r56 = not #r56
 param #r56
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r57 = 10
 p = #r57
 #r58 = 11
@@ -236,29 +232,29 @@ q = #r58
 #r60 = q
 #r59 = #r59 & #r60
 param #r59
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r61 = p
 #r62 = q
 #r61 = #r61 | #r62
 param #r61
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r63 = p
 #r64 = q
 #r63 = #r63 ^ #r64
 param #r63
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_bool 1
+stackpointer -8
 #r65 = p
 #r65 = ~ #r65
 param #r65
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_int 1
+stackpointer -8
 #r66 = x
 #r67 = 5
 x = #r67
@@ -304,30 +300,30 @@ y = #r92 >> #r93
 #r94 = x
 #r95 = 10
 #r94 = #r94 > #r95
-if #r94 jump line 309
-jump line 315
+if #r94 jump line 305
+jump line 311
 #r96 = "x is greater than 10"
 param #r96
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
-jump line 331
+stackpointer +8
+call print_str 1
+stackpointer -8
+jump line 327
 #r97 = x
 #r98 = 5
 #r97 = #r97 < #r98
-if #r97 jump line 320
-jump line 326
+if #r97 jump line 316
+jump line 322
 #r99 = "x is less than 5"
 param #r99
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
-jump line 331
+stackpointer +8
+call print_str 1
+stackpointer -8
+jump line 327
 #r100 = "x is between 5 and 10"
 param #r100
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_str 1
+stackpointer -8
 #r101 = 0
 i = #r101
 #r102 = 1
@@ -336,38 +332,38 @@ i = #r102 - 1
 i = i + 1
 #r104 = i
 #r104 = #r104 < #r103
-if #r104 jump line 341
-jump line 347
+if #r104 jump line 337
+jump line 343
 #r105 = i
 param #r105
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
-jump line 336
+stackpointer +8
+call print_int 1
+stackpointer -8
+jump line 332
 #r106 = i
 #r107 = 0
 i = #r107
 #r108 = i
 #r109 = 5
 #r108 = #r108 < #r109
-if #r108 jump line 355
-jump line 371
+if #r108 jump line 351
+jump line 367
 #r110 = i
 param #r110
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_int 1
+stackpointer -8
 #r111 = i
 #r112 = 1
 i = #r111 + #r112
 #r113 = i
 #r114 = 3
 #r113 = #r113 == #r114
-if #r113 jump line 368
-jump line 370
-jump line 371
-jump line 370
-jump line 350
+if #r113 jump line 364
+jump line 366
+jump line 367
+jump line 366
+jump line 346
 #r115 = factorial
 #r116 = 5
 param #r116
@@ -378,9 +374,9 @@ stackpointer -xxx
 fact = #r117
 #r118 = fact
 param #r118
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_int 1
+stackpointer -8
 #r119 = area
 #r120 = 5
 #r121 = 3
@@ -393,9 +389,9 @@ stackpointer -xxx
 ar = #r122
 #r123 = ar
 param #r123
-stackpointer +xxx
-call print , 1
-stackpointer -xxx
+stackpointer +8
+call print_int 1
+stackpointer -8
 #r124 = Car
 #r125 = "Toyota"
 #r126 = "Camry"
@@ -418,11 +414,11 @@ funcend
 #r131 = __name__
 #r132 = '__main__'
 #r131 = #r131 == #r132
-if #r131 jump line 423
-jump line 428
+if #r131 jump line 419
+jump line 424
 #r133 = main
 stackpointer +xxx
 call main , 0
 stackpointer -xxx
-jump line 428
+jump line 424
 exit

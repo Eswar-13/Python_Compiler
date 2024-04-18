@@ -1,3 +1,0 @@
-lexeme, token, line_number, type
-a, IDENTIFIER, 4, int
-b, IDENTIFIER, 5, int
