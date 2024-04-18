@@ -27,15 +27,17 @@ ret
 main:
 pushq %rbp
 movq %rsp, %rbp
-subq $56, %rsp
-movq $1078, %rdx
+subq $136, %rsp
+movq $6, %rdx
 movq %rdx, -8(%rbp)
 movq -8(%rbp), %rdx
 movq %rdx, -16(%rbp)
-movq -16(%rbp), %rdx
+movq -32(%rbp), %rdx
 movq %rdx, -24(%rbp)
+movq -16(%rbp), %rdx
+movq %rdx, -40(%rbp)
 movq $9, %rdx
-movq %rdx, -32(%rbp)
+movq %rdx, -48(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -50,12 +52,12 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -24(%rbp), %rdx
+movq -40(%rbp), %rdx
 pushq %rdx
-movq -32(%rbp), %rdx
+movq -48(%rbp), %rdx
 pushq %rdx
 call add
-movq %rax, -40(%rbp)
+movq %rax, -56(%rbp)
 movq %rbx, %rsp
 popq %r11
 popq %r10
@@ -66,10 +68,46 @@ popq %rdi
 popq %rdx
 popq %rcx
 popq %rax
-movq -40(%rbp), %rdx
-movq %rdx, -48(%rbp)
-movq -48(%rbp), %rdx
-movq %rdx, -56(%rbp)
+movq -56(%rbp), %rdx
+movq %rdx, -64(%rbp)
+movq $0, %rdx
+movq %rdx, -72(%rbp)
+movq -72(%rbp), %rdx
+movq %rdx, -80(%rbp)
+movq -16(%rbp), %rdx
+movq %rdx, -88(%rbp)
+movq $1, %rdx
+movq %rdx, -96(%rbp)
+movq $2, %rdx
+movq %rdx, -104(%rbp)
+movq -96(%rbp), %rcx
+movq -104(%rbp), %rdx
+addq %rdx, %rcx
+movq %rcx, -96(%rbp)
+movq $3, %rdx
+movq %rdx, -112(%rbp)
+movq -96(%rbp), %rcx
+movq -112(%rbp), %rdx
+addq %rdx, %rcx
+movq %rcx, -96(%rbp)
+movq $4, %rdx
+movq %rdx, -120(%rbp)
+movq -96(%rbp), %rcx
+movq -120(%rbp), %rdx
+addq %rdx, %rcx
+movq %rcx, -96(%rbp)
+movq -96(%rbp), %rdx
+movq %rdx, -16(%rbp)
+movq -16(%rbp), %rdx
+movq %rdx, -128(%rbp)
+movq $1, %rdx
+movq %rdx, -136(%rbp)
+movq -128(%rbp), %rdx
+movq -136(%rbp), %rcx
+cmp %rcx, %rdx
+movq $0, %rdx
+setg %dl
+movq %rdx, -128(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -84,9 +122,9 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -56(%rbp), %rdx
+movq -128(%rbp), %rdx
 pushq %rdx
-call print_int
+call print_bool
 movq %rbx, %rsp
 popq %r11
 popq %r10

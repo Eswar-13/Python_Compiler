@@ -43,6 +43,11 @@ string arith_oper(string s){
     if(s=="-")return "subq";
     return "";
 }
+string rel_oper(string s){
+    if(s=="<")return "setl";
+    if(s==">")return "setg";
+    return "";
+}
 int main(int argc, char *argv[] ) {
     // Prompt the user to enter the input filename
     
@@ -94,8 +99,13 @@ int main(int argc, char *argv[] ) {
             is_return=0;
         }
         if(a[1]==":"){
-            curr_function=a[0];
-            modifiedString+=a[0]+a[1]+"\n";
+            // cout<<a[0]<<endl;
+            if(a[0][0]=='.'){
+                temp_string+=a[0]+a[1]+"\n";
+            }else{
+                curr_function=a[0];
+                modifiedString+=a[0]+a[1]+"\n";
+            }
             continue;
         }
         if(a[0]=="funcbegin"){
@@ -153,11 +163,30 @@ int main(int argc, char *argv[] ) {
             temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
             continue;
         }
-        if(check_identifier(a[2])&&check_identifier(a[4])){
+        if(check_identifier(a[2])&&check_identifier(a[4])&&arith_oper(a[3])!=""){
             temp_string+="movq "+m[curr_function][a[2]]+", %rcx\n";
             temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
             temp_string+=arith_oper(a[3])+" %rdx, %rcx\n";
             temp_string+="movq %rcx, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(check_identifier(a[2])&&check_identifier(a[4])&&rel_oper(a[3])!=""){
+            temp_string+="movq "+m[curr_function][a[2]]+", %rdx\n";
+            temp_string+="movq "+m[curr_function][a[4]]+", %rcx\n";
+            temp_string+="cmp %rcx, %rdx\n";
+            temp_string+="movq $0, %rdx\n";
+            temp_string+=rel_oper(a[3])+" %dl\n";
+            temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(a[0]=="if"){
+            temp_string+="movq "+m[curr_function][a[1]]+", %rdx\n";
+            temp_string+="cmp $1, %rdx\n";
+            temp_string+="je "+a[3]+"\n";
+            continue;
+        }
+        if(a[0]=="jump"){
+            temp_string+="jmp "+a[1]+"\n";
             continue;
         }
     }

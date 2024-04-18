@@ -68,7 +68,7 @@ int main(int argc, char *argv[] ) {
         }
         lino++;
     }
-    int i=1;
+    int i=4;
     map <int,int> ind;
     for(auto x:breaks){
         ind.insert({x,i});
@@ -78,7 +78,7 @@ int main(int argc, char *argv[] ) {
     for(auto s : content){
         string c;
         if(breaks.count(i)){
-        modifiedString+=("L"+to_string(ind[i])+" :\n");
+        modifiedString+=(".L"+to_string(ind[i])+" :\n");
         }
         vector<string>a;
         string temp="";
@@ -92,7 +92,7 @@ int main(int argc, char *argv[] ) {
         }
         a.push_back(temp);
         if(a[0].size()>2){
-            if(a[0][0]=='#' && a[0][1]=='r') {
+            if(a[0][0]=='.' && a[0][1]=='r') {
                 string temp=a[0];
                 temp[0]='0';
                 temp[1]='0';
@@ -104,11 +104,11 @@ int main(int argc, char *argv[] ) {
         if(jumps.count(i)){
             
             if(a.size()>4 && a[2]=="jump" && a[3]=="line"){
-                a[3]="L"+to_string(ind[jumps[i]])+"\n";
+                a[3]=".L"+to_string(ind[jumps[i]])+"\n";
                 c=a[0]+' '+a[1]+' '+a[2]+' '+a[3];
             }
             if(a.size()>2 && a[0]=="jump" && a[1]=="line"){
-                a[1]="L"+to_string(ind[jumps[i]])+"\n";
+                a[1]=".L"+to_string(ind[jumps[i]])+"\n";
                 c=a[0]+' '+a[1];
             }
         }

@@ -12,7 +12,7 @@ funcend
 
 main :
 funcbegin
-#r2 = 1078
+#r2 = 6
 a = #r2
 #r3 = add
 #r4 = a
@@ -24,10 +24,23 @@ call add , 2
 stackpointer -xxx
 #r6 = popparameter
 b = #r6
-#r7 = b
-param #r7
+#r7 = 0
+i = #r7
+#r8 = a
+#r9 = 1
+#r10 = 2
+#r9 = #r9 + #r10
+#r11 = 3
+#r9 = #r9 + #r11
+#r12 = 4
+#r9 = #r9 + #r12
+a = #r9
+#r13 = a
+#r14 = 1
+#r13 = #r13 > #r14
+param #r13
 stackpointer +8
-call print_int , 1
+call print_bool , 1
 stackpointer -8
 funcend
 
