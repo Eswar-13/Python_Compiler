@@ -1,49 +1,49 @@
-class Transport:
-  def __init__(self, name: str):
-    self.name: str = name
+class ShiftReduceParser:
+
+  def __init__(self, name_: str):
+    self.srname: str = name_
+  def print_name(self):
+    print("SLR name:")
+    print(self.srname)
+
+class LR0Parser(ShiftReduceParser):
+  
+  def __init__(self, myname_: str, sr_name: str):
+    self.lr0name: str = myname_
+    ShiftReduceParser.__init__(self, sr_name)
+    return
 
 
-class Train(Transport):
-  def __init__(self, train_name_: str, transport_name: str):
-    self.train_name: str = train_name_
-    Transport.__init__(self, transport_name)
+class CLRParser(LR0Parser):
+
+  def __init__(self, myname_: str, lr_name: str, sr_name:str):
+    self.clrname: str = myname_
+    LR0Parser.__init__(self, lr_name,sr_name)
 
 
-class Flight(Transport):
-  def __init__(self, flight_name_: str, transport_name: str):
-    self.flight_name: str = flight_name_
-    Transport.__init__(self, transport_name)
+class LALRParser(CLRParser):
 
+  def __init__(self, myname_: str, clrname_: str,lr_name:str, srname_: str):
+    self.lalrname: str = myname_
+    CLRParser.__init__(self, clrname_,lr_name, srname_)
 
-class Car(Transport):
-  def __init__(self, car_name_: str, transport_name: str):
-    self.car_name: str = car_name_
-    Transport.__init__(self, transport_name)
-
-
-class Trip:
-  def __init__(self, trip_name_: str, transport: Transport):
-    self.trip_name: str = trip_name_
-    self.transport: Transport = transport
-
-  def print_trip(self):
-    print("Trip Name:", self.trip_name)
-    print("Transport Name:", self.transport.name)
+  def print_all(self):
+    print("SLR name:")
+    print(self.srname)
+    print("CLR name:")
+    print(self.clrname)
+    print("LR0 name:")
+    print(self.lr0name)
+    print("LALR name:")
+    print(self.lalrname)
 
 
 def main():
-  train_obj: Train = Train("Express", "Train")
-  flight_obj: Flight = Flight("Boeing 747", "Flight")
-  car_obj: Car = Car("SUV", "Car")
-
-  trip1: Trip = Trip("Train Trip", train_obj)
-  trip2: Trip = Trip("Flight Trip", flight_obj)
-  trip3: Trip = Trip("Car Trip", car_obj)
-
-  trip1.print_trip()
-  trip2.print_trip()
-  trip3.print_trip()
+  obj: LALRParser = LALRParser("LALR", "CLR","LR0","Shift-Reduce")
+  obj.print_all()
+  obj.print_name()
 
 
 if __name__ == "__main__":
   main()
+

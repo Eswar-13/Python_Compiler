@@ -23,6 +23,15 @@ string find_class(string s){
     }
     return "";
 }
+string find_name(string s){
+    string result="";
+    int is_dot=0;
+    for(char ch:s){
+        if(ch=='.'){is_dot=1;continue;}
+        if(is_dot)result+=ch;
+    }
+    return result;
+}
 bool check_identifier(string s){
     if(s=="popparameter")return 0;
     if(s=="param")return 0;
@@ -43,7 +52,10 @@ void check(vector<string>&a){
     for(string s:a){
         // cout<<s<<" ";
         if(find_class(s)=="self"){
-            if(m[current_class].find(s)==m[current_class].end()){
+            string y=find_name(s);
+            // cout<<y<<endl;
+            if(class_offset[current_class].find(y)==class_offset[current_class].end()){
+                class_offset[current_class][y]=class_off;
                 class_off+=8;
                 continue;
             }
@@ -74,9 +86,11 @@ string arith_oper(string s){
     return "";
 }
 string logical_oper(string s){
-    if(s=="&")return "andq";
-    if(s=="|")return "orq";
+    if(s=="&"||s=="and")return "andq";
+    if(s=="|"||s=="or")return "orq";
     if(s=="^")return "xorq";
+    if(s=="~") return "not";
+    if(s=="not") return "notq";
     return "";
 }
 string shift_oper(string s){
@@ -158,10 +172,21 @@ int main(int argc, char *argv[] ) {
             if(a[0][0]=='.'){
                 temp_string+=a[0]+a[1]+"\n";
             }else{
-                current_class=find_class(a[0]);
+                if(current_class!=find_class(a[0])){
+                    class_off=0;
+                    current_class=find_class(a[0]);
+                }
                 curr_function=a[0];
+                if(current_class!=""&&a[2]!=""){
+                    string child=current_class;
+                    for(auto it:class_offset[a[2]]){
+                        class_offset[current_class][it.first]=it.second;
+                        class_off+=8;
+                    }
+                }
                 modifiedString+=a[0]+a[1]+"\n";
             }
+            
             continue;
         }
         if(a[0]=="funcbegin"){
@@ -177,6 +202,7 @@ int main(int argc, char *argv[] ) {
             modifiedString+="leave\n";
             modifiedString+="ret\n";
             curr_offset=-8;
+            param_offset=16;
             continue;
         }
         if(a[0]=="call"){
@@ -184,6 +210,22 @@ int main(int argc, char *argv[] ) {
             continue;
         }
         check(a);
+        if(find_class(a[2])=="self"){
+            temp_string+="movq "+m[curr_function]["self"]+", %rcx\n";
+            temp_string+="movq $"+to_string(class_offset[current_class][find_name(a[2])])+", %rdx\n";
+            temp_string+="addq %rdx, %rcx\n";
+            temp_string+="movq (%rcx), %rdx\n";
+            temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(find_class(a[0])=="self"){
+            temp_string+="movq "+m[curr_function]["self"]+", %rcx\n";
+            temp_string+="movq $"+to_string(class_offset[current_class][find_name(a[0])])+", %rdx\n";
+            temp_string+="addq %rdx, %rcx\n";
+            temp_string+="movq "+m[curr_function][a[2]]+", %rdx\n";
+            temp_string+="movq %rdx, (%rcx)\n";
+            continue;
+        }
         if(a[2]=="len()"){
             temp_string+="movq "+m[curr_function][a[3]]+", %rcx\n";
             temp_string+="movq (%rcx), %rdx\n";
@@ -206,12 +248,13 @@ int main(int argc, char *argv[] ) {
             // cout<<m[curr_function][a[2]]<<endl;
             temp_string+=m[curr_function][a[2]];
             // cout<<temp_string<<endl;
-            temp_string+="movq %rdx,"+m[curr_function][a[0]]+"\n";
+            temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
             // cout<<temp_string<<endl;
             continue;
         }
         if(a[0]=="return"&&a[1]!=""){
             temp_string+="movq "+m[curr_function][a[1]]+", %rax\n";
+            temp_string+="leave\nret\n";
             continue;
         }
         if(a[2]=="popparameter"&&!is_ret){
@@ -249,6 +292,24 @@ int main(int argc, char *argv[] ) {
             continue;
         }
         if(a[1]=="[]"&&a[3]=="="){
+            temp_string+="movq "+m[curr_function][a[0]]+", %rcx\n";
+            temp_string+="movq "+m[curr_function][a[2]]+", %rdx\n";
+            temp_string+="addq $1, %rdx\n";
+            temp_string+="imulq $8, %rdx\n";
+            temp_string+="addq %rdx, %rcx\n";
+            temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
+            temp_string+="movq %rdx, (%rcx)\n";
+            continue;
+        }
+        if(a[3]=="."&&a[1]=="="){
+            temp_string+="movq "+m[curr_function][a[2]]+", %rcx\n";
+            temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
+            temp_string+="addq %rdx, %rcx\n";
+            temp_string+="movq (%rcx), %rdx\n";
+            temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(a[1]=="."&&a[3]=="="){
             temp_string+="movq "+m[curr_function][a[0]]+", %rcx\n";
             temp_string+="movq "+m[curr_function][a[2]]+", %rdx\n";
             temp_string+="addq %rdx, %rcx\n";
@@ -292,6 +353,33 @@ int main(int argc, char *argv[] ) {
             temp_string+="movq "+m[curr_function][a[4]]+", %rcx\n";
             temp_string+=shift_oper(a[3])+" %cl, %rax\n";
             temp_string+="movq %rax, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(a[2]=="-"){
+            temp_string+="movq "+m[curr_function][a[3]]+", %rcx\n";
+            temp_string+="movq $0, %rdx\n";
+            temp_string+="subq %rcx, %rdx\n";
+            temp_string+="movq %rdx, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(a[2]=="+"){
+            temp_string+="movq "+m[curr_function][a[3]]+", %rcx\n";
+            temp_string+="movq %rcx, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(logical_oper(a[2])=="not"){
+            temp_string+="movq "+m[curr_function][a[3]]+", %rcx\n";
+           // temp_string+="movq "+m[curr_function][a[4]]+", %rdx\n";
+            temp_string+=logical_oper(a[2])+" %rcx\n";
+            temp_string+="movq %rcx, "+m[curr_function][a[0]]+"\n";
+            continue;
+        }
+        if(logical_oper(a[2])=="notq"){
+            temp_string+="movq "+m[curr_function][a[3]]+", %rcx\n";
+            temp_string+="cmp $0, %rcx\n";
+            temp_string+="movq $0, %rcx\n";
+            temp_string+="sete %cl\n";
+            temp_string+="movq %rcx, "+m[curr_function][a[0]]+"\n";
             continue;
         }
         if(logical_oper(a[3])!=""){

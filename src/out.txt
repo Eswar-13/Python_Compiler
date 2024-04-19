@@ -1,29 +1,151 @@
 
-ShiftReduceParser.__init__ :
+binarySearch :
 funcbegin
-name_ = popparameter
-#r0 = 1
-self.name = #r0
-#r1 = 0
-self.srname = #r1
-#r2 = self.srname
-#r3 = self.name
-#r4 = 1
-#r3 = #r3 + #r4
-self.srname = #r3
+array = popparameter
+x = popparameter
+low = popparameter
+high = popparameter
+#r0 = 0
+a = #r0
+#r1 = array
+#r2 = a
+#r3 = array [] #r2
+c = #r3
+#r4 = low
+#r5 = high
+#r4 = #r4 <= #r5
+if #r4 jump line 19
+jump line 60
+#r6 = low
+#r7 = high
+#r8 = low
+#r7 = #r7 - #r8
+#r9 = 2
+#r7 = #r7 // #r9
+#r6 = #r6 + #r7
+mid = #r6
+#r10 = array
+#r11 = mid
+#r12 = array [] #r11
+b = #r12
+#r13 = array
+#r14 = mid
+#r15 = array [] #r14
+#r16 = x
+#r15 = #r15 == #r16
+if #r15 jump line 38
+jump line 41
+#r17 = mid
+return #r17
+jump line 59
+#r18 = array
+#r19 = mid
+#r20 = array [] #r19
+#r21 = x
+#r20 = #r20 < #r21
+if #r20 jump line 48
+jump line 54
+#r22 = low
+#r23 = mid
+#r24 = 1
+#r23 = #r23 + #r24
+low = #r23
+jump line 59
+#r25 = high
+#r26 = mid
+#r27 = 1
+#r26 = #r26 - #r27
+high = #r26
+jump line 14
+#r28 = 1
+#r28 = - #r28
+return #r28
 funcend
 
 
 main :
 funcbegin
-#r5 = ShiftReduceParser
-#r6 = "Shift-Reduce"
-param #r6
+#r29 = 3
+#r30 = 5
+#r31 = 6
+#r32 = 7
+#r33 = 8
+#r34 = 9
+#r35 = 56
+param #r35
+stackpointer + 8
+call mem_alloc , 1
+stackpointer - 8
+#r36 = popparameter
+#r37 = #r36
+*(#r37) = 6
+#r37 = #r37 + 8
+*(#r37) = #r29
+#r37 = #r37 + 8
+*(#r37) = #r30
+#r37 = #r37 + 8
+*(#r37) = #r31
+#r37 = #r37 + 8
+*(#r37) = #r32
+#r37 = #r37 + 8
+*(#r37) = #r33
+#r37 = #r37 + 8
+*(#r37) = #r34
+array = #r36
+#r38 = binarySearch
+#r39 = array
+#r40 = 6
+#r41 = 0
+#r42 = array
+#r43 = len() array
+#r44 = 1
+#r43 = #r43 - #r44
+param #r43
+param #r41
+param #r40
+param #r39
 stackpointer +xxx
-call ShiftReduceParser.__init__ , 1
+call binarySearch , 4
 stackpointer -xxx
-#r7 = popparameter
-obj = #r7
+#r45 = popparameter
+result = #r45
+#r46 = result
+#r47 = 1
+#r47 = - #r47
+#r46 = #r46 != #r47
+if #r46 jump line 118
+jump line 129
+#r48 = "Element is present at index:"
+param #r48
+stackpointer +8
+call print_str , 1
+stackpointer -8
+#r49 = result
+param #r49
+stackpointer +8
+call print_int , 1
+stackpointer -8
+jump line 134
+#r50 = "Element is not present"
+param #r50
+stackpointer +8
+call print_str , 1
+stackpointer -8
 funcend
 
+#r51 = __name__
+#r52 = "__main__"
+param #r52
+param #r51
+stackpointer +16
+call is_string_equal , 2
+stackpointer -16
+#r51 = popparameter
+if #r51 jump line 146
+jump line 151
+#r53 = main
+stackpointer +xxx
+call main , 0
+stackpointer -xxx
+jump line 151
 exit

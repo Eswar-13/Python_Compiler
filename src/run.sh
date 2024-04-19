@@ -8,7 +8,7 @@ g++ -o ir lex.yy.c parser.tab.c -lfl
 rm -f *.csv
 g++ loop.cpp -o loop
 ./loop out.txt ac.txt
-# g++ -o string string.cpp 
-# ./string ac.txt asm.s
-# gcc asm.s -o asm.o -no-pie
-# ./asm.o
+g++ -o string string.cpp 
+./string ac.txt asm.s
+gcc asm.s -o asm.o -no-pie
+./asm.o

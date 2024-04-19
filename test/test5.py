@@ -1,66 +1,124 @@
-class Batsman:
-  def __init__(self, name_:str):
-    self.name:str = name_
-    self.runs_scored:int = 0
-    self.balls_faced:int = 0
+# Recursion
+def factorial(n: int) -> int:
+  if n <= 0:
+    return 1
+  else:
+    return n * factorial(n - 1)
 
-  def bat(self, outcome:int):
-    if outcome == 6:
-      print(self.name + " scored a SIX!")
-    elif outcome == 4:
-      print(self.name + " scored a FOUR!")
-    else:
-      self.runs_scored += outcome
-      self.balls_faced += 1
 
-class Umpire:
-  def __init__(self):
-    a:int=0
+# Functions
+def area(length: int, width: int) -> int:
+  return length*width
 
-  def raise_finger(self):
-    print("OUT!")
 
-class Fielder:
-  def __init__(self, name_:str):
-    self.name:str = name_
+# Classes and objects
+class Vehicle:
 
-class Team:
-  def __init__(self, name_:str):
-    self.name:str = name_
-    self.runs:int = 0
-    self.wickets:int = 0
-    self.batsmen:Batsman = Batsman("Batsman 1")
-    self.umpire:Umpire = Umpire()
-    self.fielders:Fielder = Fielder("Fielder 1")
+  def __init__(self, make: str, model: str):
+    self.make: str = make
+    self.model: str = model
 
-  def play_innings(self, outcomes:int):
-    overs:int = 10
-    balls_per_over:int = 6
-    total_balls:int = overs * balls_per_over
-    ball:int=0
-    for ball in range(total_balls):
-      i:int=0
-      batsman:Batsman=Batsman("Ak")
-      for i in range(2):
-        batsman.bat(outcomes)
-      if ball % balls_per_over == 0:
-        print(self.name)
-    print("Innings complete: " + self.name + " scored ")
+  def start(self) -> None:
+    print(self.make)
+    print(self.model)
+
+
+class Car(Vehicle):
+
+  def __init__(self, make: str, model: str, year: int):
+    self.make = make
+    self.model = model
+    self.year: int = year
+
+  def start(self) -> None:
+    print(self.year)
+    print(self.make)
+    print(self.model)
+
 
 def main():
-  team1:Team = Team("Team 1")
-  team2:Team = Team("Team 2")
+  # Primitive data types
+  x: int = 42
+  y: int = 3
+  s: str = "hello"
+  b: bool = True
 
-  outcomes:int = 1
+  # 1D list
+  lst: list[int] = [1, 2, 3, 4, 5]
 
-  print("Match started!")
-  print("First Innings:")
-  team1.play_innings(outcomes)
+  # Arithmetic operators
+  a: int = x + y
+  b: int = x - y
+  c: int = x * y
+  d: int = x / y
+  e: int = x // y
+  f: int = x % y
 
-  print("\nSecond Innings:")
-  team2.play_innings(outcomes)
+  # Relational operators
+  print(x == y)
+  print(x != y)
+  print(x > y)
+  print(x < y)
+  print(x >= y)
+  print(x <= y)
 
-  print("\nMatch ended!")
+  # Logical operators
+  print(True and False)
+  print(True or False)
+  print(not True)
+
+  # Bitwise operators
+  p: int = 10
+  q: int = 11
+  print(p & q)
+  print(p | q)
+  print(p ^ q)
+  print(~p)
+
+  # Assignment operators
+  x = 5
+  x += 3
+  x -= 2
+  x *= 4
+  x /= 3
+  x //= 2
+  x %= 3
+  x **= 2
+  y = 2
+  y &= 7
+  y |= 8
+  y ^= 18
+  y <<= 2
+  y >>= 2
+
+  # Control flow
+  if x > 10:
+    print("x is greater than 10")
+  elif (x < 5):
+    print("x is less than 5")
+  else:
+    print("x is between 5 and 10")
+
+  # Loops
+  i : int =0
+  for i in range(1, 5):
+    print(i)
+
+  i = 0
+  while i < 5:
+    print(i)
+    i += 1
+    if i == 3:
+      break
+
+  fact: int = factorial(5)
+  print(fact)
+
+  ar: int = area(5, 3)
+  print(ar)
+
+  car:Car = Car("Toyota", "Camry", 2020)
+  car.start()
 
 if __name__ == "__main__":
   main()

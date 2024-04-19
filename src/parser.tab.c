@@ -89,6 +89,7 @@ map<string,map<string,int>>class_offset;
 int cu_class_off=0;
 int curr_break=0;
 string func_class="";
+string cu_parent_class="";
 string integerToOperator(int value) {
     // Map each integer value to its corresponding operator string
     if (value == 0) {
@@ -127,6 +128,7 @@ class content{
         int funct_return_type;
         int size=8;
         string parent_class="None";
+        string parent_func="";
         vector<int>func_parameter;
         int line_number;
         string class_type;
@@ -303,7 +305,7 @@ struct other{
 // 7:list
 // 8:class as data_type
 
-#line 307 "parser.tab.c"
+#line 309 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -862,21 +864,21 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   274,   274,   275,   279,   280,   281,   282,   285,   286,
-     290,   291,   295,   296,   297,   298,   302,   311,   317,   321,
-     328,   329,   331,   335,   343,   345,   346,   347,   348,   351,
-     354,   358,   362,   367,   372,   373,   374,   375,   376,   380,
-     381,   382,   383,   387,   387,   390,   391,   395,   395,   398,
-     402,   403,   407,   407,   407,   410,   411,   415,   415,   418,
-     419,   423,   423,   456,   456,   456,   490,   492,   493,   497,
-     498,   502,   503,   504,   509,   509,   516,   516,   524,   527,
-     528,   532,   533,   537,   538,   539,   543,   544,   545,   548,
-     549,   552,   555,   556,   559,   560,   563,   564,   567,   584,
-     587,   590,   591,   594,   595,   598,   599,   602,   603,   604,
-     608,   609,   610,   613,   614,   616,   620,   621,   622,   623,
-     627,   628,   632,   731,   732,   743,   748,   765,   766,   770,
-     771,   772,   773,   784,   785,   786,   787,   788,   789,   790,
-     791,   792,   793,   798,   799,   800,   801,   805,   806
+       0,   276,   276,   277,   281,   282,   283,   284,   287,   288,
+     292,   293,   297,   298,   299,   300,   304,   313,   319,   323,
+     330,   331,   333,   337,   345,   347,   348,   349,   350,   353,
+     356,   360,   364,   369,   374,   375,   376,   377,   378,   382,
+     383,   384,   385,   389,   389,   392,   393,   397,   397,   400,
+     404,   405,   409,   409,   409,   412,   413,   417,   417,   420,
+     421,   425,   425,   464,   464,   464,   504,   506,   507,   511,
+     512,   516,   517,   518,   523,   523,   534,   534,   545,   548,
+     549,   553,   554,   558,   559,   560,   564,   565,   566,   569,
+     570,   573,   576,   577,   580,   581,   584,   585,   588,   605,
+     608,   611,   612,   615,   616,   619,   620,   623,   624,   625,
+     629,   630,   631,   634,   635,   637,   641,   642,   643,   644,
+     648,   649,   653,   782,   783,   794,   799,   816,   817,   821,
+     822,   823,   824,   835,   836,   837,   838,   839,   840,   841,
+     842,   843,   844,   849,   850,   851,   852,   856,   857
 };
 #endif
 
@@ -1704,7 +1706,7 @@ yyreduce:
   switch (yyn)
     {
   case 16: /* expr_stmt: dec_name annassign  */
-#line 302 "parser.y"
+#line 304 "parser.y"
                     {string c=convert((yyvsp[-1].attributes).lexeme); c=c+" = "+convert((yyvsp[0].attributes).reg); code.push_back(c); 
                     update_table((yyvsp[-1].attributes).lexeme,(yyvsp[0].attributes).type,(yyvsp[-1].attributes).line);
                     if((yyvsp[0].attributes).type==7){
@@ -1714,51 +1716,51 @@ yyreduce:
                     }
                     if((yyvsp[-1].attributes).type==1)table[curr_class][(yyvsp[-1].attributes).lexeme]=table[curr_func][(yyvsp[-1].attributes).lexeme];
                 }
-#line 1718 "parser.tab.c"
+#line 1720 "parser.tab.c"
     break;
 
   case 17: /* expr_stmt: test AUGASSIGNMENT_OPERATOR test  */
-#line 311 "parser.y"
+#line 313 "parser.y"
                                   {
     if(!check_type((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type))return 0;
     string c=convert((yyvsp[-2].attributes).lexeme)+ " = "+convert((yyvsp[-2].attributes).reg);
     c=c+" "+integerToOperator((yyvsp[-1].attributes).top)+" "+convert((yyvsp[0].attributes).reg);
     code.push_back(c);
     }
-#line 1729 "parser.tab.c"
+#line 1731 "parser.tab.c"
     break;
 
   case 19: /* Assign_stmt: test ASSIGNMENT_OPERATOR test  */
-#line 321 "parser.y"
+#line 323 "parser.y"
                               {string c=convert((yyvsp[-2].attributes).lexeme); c=c+" = "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[0].attributes).reg;if(!check_type((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type))return 0;(yyval.attributes).type=(yyvsp[-2].attributes).type;
                                     if((yyvsp[-2].attributes).type==7){
                                         if(!check_type((yyvsp[-2].attributes).list_type,(yyvsp[0].attributes).list_type))return 0;
 
                                     }
                                 }
-#line 1740 "parser.tab.c"
+#line 1742 "parser.tab.c"
     break;
 
   case 20: /* dec_name: SELF DOT name  */
-#line 328 "parser.y"
+#line 330 "parser.y"
                                   {class_offset[curr_class][convert((yyvsp[0].attributes).lexeme)]=cu_class_off;cu_class_off+=8;(yyval.attributes).type=1;(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;string c = "self.";c=c+convert((yyvsp[0].attributes).lexeme);(yyval.attributes).lexeme=new char[c.size()]; strcpy((yyval.attributes).lexeme, c.c_str());(yyval.attributes).line=(yyvsp[0].attributes).line;if(!is_self){yyerror("type");return 0;}}
-#line 1746 "parser.tab.c"
+#line 1748 "parser.tab.c"
     break;
 
   case 21: /* dec_name: name  */
-#line 329 "parser.y"
+#line 331 "parser.y"
       {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).line=(yyvsp[0].attributes).line;}
-#line 1752 "parser.tab.c"
+#line 1754 "parser.tab.c"
     break;
 
   case 22: /* name: NAME  */
-#line 331 "parser.y"
+#line 333 "parser.y"
            {(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme; string c=convert((yyvsp[0].attributes).lexeme); (yyval.attributes).reg=new char[c.size()]; strcpy((yyval.attributes).reg, c.c_str()); (yyval.attributes).line=yylineno;}
-#line 1758 "parser.tab.c"
+#line 1760 "parser.tab.c"
     break;
 
   case 23: /* annassign: COLON data_type param_list  */
-#line 335 "parser.y"
+#line 337 "parser.y"
                                      {  (yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).type=(yyvsp[-1].attributes).type;if(!check_type((yyvsp[-1].attributes).type,(yyvsp[0].attributes).type))return 0;
                                         if((yyvsp[-1].attributes).type==7){
                                             int list_type=typelist((yyvsp[-1].attributes).lexeme);
@@ -1767,183 +1769,188 @@ yyreduce:
                                             (yyval.attributes).count=(yyvsp[0].attributes).count;
                                         }
                                     }
-#line 1771 "parser.tab.c"
+#line 1773 "parser.tab.c"
     break;
 
   case 24: /* annassign: COLON data_type  */
-#line 343 "parser.y"
+#line 345 "parser.y"
                             {(yyval.attributes).type=(yyvsp[0].attributes).type;if((yyvsp[0].attributes).type==8)(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;}
-#line 1777 "parser.tab.c"
+#line 1779 "parser.tab.c"
     break;
 
   case 25: /* data_type: DATA_TYPE  */
-#line 345 "parser.y"
+#line 347 "parser.y"
                      {(yyval.attributes).type=typedetector((yyvsp[0].attributes).lexeme);}
-#line 1783 "parser.tab.c"
+#line 1785 "parser.tab.c"
     break;
 
   case 26: /* data_type: LIST  */
-#line 346 "parser.y"
+#line 348 "parser.y"
       {(yyval.attributes).type=7;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;}
-#line 1789 "parser.tab.c"
+#line 1791 "parser.tab.c"
     break;
 
   case 27: /* data_type: NONE  */
-#line 347 "parser.y"
+#line 349 "parser.y"
       {(yyval.attributes).type=0;}
-#line 1795 "parser.tab.c"
+#line 1797 "parser.tab.c"
     break;
 
   case 28: /* data_type: NAME  */
-#line 348 "parser.y"
+#line 350 "parser.y"
       {if(check((yyvsp[0].attributes).lexeme)&&get_type((yyvsp[0].attributes).lexeme)!=5)return 0;(yyval.attributes).type=classes_type[(yyvsp[0].attributes).lexeme]; }
-#line 1801 "parser.tab.c"
+#line 1803 "parser.tab.c"
     break;
 
   case 29: /* param_list: ASSIGNMENT_OPERATOR test  */
-#line 351 "parser.y"
+#line 353 "parser.y"
                           {(yyval.attributes).reg=(yyvsp[0].attributes).reg; (yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).list_type=(yyvsp[0].attributes).list_type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 1807 "parser.tab.c"
+#line 1809 "parser.tab.c"
     break;
 
   case 30: /* break_stmt: BREAK  */
-#line 354 "parser.y"
+#line 356 "parser.y"
        {code.push_back("jump line "); curr_break++;}
-#line 1813 "parser.tab.c"
+#line 1815 "parser.tab.c"
     break;
 
   case 31: /* continue_stmt: CONTINUE  */
-#line 358 "parser.y"
+#line 360 "parser.y"
           {code.push_back("jump line "+to_string(curr_for.top()));}
-#line 1819 "parser.tab.c"
+#line 1821 "parser.tab.c"
     break;
 
   case 32: /* return_stmt: RETURN test  */
-#line 362 "parser.y"
+#line 364 "parser.y"
                         {
     if(!check_type(current_func_type,(yyvsp[0].attributes).type))return 0;is_return=1;
     string c="return "+convert((yyvsp[0].attributes).reg);
     code.push_back(c);
 }
-#line 1829 "parser.tab.c"
+#line 1831 "parser.tab.c"
     break;
 
   case 33: /* return_stmt: RETURN  */
-#line 367 "parser.y"
+#line 369 "parser.y"
                     {if(current_func_type!=0||current_func_type==-1){yyerror("type");return 0;}}
-#line 1835 "parser.tab.c"
+#line 1837 "parser.tab.c"
     break;
 
   case 39: /* if_stmt: if_test  */
-#line 380 "parser.y"
+#line 382 "parser.y"
          {fill(code.size()+1,1);}
-#line 1841 "parser.tab.c"
+#line 1843 "parser.tab.c"
     break;
 
   case 40: /* if_stmt: if_test else_statement  */
-#line 381 "parser.y"
+#line 383 "parser.y"
                           {fill(code.size()+1,1);}
-#line 1847 "parser.tab.c"
+#line 1849 "parser.tab.c"
     break;
 
   case 41: /* if_stmt: if_test elif_statements else_statement  */
-#line 382 "parser.y"
+#line 384 "parser.y"
                                          {fill(code.size()+1,(yyvsp[-1].attributes).jump+1);}
-#line 1853 "parser.tab.c"
+#line 1855 "parser.tab.c"
     break;
 
   case 42: /* if_stmt: if_test elif_statements  */
-#line 383 "parser.y"
+#line 385 "parser.y"
                           {fill(code.size()+1,(yyvsp[0].attributes).jump+1);}
-#line 1859 "parser.tab.c"
+#line 1861 "parser.tab.c"
     break;
 
   case 43: /* $@1: %empty  */
-#line 387 "parser.y"
+#line 389 "parser.y"
         {if((yyvsp[0].attributes).type!=1&&(yyvsp[0].attributes).type!=3){yyerror("type");return 0;}(yyvsp[-1].attributes).jump=code.size()+1; string c="if "+convert((yyvsp[0].attributes).reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);}
-#line 1865 "parser.tab.c"
+#line 1867 "parser.tab.c"
     break;
 
   case 44: /* if_test: IF test $@1 COLON suite  */
-#line 387 "parser.y"
+#line 389 "parser.y"
                                                                                                                                                                                                                                           {string c=code[(yyvsp[-4].attributes).jump]; c=c+to_string(code.size()+2); code[(yyvsp[-4].attributes).jump]=c; c="jump line "; code.push_back(c);}
-#line 1871 "parser.tab.c"
+#line 1873 "parser.tab.c"
     break;
 
   case 45: /* elif_statements: elif_statements elif_test  */
-#line 390 "parser.y"
+#line 392 "parser.y"
                           {(yyval.attributes).jump=(yyvsp[-1].attributes).jump+1;}
-#line 1877 "parser.tab.c"
+#line 1879 "parser.tab.c"
     break;
 
   case 46: /* elif_statements: elif_test  */
-#line 391 "parser.y"
+#line 393 "parser.y"
             {(yyval.attributes).jump=1;}
-#line 1883 "parser.tab.c"
+#line 1885 "parser.tab.c"
     break;
 
   case 47: /* $@2: %empty  */
-#line 395 "parser.y"
+#line 397 "parser.y"
           {if((yyvsp[0].attributes).type!=1&&(yyvsp[0].attributes).type!=3){yyerror("type");return 0;}(yyvsp[-1].attributes).jump=code.size()+1; string c="if "+convert((yyvsp[0].attributes).reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);}
-#line 1889 "parser.tab.c"
+#line 1891 "parser.tab.c"
     break;
 
   case 48: /* elif_test: ELIF test $@2 COLON suite  */
-#line 395 "parser.y"
+#line 397 "parser.y"
                                                                                                                                                                                                                                             {string c=code[(yyvsp[-4].attributes).jump]; c=c+to_string(code.size()+2); code[(yyvsp[-4].attributes).jump]=c; c="jump line "; code.push_back(c);}
-#line 1895 "parser.tab.c"
+#line 1897 "parser.tab.c"
     break;
 
   case 52: /* $@3: %empty  */
-#line 407 "parser.y"
+#line 409 "parser.y"
      {(yyvsp[0].attributes).jump=code.size()+1;}
-#line 1901 "parser.tab.c"
+#line 1903 "parser.tab.c"
     break;
 
   case 53: /* $@4: %empty  */
-#line 407 "parser.y"
+#line 409 "parser.y"
                                     {if((yyvsp[0].attributes).type!=1&&(yyvsp[0].attributes).type!=3){yyerror("type");return 0;}(yyvsp[0].attributes).jump=code.size()+1; string c="if "+convert((yyvsp[0].attributes).reg)+" jump line "+to_string(code.size()+3); code.push_back(c); c.clear(); c="jump line "; code.push_back(c);}
-#line 1907 "parser.tab.c"
+#line 1909 "parser.tab.c"
     break;
 
   case 54: /* while_test: WHILE $@3 test $@4 COLON suite  */
-#line 407 "parser.y"
+#line 409 "parser.y"
                                                                                                                                                                                                                                                                       {fill(code.size()+2,curr_break); curr_break=0; string c=code[(yyvsp[-3].attributes).jump]; c=c+to_string(code.size()+2); code[(yyvsp[-3].attributes).jump]=c; c="jump line "+to_string((yyvsp[-5].attributes).jump); code.push_back(c);}
-#line 1913 "parser.tab.c"
+#line 1915 "parser.tab.c"
     break;
 
   case 57: /* $@5: %empty  */
-#line 415 "parser.y"
+#line 417 "parser.y"
                  { string c="#r"+to_string(node); node++; c=c+" = 1"; code.push_back(c); c="#r"+to_string(node); node++; c="#r"+to_string(node-1)+" = "+convert((yyvsp[0].attributes).lexeme)+" - #r"+to_string(node-2); code.push_back(c); c=convert((yyvsp[-2].attributes).lexeme)+" = #r"+to_string(node-1);code.push_back(c); (yyvsp[-3].attributes).jump=code.size()+1; curr_for.push((yyvsp[-3].attributes).jump); c="#r"+to_string(node); node++; c=c+" = "+convert((yyvsp[-2].attributes).lexeme); code.push_back(c); c="#r"+to_string(node-1)+" = "+"#r"+to_string(node-1)+" + #r"+to_string(node-3); code.push_back(c); c=convert((yyvsp[-2].attributes).lexeme)+" = #r"+to_string(node-1);code.push_back(c); c="#r"+to_string(node-1); c=c+" = "+c+" < " +convert((yyvsp[0].attributes).reg); code.push_back(c); c="if #r"+to_string(node-1)+" jump line "+to_string(code.size()+3); code.push_back(c); c="jump line "; code.push_back(c);}
-#line 1919 "parser.tab.c"
+#line 1921 "parser.tab.c"
     break;
 
   case 58: /* for_test: FOR name IN range $@5 COLON suite  */
-#line 415 "parser.y"
+#line 417 "parser.y"
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         { fill(code.size()+2,1); fill(code.size()+2,curr_break); curr_break=0; string c="jump line "+to_string((yyvsp[-6].attributes).jump); curr_for.pop(); code.push_back(c);}
-#line 1925 "parser.tab.c"
+#line 1927 "parser.tab.c"
     break;
 
   case 59: /* range: RANGE LEFT_BRACKET test COMMA test RIGHT_BRACKET  */
-#line 418 "parser.y"
+#line 420 "parser.y"
                                                  {(yyval.attributes).lexeme=(yyvsp[-3].attributes).reg; (yyval.attributes).reg=(yyvsp[-1].attributes).reg;  if((yyvsp[-3].attributes).type!=1||(yyvsp[-1].attributes).type!=1){yyerror("type");return 0;}}
-#line 1931 "parser.tab.c"
+#line 1933 "parser.tab.c"
     break;
 
   case 60: /* range: RANGE LEFT_BRACKET test RIGHT_BRACKET  */
-#line 419 "parser.y"
+#line 421 "parser.y"
                                         {string c="#r"+to_string(node); code.push_back(c+" = 0"); node++; (yyval.attributes).lexeme=new char[c.size()+1]; strcpy((yyval.attributes).lexeme, c.c_str()); (yyval.attributes).reg=(yyvsp[-1].attributes).reg;  if((yyvsp[-1].attributes).type!=1){yyerror("type");return 0;}}
-#line 1937 "parser.tab.c"
+#line 1939 "parser.tab.c"
     break;
 
   case 61: /* $@6: %empty  */
-#line 423 "parser.y"
+#line 425 "parser.y"
                                {
                                 current_func_type=0; 
                                 string c=""; code.push_back(c); c=convert((yyvsp[-2].attributes).lexeme);
                                 if(func_class.size()) c=func_class+c;
-                                c=c+" :"; code.push_back(c); 
+                                if(convert((yyvsp[-2].attributes).lexeme)=="__init__"){c=c+" : "+cu_parent_class; code.push_back(c);}
+                                else {c=c+" :"; code.push_back(c);}
                                 code.push_back("funcbegin");
+                                if(curr_class!="None"){
+                                    c="self = popparameter";
+                                    code.push_back(c);
+                                }
                                 for(auto x : (yyvsp[-1].attributes).other->lexemes){
                                     c=x+" = popparameter";
                                     code.push_back(c);
@@ -1957,13 +1964,14 @@ yyreduce:
                                         
                                 table[curr_func][(yyvsp[-2].attributes).lexeme].func_parameter=((yyvsp[-1].attributes).other)->types;
                                 table[curr_func][(yyvsp[-2].attributes).lexeme].funct_return_type=0;
+                                table[curr_func][(yyvsp[-2].attributes).lexeme].parent_func=curr_class;
                                 curr_func=temp;
                                 }
-#line 1963 "parser.tab.c"
+#line 1971 "parser.tab.c"
     break;
 
   case 62: /* funcdef: DEF func_name parameters COLON $@6 suite  */
-#line 444 "parser.y"
+#line 452 "parser.y"
                                      {
                                         if(curr_class=="None")curr_func="global";
                                         else curr_func=curr_class;
@@ -1976,22 +1984,27 @@ yyreduce:
                                         c="funcend"; code.push_back(c);
                                         c=""; code.push_back(c);
                                     }
-#line 1980 "parser.tab.c"
+#line 1988 "parser.tab.c"
     break;
 
   case 63: /* $@7: %empty  */
-#line 456 "parser.y"
+#line 464 "parser.y"
                                                  {current_func_type=(yyvsp[0].attributes).type;  }
-#line 1986 "parser.tab.c"
+#line 1994 "parser.tab.c"
     break;
 
   case 64: /* $@8: %empty  */
-#line 456 "parser.y"
+#line 464 "parser.y"
                                                                                      {
                                 string c=""; code.push_back(c); c=convert((yyvsp[-5].attributes).lexeme);
                                 if(func_class.size()) c=func_class+c;
-                                c=c+" :"; code.push_back(c); 
+                                if(convert((yyvsp[-5].attributes).lexeme)=="__init__"){c=c+" : "+cu_parent_class; code.push_back(c);}
+                                else  {c=c+" :"; code.push_back(c);}
                                 code.push_back("funcbegin");
+                                if(curr_class!="None"){
+                                    c="self = popparameter";
+                                    code.push_back(c);
+                                }
                                 for(auto x : (yyvsp[-4].attributes).other->lexemes){
                                     
                                     c=x+" = popparameter";
@@ -2005,13 +2018,14 @@ yyreduce:
                                 update_table((yyvsp[-5].attributes).lexeme,6,(yyvsp[-5].attributes).line);
                                 table[curr_func][(yyvsp[-5].attributes).lexeme].func_parameter=((yyvsp[-4].attributes).other)->types;
                                 table[curr_func][(yyvsp[-5].attributes).lexeme].funct_return_type=current_func_type;
+                                table[curr_func][(yyvsp[-5].attributes).lexeme].parent_func=curr_class;
                                 curr_func=temp;
                                 }
-#line 2011 "parser.tab.c"
+#line 2025 "parser.tab.c"
     break;
 
   case 65: /* funcdef: DEF func_name parameters RETURN_ARROW data_type $@7 COLON $@8 suite  */
-#line 476 "parser.y"
+#line 490 "parser.y"
                                       {
                                         if(curr_class=="None")curr_func="global";
                                         else curr_func=curr_class;
@@ -2025,183 +2039,190 @@ yyreduce:
                                         c="funcend"; code.push_back(c);
                                         c=""; code.push_back(c);
                                     }
-#line 2029 "parser.tab.c"
+#line 2043 "parser.tab.c"
     break;
 
   case 66: /* func_name: name  */
-#line 490 "parser.y"
+#line 504 "parser.y"
               {curr_func=(yyvsp[0].attributes).lexeme;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;}
-#line 2035 "parser.tab.c"
+#line 2049 "parser.tab.c"
     break;
 
   case 67: /* parameters: LEFT_BRACKET RIGHT_BRACKET  */
-#line 492 "parser.y"
+#line 506 "parser.y"
                                          {(yyval.attributes).other=new other;}
-#line 2041 "parser.tab.c"
+#line 2055 "parser.tab.c"
     break;
 
   case 68: /* parameters: LEFT_BRACKET typedargslist RIGHT_BRACKET  */
-#line 493 "parser.y"
+#line 507 "parser.y"
                                             {(yyval.attributes).other=(yyvsp[-1].attributes).other;}
-#line 2047 "parser.tab.c"
+#line 2061 "parser.tab.c"
     break;
 
   case 69: /* typedargslist: typedargslist COMMA full_tfpdef  */
-#line 497 "parser.y"
+#line 511 "parser.y"
                                 {(yyval.attributes).other=(yyvsp[-2].attributes).other;if((yyvsp[0].attributes).type)(((yyval.attributes).other)->types).push_back((yyvsp[0].attributes).type); if((yyvsp[0].attributes).type)(((yyval.attributes).other)->lexemes).push_back((yyvsp[0].attributes).lexeme);}
-#line 2053 "parser.tab.c"
+#line 2067 "parser.tab.c"
     break;
 
   case 70: /* typedargslist: full_tfpdef  */
-#line 498 "parser.y"
+#line 512 "parser.y"
               {(yyval.attributes).other=new other;if((yyvsp[0].attributes).type)(((yyval.attributes).other)->types).push_back((yyvsp[0].attributes).type); if((yyvsp[0].attributes).type)(((yyval.attributes).other)->lexemes).push_back((yyvsp[0].attributes).lexeme);}
-#line 2059 "parser.tab.c"
+#line 2073 "parser.tab.c"
     break;
 
   case 71: /* full_tfpdef: name COLON data_type  */
-#line 502 "parser.y"
+#line 516 "parser.y"
                                 {(yyval.attributes).lexeme=strdup((yyvsp[-2].attributes).lexeme); update_table((yyvsp[-2].attributes).lexeme,(yyvsp[0].attributes).type,(yyvsp[-2].attributes).line);(yyval.attributes).type=(yyvsp[0].attributes).type;if((yyval.attributes).type==7)table[curr_func][(yyvsp[-2].attributes).lexeme].list_type=typelist((yyvsp[0].attributes).lexeme);}
-#line 2065 "parser.tab.c"
+#line 2079 "parser.tab.c"
     break;
 
   case 72: /* full_tfpdef: NAME  */
-#line 503 "parser.y"
+#line 517 "parser.y"
                   {(yyval.attributes).lexeme=strdup((yyvsp[0].attributes).lexeme);}
-#line 2071 "parser.tab.c"
-    break;
-
-  case 73: /* full_tfpdef: SELF  */
-#line 504 "parser.y"
-      {(yyval.attributes).type=0;is_self=1;}
-#line 2077 "parser.tab.c"
-    break;
-
-  case 74: /* $@9: %empty  */
-#line 509 "parser.y"
-                                    {
-                                    func_class=convert((yyvsp[-2].attributes).lexeme)+".";
-                                }
 #line 2085 "parser.tab.c"
     break;
 
-  case 75: /* classdef: CLASS class_name opt_class_arg COLON $@9 suite  */
-#line 512 "parser.y"
-                                       {
-                                update_table((yyvsp[-4].attributes).lexeme,5,(yyvsp[-4].attributes).line);curr_class="None";table["global"][(yyvsp[-4].attributes).lexeme].parent_class=(yyvsp[-3].attributes).lexeme;
-                                func_class="";
+  case 73: /* full_tfpdef: SELF  */
+#line 518 "parser.y"
+      {(yyval.attributes).type=0;is_self=1;}
+#line 2091 "parser.tab.c"
+    break;
+
+  case 74: /* $@9: %empty  */
+#line 523 "parser.y"
+                                    {
+                                    func_class=convert((yyvsp[-2].attributes).lexeme)+".";
                                 }
-#line 2094 "parser.tab.c"
+#line 2099 "parser.tab.c"
+    break;
+
+  case 75: /* classdef: CLASS class_name opt_class_arg COLON $@9 suite  */
+#line 526 "parser.y"
+                                       {
+                                int class_size=0;
+                                for(auto it:class_offset[curr_class])class_size+=8;
+                                update_table((yyvsp[-4].attributes).lexeme,5,(yyvsp[-4].attributes).line);curr_class="None";table["global"][(yyvsp[-4].attributes).lexeme].parent_class=(yyvsp[-3].attributes).lexeme;
+                                table["global"][(yyvsp[-4].attributes).lexeme].size=class_size;
+                                func_class="";
+                                cu_parent_class="";
+                                }
+#line 2112 "parser.tab.c"
     break;
 
   case 76: /* $@10: %empty  */
-#line 516 "parser.y"
+#line 534 "parser.y"
                         {
                         func_class=convert((yyvsp[-1].attributes).lexeme)+".";
 }
-#line 2102 "parser.tab.c"
+#line 2120 "parser.tab.c"
     break;
 
   case 77: /* classdef: CLASS class_name COLON $@10 suite  */
-#line 519 "parser.y"
+#line 537 "parser.y"
                           {
+                            int class_size=0;
+                            for(auto it:class_offset[curr_class])class_size+=8;
                             update_table((yyvsp[-3].attributes).lexeme,5,(yyvsp[-3].attributes).line);curr_class="None";
-                                 func_class="";
+                            table["global"][(yyvsp[-3].attributes).lexeme].size=class_size;
+                             func_class="";
                                 }
-#line 2111 "parser.tab.c"
+#line 2132 "parser.tab.c"
     break;
 
   case 78: /* class_name: name  */
-#line 524 "parser.y"
+#line 545 "parser.y"
                {curr_class=(yyvsp[0].attributes).lexeme;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;update_class_type(curr_class);cu_class_off=0;}
-#line 2117 "parser.tab.c"
+#line 2138 "parser.tab.c"
     break;
 
   case 79: /* opt_class_arg: LEFT_BRACKET RIGHT_BRACKET  */
-#line 527 "parser.y"
+#line 548 "parser.y"
                             {(yyval.attributes).lexeme=(char*)"None";}
-#line 2123 "parser.tab.c"
+#line 2144 "parser.tab.c"
     break;
 
   case 80: /* opt_class_arg: LEFT_BRACKET argument RIGHT_BRACKET  */
-#line 528 "parser.y"
-                                      {add_class(curr_class,(yyvsp[-1].attributes).lexeme);(yyval.attributes).lexeme=(yyvsp[-1].attributes).lexeme;(yyval.attributes).other =(yyvsp[-1].attributes).other;}
-#line 2129 "parser.tab.c"
+#line 549 "parser.y"
+                                      {add_class(curr_class,(yyvsp[-1].attributes).lexeme);(yyval.attributes).lexeme=(yyvsp[-1].attributes).lexeme;(yyval.attributes).other =(yyvsp[-1].attributes).other;cu_parent_class=convert((yyvsp[-1].attributes).lexeme);}
+#line 2150 "parser.tab.c"
     break;
 
   case 81: /* arglist: arglist COMMA argument  */
-#line 532 "parser.y"
+#line 553 "parser.y"
                                   {(yyval.attributes).other=(yyvsp[-2].attributes).other;if((yyvsp[0].attributes).type)(((yyval.attributes).other)->types).push_back((yyvsp[0].attributes).type);if((yyvsp[0].attributes).type)(((yyval.attributes).other)->lexemes).push_back((yyvsp[0].attributes).lexeme); if((yyvsp[0].attributes).type)(((yyval.attributes).other)->regs).push_back((yyvsp[0].attributes).reg);}
-#line 2135 "parser.tab.c"
+#line 2156 "parser.tab.c"
     break;
 
   case 82: /* arglist: argument  */
-#line 533 "parser.y"
+#line 554 "parser.y"
                       {(yyval.attributes).other=new other;if((yyvsp[0].attributes).type)(((yyval.attributes).other)->types).push_back((yyvsp[0].attributes).type); if((yyvsp[0].attributes).type)(((yyval.attributes).other)->lexemes).push_back((yyvsp[0].attributes).lexeme); if((yyvsp[0].attributes).type)(((yyval.attributes).other)->regs).push_back((yyvsp[0].attributes).reg);}
-#line 2141 "parser.tab.c"
+#line 2162 "parser.tab.c"
     break;
 
   case 83: /* argument: test  */
-#line 537 "parser.y"
+#line 558 "parser.y"
        {(yyval.attributes).type=(yyvsp[0].attributes).type; (yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme; (yyval.attributes).reg=(yyvsp[0].attributes).reg;}
-#line 2147 "parser.tab.c"
+#line 2168 "parser.tab.c"
     break;
 
   case 84: /* argument: test ASSIGNMENT_OPERATOR test  */
-#line 538 "parser.y"
+#line 559 "parser.y"
                                 {if(!check_type((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type))return 0;}
-#line 2153 "parser.tab.c"
+#line 2174 "parser.tab.c"
     break;
 
   case 85: /* argument: SELF  */
-#line 539 "parser.y"
+#line 560 "parser.y"
        {(yyval.attributes).type=0; string c="self"; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); (yyval.attributes).lexeme=new char[c.size() + 1]; strcpy((yyval.attributes).lexeme, c.c_str());}
-#line 2159 "parser.tab.c"
+#line 2180 "parser.tab.c"
     break;
 
   case 91: /* test: or_test  */
-#line 552 "parser.y"
+#line 573 "parser.y"
                          {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2165 "parser.tab.c"
+#line 2186 "parser.tab.c"
     break;
 
   case 92: /* or_test: or_test OR and_test  */
-#line 555 "parser.y"
-                                        {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+c+" or "+convert((yyvsp[0].attributes).reg); code.push_back(c); (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=3;}
-#line 2171 "parser.tab.c"
+#line 576 "parser.y"
+                                        {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+c+" or "+convert((yyvsp[0].attributes).reg); code.push_back(c); (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=max((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type);}
+#line 2192 "parser.tab.c"
     break;
 
   case 93: /* or_test: and_test  */
-#line 556 "parser.y"
+#line 577 "parser.y"
                     {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2177 "parser.tab.c"
+#line 2198 "parser.tab.c"
     break;
 
   case 94: /* and_test: and_test AND not_test  */
-#line 559 "parser.y"
-                                  {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+c+" and "+convert((yyvsp[0].attributes).reg); code.push_back(c); (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=3;}
-#line 2183 "parser.tab.c"
+#line 580 "parser.y"
+                                  {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+c+" and "+convert((yyvsp[0].attributes).reg); code.push_back(c); (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=max((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type);}
+#line 2204 "parser.tab.c"
     break;
 
   case 95: /* and_test: not_test  */
-#line 560 "parser.y"
+#line 581 "parser.y"
           {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2189 "parser.tab.c"
+#line 2210 "parser.tab.c"
     break;
 
   case 96: /* not_test: NOT not_test  */
-#line 563 "parser.y"
+#line 584 "parser.y"
                         {string c=convert((yyvsp[0].attributes).reg); c=c+" = not "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[0].attributes).reg;if(!((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3)){yyerror("type");return 0;}(yyval.attributes).type=3;}
-#line 2195 "parser.tab.c"
+#line 2216 "parser.tab.c"
     break;
 
   case 97: /* not_test: comparison  */
-#line 564 "parser.y"
+#line 585 "parser.y"
              {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2201 "parser.tab.c"
+#line 2222 "parser.tab.c"
     break;
 
   case 98: /* comparison: comparison r_o expr  */
-#line 567 "parser.y"
+#line 588 "parser.y"
                                             {(yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!check_type((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type))return 0;(yyval.attributes).type=3;
                                                 if((yyvsp[0].attributes).type==4){
                                                     string c="param "+convert((yyvsp[0].attributes).reg); code.push_back(c);
@@ -2219,149 +2240,149 @@ yyreduce:
                                                     string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+c+" "+convert((yyvsp[-1].attributes).reg)+" "+convert((yyvsp[0].attributes).reg); code.push_back(c);
                                                 }                                                      
                                             }
-#line 2223 "parser.tab.c"
+#line 2244 "parser.tab.c"
     break;
 
   case 99: /* comparison: expr  */
-#line 584 "parser.y"
+#line 605 "parser.y"
                  {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2229 "parser.tab.c"
+#line 2250 "parser.tab.c"
     break;
 
   case 100: /* r_o: RELATIONAL_OPERATOR  */
-#line 587 "parser.y"
+#line 608 "parser.y"
                          {string c=convert((yyvsp[0].attributes).lexeme); (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); }
-#line 2235 "parser.tab.c"
+#line 2256 "parser.tab.c"
     break;
 
   case 101: /* expr: expr BIT_OR xor_expr  */
-#line 590 "parser.y"
-                                         {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" | "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=3;}
-#line 2241 "parser.tab.c"
+#line 611 "parser.y"
+                                         {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" | "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=min((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type);}
+#line 2262 "parser.tab.c"
     break;
 
   case 102: /* expr: xor_expr  */
-#line 591 "parser.y"
+#line 612 "parser.y"
                        {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2247 "parser.tab.c"
+#line 2268 "parser.tab.c"
     break;
 
   case 103: /* xor_expr: xor_expr XOR and_expr  */
-#line 594 "parser.y"
-                                            {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" ^ "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=3;}
-#line 2253 "parser.tab.c"
+#line 615 "parser.y"
+                                            {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" ^ "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=min((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type);}
+#line 2274 "parser.tab.c"
     break;
 
   case 104: /* xor_expr: and_expr  */
-#line 595 "parser.y"
+#line 616 "parser.y"
                          {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2259 "parser.tab.c"
+#line 2280 "parser.tab.c"
     break;
 
   case 105: /* and_expr: and_expr BIT_AND shift_expr  */
-#line 598 "parser.y"
-                                                  {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" & "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=3;}
-#line 2265 "parser.tab.c"
+#line 619 "parser.y"
+                                                  {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" & "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=min((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type);}
+#line 2286 "parser.tab.c"
     break;
 
   case 106: /* and_expr: shift_expr  */
-#line 599 "parser.y"
+#line 620 "parser.y"
                            {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2271 "parser.tab.c"
+#line 2292 "parser.tab.c"
     break;
 
   case 107: /* shift_expr: shift_expr L_SHIFT arith_expr  */
-#line 602 "parser.y"
-                                                      {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" << "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=3;}
-#line 2277 "parser.tab.c"
+#line 623 "parser.y"
+                                                      {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" << "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=1;}
+#line 2298 "parser.tab.c"
     break;
 
   case 108: /* shift_expr: shift_expr R_SHIFT arith_expr  */
-#line 603 "parser.y"
-                                            {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" >> "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=3;}
-#line 2283 "parser.tab.c"
+#line 624 "parser.y"
+                                            {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" >> "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;if(!(((yyvsp[-2].attributes).type==1||(yyvsp[-2].attributes).type==3)&&((yyvsp[0].attributes).type==1||(yyvsp[0].attributes).type==3))){yyerror("type");return 0;}(yyval.attributes).type=1;}
+#line 2304 "parser.tab.c"
     break;
 
   case 109: /* shift_expr: arith_expr  */
-#line 604 "parser.y"
+#line 625 "parser.y"
                          {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2289 "parser.tab.c"
+#line 2310 "parser.tab.c"
     break;
 
   case 110: /* arith_expr: arith_expr ADD term  */
-#line 608 "parser.y"
+#line 629 "parser.y"
                                   {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" + "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;int type=check_type((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type);if(!type){return 0;}(yyval.attributes).type=type;}
-#line 2295 "parser.tab.c"
+#line 2316 "parser.tab.c"
     break;
 
   case 111: /* arith_expr: arith_expr SUB term  */
-#line 609 "parser.y"
+#line 630 "parser.y"
                                   {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+convert((yyvsp[-2].attributes).reg)+" - "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;int type=check_type((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type);if(type>3)yyerror("type");if(type<1||type>3)return 0;(yyval.attributes).type=type;}
-#line 2301 "parser.tab.c"
+#line 2322 "parser.tab.c"
     break;
 
   case 112: /* arith_expr: term  */
-#line 610 "parser.y"
+#line 631 "parser.y"
                   {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2307 "parser.tab.c"
+#line 2328 "parser.tab.c"
     break;
 
   case 113: /* term: term a_o factor  */
-#line 613 "parser.y"
+#line 634 "parser.y"
                                    {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+c+" "+convert((yyvsp[-1].attributes).reg)+" "+convert((yyvsp[0].attributes).reg); code.push_back(c); (yyval.attributes).reg=(yyvsp[-2].attributes).reg;int type=check_type((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type);if(type>2)yyerror("type");if(type<1||type>2)return 0;if((yyvsp[-1].attributes).lexeme!="//"){(yyval.attributes).type=type;}else (yyval.attributes).type=1;  }
-#line 2313 "parser.tab.c"
+#line 2334 "parser.tab.c"
     break;
 
   case 114: /* term: factor  */
-#line 614 "parser.y"
+#line 635 "parser.y"
                    {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2319 "parser.tab.c"
+#line 2340 "parser.tab.c"
     break;
 
   case 115: /* a_o: ARITHMETIC_OPERATOR  */
-#line 616 "parser.y"
+#line 637 "parser.y"
                           {string c=convert((yyvsp[0].attributes).lexeme); (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str());(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme; }
-#line 2325 "parser.tab.c"
+#line 2346 "parser.tab.c"
     break;
 
   case 116: /* factor: ADD factor  */
-#line 620 "parser.y"
+#line 641 "parser.y"
             {string c=convert((yyvsp[0].attributes).reg); c=c+" = + "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[0].attributes).reg;if((yyvsp[0].attributes).type!=1&&(yyvsp[0].attributes).type!=2){yyerror("type");return 0;}(yyval.attributes).type=(yyvsp[0].attributes).type;}
-#line 2331 "parser.tab.c"
+#line 2352 "parser.tab.c"
     break;
 
   case 117: /* factor: SUB factor  */
-#line 621 "parser.y"
+#line 642 "parser.y"
             {string c=convert((yyvsp[0].attributes).reg); c=c+" = - "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[0].attributes).reg;if((yyvsp[0].attributes).type!=1&&(yyvsp[0].attributes).type!=2){yyerror("type");return 0;}(yyval.attributes).type=(yyvsp[0].attributes).type;}
-#line 2337 "parser.tab.c"
+#line 2358 "parser.tab.c"
     break;
 
   case 118: /* factor: BIT_NOT factor  */
-#line 622 "parser.y"
+#line 643 "parser.y"
                 {string c=convert((yyvsp[0].attributes).reg); c=c+" = ~ "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[0].attributes).reg;if((yyvsp[0].attributes).type<1||(yyvsp[0].attributes).type>3){yyerror("type");return 0;}(yyval.attributes).type=(yyvsp[0].attributes).type;}
-#line 2343 "parser.tab.c"
+#line 2364 "parser.tab.c"
     break;
 
   case 119: /* factor: power  */
-#line 623 "parser.y"
+#line 644 "parser.y"
        {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2349 "parser.tab.c"
+#line 2370 "parser.tab.c"
     break;
 
   case 120: /* power: atom_expr POWER factor  */
-#line 627 "parser.y"
+#line 648 "parser.y"
                                   {string c=convert((yyvsp[-2].attributes).reg); c=c+" = "+c+" ** "+convert((yyvsp[0].attributes).reg); code.push_back(c);  (yyval.attributes).reg=(yyvsp[-2].attributes).reg;int type=check_type((yyvsp[-2].attributes).type,(yyvsp[0].attributes).type);if(type>2)yyerror("type");if(type<1||type>2)return 0;(yyval.attributes).type=type;}
-#line 2355 "parser.tab.c"
+#line 2376 "parser.tab.c"
     break;
 
   case 121: /* power: atom_expr  */
-#line 628 "parser.y"
+#line 649 "parser.y"
                       {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2361 "parser.tab.c"
+#line 2382 "parser.tab.c"
     break;
 
   case 122: /* atom_expr: atom opt_trailer  */
-#line 632 "parser.y"
+#line 653 "parser.y"
                             { 
                               if(get_type((yyvsp[-1].attributes).lexeme)==7){
                                 string c=convert((yyvsp[-1].attributes).lexeme); c+=convert((yyvsp[0].attributes).lexeme); (yyval.attributes).lexeme=new char[c.size() + 1]; strcpy((yyval.attributes).lexeme, c.c_str()); c="#r"+to_string(node); node++;
@@ -2398,21 +2419,30 @@ yyreduce:
                                         (yyval.attributes).type=classes_type[(yyvsp[-1].attributes).lexeme];
                                         if(!match_vector(table[(yyvsp[-1].attributes).lexeme]["__init__"].func_parameter,(yyvsp[0].attributes).other->types)){return 0;}
                                         int i=0;
+                                        string s="#r"+to_string(node); node++; (yyval.attributes).reg=new char[s.size() + 1]; strcpy((yyval.attributes).reg, s.c_str());
+                                        string c=s+" = "+to_string(table["global"][(yyvsp[-1].attributes).lexeme].size);
+                                        code.push_back(c);
+                                        code.push_back("param "+s);
+                                        code.push_back("stackpointer +xxx"); 
+                                        c= "call mem_alloc , 1";
+                                        code.push_back(c);
+                                        code.push_back("stackpointer -xxx");
+                                        code.push_back(s+" = popparameter");
                                         vector<string>rev=(yyvsp[0].attributes).other->regs;
                                         reverse(rev.begin(),rev.end());
                                         for(auto x: rev){
                                             i++;
-                                            string c="param ";
+                                            c="param ";
                                             c=c+x;
                                             code.push_back(c);
                                         }
+                                        code.push_back("param "+s);
                                         code.push_back("stackpointer +xxx"); 
-                                        string c= "call ";
+                                        c= "call ";
                                         c=c+convert((yyvsp[-1].attributes).lexeme)+".__init__ , "+to_string(i);
                                         code.push_back(c);
                                         code.push_back("stackpointer -xxx"); 
-                                        c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str());
-                                        c=c+" = popparameter"; code.push_back(c);
+            
                                     }else{
                                         (yyval.attributes).type=table[(yyvsp[-1].attributes).lexeme][(yyvsp[0].attributes).lexeme].type;
                                         if((yyval.attributes).type==6&&!match_vector(table[(yyvsp[-1].attributes).lexeme][(yyvsp[0].attributes).lexeme].func_parameter,(yyvsp[0].attributes).other->types)){return 0;}
@@ -2425,6 +2455,7 @@ yyreduce:
                                             c=c+x;
                                             code.push_back(c);
                                         }
+                                        code.push_back("param self");
                                         code.push_back("stackpointer +xxx"); 
                                         string c= "call ";
                                         c=c+convert((yyvsp[-1].attributes).lexeme)+"."+convert((yyvsp[0].attributes).lexeme)+" , "+to_string(i);
@@ -2437,10 +2468,11 @@ yyreduce:
 
                                 }
                                 if((yyvsp[-1].attributes).type>10){
-                                    if((yyvsp[0].attributes).dot){
-                                        (yyval.attributes).type=table[type_to_class[(yyvsp[-1].attributes).type]][(yyvsp[0].attributes).lexeme].type;
+                                    (yyval.attributes).type=table[type_to_class[(yyvsp[-1].attributes).type]][(yyvsp[0].attributes).lexeme].type;
+                                    if((yyvsp[0].attributes).dot&&(yyval.attributes).type==6){
                                         if((yyval.attributes).type==6&&!match_vector(table[type_to_class[(yyvsp[-1].attributes).type]][(yyvsp[0].attributes).lexeme].func_parameter,(yyvsp[0].attributes).other->types)){return 0;}
                                         int i=0;
+                                        // cout<<1<<endl;
                                         vector<string>rev=(yyvsp[0].attributes).other->regs;
                                         reverse(rev.begin(),rev.end());
                                         for(auto x: rev){
@@ -2449,29 +2481,48 @@ yyreduce:
                                             c=c+x;
                                             code.push_back(c);
                                         }
+                                        code.push_back("param "+convert((yyvsp[-1].attributes).lexeme));
+                                        // cout<<1<<endl;
                                         code.push_back("stackpointer +xxx"); 
                                         string c= "call ";
-                                        c=c+convert((yyvsp[-1].attributes).lexeme)+"."+convert((yyvsp[0].attributes).lexeme)+" , "+to_string(i);
+                                        c=c+table[type_to_class[(yyvsp[-1].attributes).type]][(yyvsp[0].attributes).lexeme].parent_func+"."+convert((yyvsp[0].attributes).lexeme)+" , "+to_string(i+1);
                                         code.push_back(c);
                                         code.push_back("stackpointer -xxx"); 
                                         if((yyval.attributes).type){c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str());
                                         c=c+" = popparameter"; code.push_back(c);
                                         }
+                                    
                                     }
+                                    else if((yyvsp[0].attributes).dot){
+                                        (yyval.attributes).type=table[type_to_class[(yyvsp[-1].attributes).type]]["self."+convert((yyvsp[0].attributes).lexeme)].type;
+                                        if(!(yyval.attributes).type){yyerror("type");return 0;}
+                                        // cout<<$$.type<<endl;
+                                        // if($$.type==6&&!match_vector(table[type_to_class[$1.type]][$2.lexeme].func_parameter,$2.other->types)){return 0;}
+                                        string c="#r"+to_string(node); node++; 
+                                        c=c+" = "+to_string(class_offset[type_to_class[(yyvsp[-1].attributes).type]][convert((yyvsp[0].attributes).lexeme)]);
+                                        code.push_back(c);
+                                        c=convert((yyvsp[-1].attributes).lexeme)+" . #r"+to_string(node-1);
+                                        (yyval.attributes).lexeme=new char[c.size() + 1]; strcpy((yyval.attributes).lexeme, c.c_str());
+                                        c="#r"+to_string(node); node++; 
+                                        (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str());
+                                        c=c+" = "+convert((yyval.attributes).lexeme);
+                                        code.push_back(c);
+                                        }
+                                    
                                 }
                               }
                             }
-#line 2465 "parser.tab.c"
+#line 2516 "parser.tab.c"
     break;
 
   case 123: /* atom_expr: atom  */
-#line 731 "parser.y"
+#line 782 "parser.y"
                 {(yyval.attributes).reg=(yyvsp[0].attributes).reg;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).count=(yyvsp[0].attributes).count;}
-#line 2471 "parser.tab.c"
+#line 2522 "parser.tab.c"
     break;
 
   case 124: /* atom_expr: SELF opt_trailer  */
-#line 732 "parser.y"
+#line 783 "parser.y"
                            {
                             if((yyvsp[0].attributes).dot){
                                 string c = "self.";c=c+convert((yyvsp[0].attributes).lexeme);(yyvsp[0].attributes).lexeme=new char[c.size()]; strcpy((yyvsp[0].attributes).lexeme, c.c_str());
@@ -2483,21 +2534,21 @@ yyreduce:
                             (yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;
                             (yyval.attributes).reg=(yyvsp[0].attributes).reg;
                         }
-#line 2487 "parser.tab.c"
+#line 2538 "parser.tab.c"
     break;
 
   case 125: /* atom_expr: LEN LEFT_BRACKET test RIGHT_BRACKET  */
-#line 743 "parser.y"
+#line 794 "parser.y"
                                      {
                                 if((yyvsp[-1].attributes).type!=7){yyerror("type");return 0;}
                                 (yyval.attributes).type=1; 
                                 string c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); c=c+" = len() "+convert((yyvsp[-1].attributes).lexeme); code.push_back(c);
                             }
-#line 2497 "parser.tab.c"
+#line 2548 "parser.tab.c"
     break;
 
   case 126: /* atom_expr: PRINT LEFT_BRACKET test RIGHT_BRACKET  */
-#line 748 "parser.y"
+#line 799 "parser.y"
                                       {
                                 string c="param ";
                                 c=c+convert((yyvsp[-1].attributes).reg);
@@ -2512,29 +2563,29 @@ yyreduce:
                                 (yyval.attributes).lexeme=(yyvsp[-1].attributes).lexeme;
                                 (yyval.attributes).reg=(yyval.attributes).lexeme;
                             }
-#line 2516 "parser.tab.c"
+#line 2567 "parser.tab.c"
     break;
 
   case 127: /* opt_trailer: opt_trailer trailer  */
-#line 765 "parser.y"
+#line 816 "parser.y"
                     {(yyval.attributes).lexeme=(yyvsp[-1].attributes).lexeme;(yyval.attributes).other=(yyvsp[0].attributes).other;(yyval.attributes).list_type=5;(yyval.attributes).dot=(yyvsp[-1].attributes).dot+(yyvsp[0].attributes).dot;}
-#line 2522 "parser.tab.c"
+#line 2573 "parser.tab.c"
     break;
 
   case 128: /* opt_trailer: trailer  */
-#line 766 "parser.y"
+#line 817 "parser.y"
            {(yyval.attributes).type=(yyvsp[0].attributes).type;(yyval.attributes).list_type=(yyvsp[0].attributes).list_type;(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).other=(yyvsp[0].attributes).other;(yyval.attributes).dot=(yyvsp[0].attributes).dot;}
-#line 2528 "parser.tab.c"
+#line 2579 "parser.tab.c"
     break;
 
   case 129: /* atom: LEFT_BRACKET testlist RIGHT_BRACKET  */
-#line 770 "parser.y"
+#line 821 "parser.y"
                                     {(yyval.attributes).type=(yyvsp[-1].attributes).type;(yyval.attributes).count=(yyvsp[-1].attributes).count;(yyval.attributes).reg=(yyvsp[-1].attributes).reg;}
-#line 2534 "parser.tab.c"
+#line 2585 "parser.tab.c"
     break;
 
   case 132: /* atom: LEFT_SQUARE_BRACKET testlist RIGHT_SQUARE_BRACKET  */
-#line 773 "parser.y"
+#line 824 "parser.y"
                                                    {
     string c="#r"+to_string(node); node++; c=c+" = "+to_string(((yyvsp[-1].attributes).count+1)*8); code.push_back(c);code.push_back("param #r"+to_string(node-1)); code.push_back("stackpointer + 8"); code.push_back("call mem_alloc , 1"); code.push_back("stackpointer - 8");
     c="#r"+to_string(node); node++; code.push_back(c+" = popparameter"); (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); (yyval.attributes).type=7;(yyval.attributes).list_type=(yyvsp[-1].attributes).type;(yyval.attributes).count=(yyvsp[-1].attributes).count;
@@ -2546,107 +2597,107 @@ yyreduce:
        code.push_back("*("+c+") = "+x);
     }
     }
-#line 2550 "parser.tab.c"
+#line 2601 "parser.tab.c"
     break;
 
   case 133: /* atom: NAME  */
-#line 784 "parser.y"
+#line 835 "parser.y"
         {string c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); c=c+" = ";  c=c+convert((yyvsp[0].attributes).lexeme); code.push_back(c);  (yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;if(check((yyvsp[0].attributes).lexeme))return 0; (yyval.attributes).type=get_type((yyvsp[0].attributes).lexeme);if((yyval.attributes).type==7)(yyval.attributes).list_type=get_listtype((yyvsp[0].attributes).lexeme);}
-#line 2556 "parser.tab.c"
+#line 2607 "parser.tab.c"
     break;
 
   case 134: /* atom: INT  */
-#line 785 "parser.y"
+#line 836 "parser.y"
       {string c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); c=c+" = ";  c=c+convert((yyvsp[0].attributes).lexeme); code.push_back(c); (yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=1;}
-#line 2562 "parser.tab.c"
+#line 2613 "parser.tab.c"
     break;
 
   case 135: /* atom: FLOAT  */
-#line 786 "parser.y"
+#line 837 "parser.y"
         {string c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); c=c+" = ";  c=c+convert((yyvsp[0].attributes).lexeme); code.push_back(c); (yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=2;}
-#line 2568 "parser.tab.c"
+#line 2619 "parser.tab.c"
     break;
 
   case 136: /* atom: DATA_TYPE  */
-#line 787 "parser.y"
+#line 838 "parser.y"
             {(yyval.attributes).type=typedetector((yyvsp[0].attributes).lexeme);(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;}
-#line 2574 "parser.tab.c"
+#line 2625 "parser.tab.c"
     break;
 
   case 137: /* atom: STRING  */
-#line 788 "parser.y"
+#line 839 "parser.y"
           {(yyval.attributes).type=4;string c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); c=c+" = ";  c=c+convert((yyvsp[0].attributes).lexeme); code.push_back(c); (yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;}
-#line 2580 "parser.tab.c"
+#line 2631 "parser.tab.c"
     break;
 
   case 138: /* atom: STRING_1  */
-#line 789 "parser.y"
+#line 840 "parser.y"
            {(yyval.attributes).type=4;string c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); c=c+" = ";  c=c+convert((yyvsp[0].attributes).lexeme); code.push_back(c); (yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;}
-#line 2586 "parser.tab.c"
+#line 2637 "parser.tab.c"
     break;
 
   case 139: /* atom: NONE  */
-#line 790 "parser.y"
+#line 841 "parser.y"
             {(yyval.attributes).type=0;}
-#line 2592 "parser.tab.c"
+#line 2643 "parser.tab.c"
     break;
 
   case 140: /* atom: TRUE  */
-#line 791 "parser.y"
+#line 842 "parser.y"
       {string c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); c=c+" = ";  c=c+convert((yyvsp[0].attributes).lexeme); code.push_back(c); (yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=3;}
-#line 2598 "parser.tab.c"
+#line 2649 "parser.tab.c"
     break;
 
   case 141: /* atom: FALSE  */
-#line 792 "parser.y"
+#line 843 "parser.y"
        {string c="#r"+to_string(node); node++; (yyval.attributes).reg=new char[c.size() + 1]; strcpy((yyval.attributes).reg, c.c_str()); c=c+" = ";  c=c+convert((yyvsp[0].attributes).lexeme); code.push_back(c); (yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme;(yyval.attributes).type=3;}
-#line 2604 "parser.tab.c"
+#line 2655 "parser.tab.c"
     break;
 
   case 142: /* atom: LIST  */
-#line 793 "parser.y"
+#line 844 "parser.y"
       {(yyval.attributes).type=7;}
-#line 2610 "parser.tab.c"
+#line 2661 "parser.tab.c"
     break;
 
   case 143: /* trailer: LEFT_BRACKET arglist RIGHT_BRACKET  */
-#line 798 "parser.y"
+#line 849 "parser.y"
                                      {(yyval.attributes).other=(yyvsp[-1].attributes).other;}
-#line 2616 "parser.tab.c"
+#line 2667 "parser.tab.c"
     break;
 
   case 144: /* trailer: LEFT_BRACKET RIGHT_BRACKET  */
-#line 799 "parser.y"
+#line 850 "parser.y"
                               {(yyval.attributes).other=new other;}
-#line 2622 "parser.tab.c"
+#line 2673 "parser.tab.c"
     break;
 
   case 145: /* trailer: LEFT_SQUARE_BRACKET test RIGHT_SQUARE_BRACKET  */
-#line 800 "parser.y"
+#line 851 "parser.y"
                                                  {string c=" [] "; c+=convert((yyvsp[-1].attributes).reg); (yyval.attributes).lexeme=new char[c.size() + 1]; strcpy((yyval.attributes).lexeme, c.c_str()); if((yyvsp[-1].attributes).type!=1){yyerror("type");return 0;}(yyval.attributes).type=(yyvsp[-1].attributes).type;(yyval.attributes).list_type=1;}
-#line 2628 "parser.tab.c"
+#line 2679 "parser.tab.c"
     break;
 
   case 146: /* trailer: DOT name  */
-#line 801 "parser.y"
+#line 852 "parser.y"
            {(yyval.attributes).lexeme=(yyvsp[0].attributes).lexeme; (yyval.attributes).reg=(yyvsp[0].attributes).reg; (yyval.attributes).dot=1;}
-#line 2634 "parser.tab.c"
+#line 2685 "parser.tab.c"
     break;
 
   case 147: /* testlist: testlist COMMA test  */
-#line 805 "parser.y"
+#line 856 "parser.y"
                     {(yyval.attributes).type=(yyvsp[-2].attributes).type; (yyval.attributes).count=(yyvsp[-2].attributes).count+1; (yyval.attributes).other=(yyvsp[-2].attributes).other; (((yyval.attributes).other)->regs).push_back((yyvsp[0].attributes).reg);}
-#line 2640 "parser.tab.c"
+#line 2691 "parser.tab.c"
     break;
 
   case 148: /* testlist: test  */
-#line 806 "parser.y"
+#line 857 "parser.y"
        {(yyval.attributes).type=(yyvsp[0].attributes).type; (yyval.attributes).count=1; (yyval.attributes).other=new other; (((yyval.attributes).other)->regs).push_back((yyvsp[0].attributes).reg);}
-#line 2646 "parser.tab.c"
+#line 2697 "parser.tab.c"
     break;
 
 
-#line 2650 "parser.tab.c"
+#line 2701 "parser.tab.c"
 
       default: break;
     }
@@ -2839,7 +2890,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 810 "parser.y"
+#line 861 "parser.y"
 
 
 const char* token_name(int t) {

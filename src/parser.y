@@ -19,6 +19,7 @@ map<string,map<string,int>>class_offset;
 int cu_class_off=0;
 int curr_break=0;
 string func_class="";
+string cu_parent_class="";
 string integerToOperator(int value) {
     // Map each integer value to its corresponding operator string
     if (value == 0) {
@@ -57,6 +58,7 @@ class content{
         int funct_return_type;
         int size=8;
         string parent_class="None";
+        string parent_func="";
         vector<int>func_parameter;
         int line_number;
         string class_type;
@@ -424,8 +426,13 @@ DEF func_name parameters COLON {
                                 current_func_type=0; 
                                 string c=""; code.push_back(c); c=convert($2.lexeme);
                                 if(func_class.size()) c=func_class+c;
-                                c=c+" :"; code.push_back(c); 
+                                if(convert($2.lexeme)=="__init__"){c=c+" : "+cu_parent_class; code.push_back(c);}
+                                else {c=c+" :"; code.push_back(c);}
                                 code.push_back("funcbegin");
+                                if(curr_class!="None"){
+                                    c="self = popparameter";
+                                    code.push_back(c);
+                                }
                                 for(auto x : $3.other->lexemes){
                                     c=x+" = popparameter";
                                     code.push_back(c);
@@ -439,6 +446,7 @@ DEF func_name parameters COLON {
                                         
                                 table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
                                 table[curr_func][$2.lexeme].funct_return_type=0;
+                                table[curr_func][$2.lexeme].parent_func=curr_class;
                                 curr_func=temp;
                                 } 
                                 suite{
@@ -456,8 +464,13 @@ DEF func_name parameters COLON {
 | DEF func_name parameters RETURN_ARROW data_type{current_func_type=$5.type;  } COLON{
                                 string c=""; code.push_back(c); c=convert($2.lexeme);
                                 if(func_class.size()) c=func_class+c;
-                                c=c+" :"; code.push_back(c); 
+                                if(convert($2.lexeme)=="__init__"){c=c+" : "+cu_parent_class; code.push_back(c);}
+                                else  {c=c+" :"; code.push_back(c);}
                                 code.push_back("funcbegin");
+                                if(curr_class!="None"){
+                                    c="self = popparameter";
+                                    code.push_back(c);
+                                }
                                 for(auto x : $3.other->lexemes){
                                     
                                     c=x+" = popparameter";
@@ -471,6 +484,7 @@ DEF func_name parameters COLON {
                                 update_table($2.lexeme,6,$2.line);
                                 table[curr_func][$2.lexeme].func_parameter=($3.other)->types;
                                 table[curr_func][$2.lexeme].funct_return_type=current_func_type;
+                                table[curr_func][$2.lexeme].parent_func=curr_class;
                                 curr_func=temp;
                                 }  
                                  suite{
@@ -510,22 +524,29 @@ CLASS class_name opt_class_arg COLON{
                                     func_class=convert($2.lexeme)+".";
                                 } 
                                suite   {
+                                int class_size=0;
+                                for(auto it:class_offset[curr_class])class_size+=8;
                                 update_table($2.lexeme,5,$2.line);curr_class="None";table["global"][$2.lexeme].parent_class=$3.lexeme;
+                                table["global"][$2.lexeme].size=class_size;
                                 func_class="";
+                                cu_parent_class="";
                                 }
 |CLASS class_name COLON {
                         func_class=convert($2.lexeme)+".";
 }
                   suite   {
+                            int class_size=0;
+                            for(auto it:class_offset[curr_class])class_size+=8;
                             update_table($2.lexeme,5,$2.line);curr_class="None";
-                                 func_class="";
+                            table["global"][$2.lexeme].size=class_size;
+                             func_class="";
                                 }
 ;
 class_name:name{curr_class=$1.lexeme;$$.lexeme=$1.lexeme;update_class_type(curr_class);cu_class_off=0;}
 ;
 opt_class_arg: 
 LEFT_BRACKET RIGHT_BRACKET  {$$.lexeme=(char*)"None";}
-|LEFT_BRACKET argument RIGHT_BRACKET  {add_class(curr_class,$2.lexeme);$$.lexeme=$2.lexeme;$$.other =$2.other;}  
+|LEFT_BRACKET argument RIGHT_BRACKET  {add_class(curr_class,$2.lexeme);$$.lexeme=$2.lexeme;$$.other =$2.other;cu_parent_class=convert($2.lexeme);}  
 ;
 
 arglist: 
@@ -552,11 +573,11 @@ stmt_list stmt
 test: or_test %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.count=$1.count;}    
 ;
 
-or_test: or_test OR and_test %prec high {string c=convert($1.reg); c=c+" = "+c+" or "+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}   
+or_test: or_test OR and_test %prec high {string c=convert($1.reg); c=c+" = "+c+" or "+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=max($1.type,$3.type);}   
 |and_test %prec low {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}       
 ;
 
-and_test: and_test AND not_test   {string c=convert($1.reg); c=c+" = "+c+" and "+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}  
+and_test: and_test AND not_test   {string c=convert($1.reg); c=c+" = "+c+" and "+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=max($1.type,$3.type);}  
 |not_test {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}              
 ;
 
@@ -587,20 +608,20 @@ comparison: comparison r_o expr %prec high  {$$.reg=$1.reg;if(!check_type($1.typ
 r_o: RELATIONAL_OPERATOR {string c=convert($1.lexeme); $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); }
 ;
 
-expr: expr BIT_OR xor_expr %prec high    {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" | "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
+expr: expr BIT_OR xor_expr %prec high    {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" | "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=min($1.type,$3.type);}
 |xor_expr  %prec low   {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}     
 ;
 
-xor_expr: xor_expr XOR and_expr  %prec high {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" ^ "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
+xor_expr: xor_expr XOR and_expr  %prec high {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" ^ "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=min($1.type,$3.type);}
 |and_expr   %prec low    {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}    
 ;
 
-and_expr: and_expr BIT_AND shift_expr  %prec high {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" & "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
+and_expr: and_expr BIT_AND shift_expr  %prec high {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" & "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=min($1.type,$3.type);}
 |shift_expr  %prec low     {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
 ;
 
-shift_expr: shift_expr L_SHIFT arith_expr %prec high  {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" << "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
-|shift_expr R_SHIFT arith_expr %prec high   {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" >> "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=3;}
+shift_expr: shift_expr L_SHIFT arith_expr %prec high  {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" << "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=1;}
+|shift_expr R_SHIFT arith_expr %prec high   {string c=convert($1.reg); c=c+" = "+convert($1.reg)+" >> "+convert($3.reg); code.push_back(c);  $$.reg=$1.reg;if(!(($1.type==1||$1.type==3)&&($3.type==1||$3.type==3))){yyerror("type");return 0;}$$.type=1;}
 |arith_expr %prec low    {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
 ;
 
@@ -665,21 +686,30 @@ atom opt_trailer %prec high {
                                         $$.type=classes_type[$1.lexeme];
                                         if(!match_vector(table[$1.lexeme]["__init__"].func_parameter,$2.other->types)){return 0;}
                                         int i=0;
+                                        string s="#r"+to_string(node); node++; $$.reg=new char[s.size() + 1]; strcpy($$.reg, s.c_str());
+                                        string c=s+" = "+to_string(table["global"][$1.lexeme].size);
+                                        code.push_back(c);
+                                        code.push_back("param "+s);
+                                        code.push_back("stackpointer +xxx"); 
+                                        c= "call mem_alloc , 1";
+                                        code.push_back(c);
+                                        code.push_back("stackpointer -xxx");
+                                        code.push_back(s+" = popparameter");
                                         vector<string>rev=$2.other->regs;
                                         reverse(rev.begin(),rev.end());
                                         for(auto x: rev){
                                             i++;
-                                            string c="param ";
+                                            c="param ";
                                             c=c+x;
                                             code.push_back(c);
                                         }
+                                        code.push_back("param "+s);
                                         code.push_back("stackpointer +xxx"); 
-                                        string c= "call ";
+                                        c= "call ";
                                         c=c+convert($1.lexeme)+".__init__ , "+to_string(i);
                                         code.push_back(c);
                                         code.push_back("stackpointer -xxx"); 
-                                        c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
-                                        c=c+" = popparameter"; code.push_back(c);
+            
                                     }else{
                                         $$.type=table[$1.lexeme][$2.lexeme].type;
                                         if($$.type==6&&!match_vector(table[$1.lexeme][$2.lexeme].func_parameter,$2.other->types)){return 0;}
@@ -692,6 +722,7 @@ atom opt_trailer %prec high {
                                             c=c+x;
                                             code.push_back(c);
                                         }
+                                        code.push_back("param self");
                                         code.push_back("stackpointer +xxx"); 
                                         string c= "call ";
                                         c=c+convert($1.lexeme)+"."+convert($2.lexeme)+" , "+to_string(i);
@@ -704,10 +735,11 @@ atom opt_trailer %prec high {
 
                                 }
                                 if($1.type>10){
-                                    if($2.dot){
-                                        $$.type=table[type_to_class[$1.type]][$2.lexeme].type;
+                                    $$.type=table[type_to_class[$1.type]][$2.lexeme].type;
+                                    if($2.dot&&$$.type==6){
                                         if($$.type==6&&!match_vector(table[type_to_class[$1.type]][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                                         int i=0;
+                                        // cout<<1<<endl;
                                         vector<string>rev=$2.other->regs;
                                         reverse(rev.begin(),rev.end());
                                         for(auto x: rev){
@@ -716,15 +748,34 @@ atom opt_trailer %prec high {
                                             c=c+x;
                                             code.push_back(c);
                                         }
+                                        code.push_back("param "+convert($1.lexeme));
+                                        // cout<<1<<endl;
                                         code.push_back("stackpointer +xxx"); 
                                         string c= "call ";
-                                        c=c+convert($1.lexeme)+"."+convert($2.lexeme)+" , "+to_string(i);
+                                        c=c+table[type_to_class[$1.type]][$2.lexeme].parent_func+"."+convert($2.lexeme)+" , "+to_string(i+1);
                                         code.push_back(c);
                                         code.push_back("stackpointer -xxx"); 
                                         if($$.type){c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
                                         c=c+" = popparameter"; code.push_back(c);
                                         }
+                                    
                                     }
+                                    else if($2.dot){
+                                        $$.type=table[type_to_class[$1.type]]["self."+convert($2.lexeme)].type;
+                                        if(!$$.type){yyerror("type");return 0;}
+                                        // cout<<$$.type<<endl;
+                                        // if($$.type==6&&!match_vector(table[type_to_class[$1.type]][$2.lexeme].func_parameter,$2.other->types)){return 0;}
+                                        string c="#r"+to_string(node); node++; 
+                                        c=c+" = "+to_string(class_offset[type_to_class[$1.type]][convert($2.lexeme)]);
+                                        code.push_back(c);
+                                        c=convert($1.lexeme)+" . #r"+to_string(node-1);
+                                        $$.lexeme=new char[c.size() + 1]; strcpy($$.lexeme, c.c_str());
+                                        c="#r"+to_string(node); node++; 
+                                        $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str());
+                                        c=c+" = "+convert($$.lexeme);
+                                        code.push_back(c);
+                                        }
+                                    
                                 }
                               }
                             }
