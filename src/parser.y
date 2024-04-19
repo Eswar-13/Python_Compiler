@@ -3,7 +3,6 @@
 using namespace std;
 
 #define YYDEBUG 1
-
 extern int yydebug;
 extern int yyparse();
 extern int yylex();
@@ -16,9 +15,10 @@ extern char * yytext;
 
 int node=0;
 stack<int> curr_for;
+map<string,map<string,int>>class_offset;
+int cu_class_off=0;
 int curr_break=0;
 string func_class="";
-
 string integerToOperator(int value) {
     // Map each integer value to its corresponding operator string
     if (value == 0) {
@@ -179,6 +179,10 @@ void add_class(string target,string input){
     for(auto it:table[input]){
         table[target][it.first]=it.second;
     }
+    for(auto it:class_offset[input]){
+        class_offset[target][it.first]=cu_class_off;
+        cu_class_off+=8;
+    }
 }
 void copy_content(string key){
     for(auto it:table[key]){
@@ -321,7 +325,7 @@ test ASSIGNMENT_OPERATOR test {string c=convert($1.lexeme); c=c+" = "+convert($3
                                     }
                                 }
 ;
-dec_name: SELF DOT name %prec high{$$.type=1;$$.reg=$3.reg;$$.lexeme=$3.lexeme;string c = "self.";c=c+convert($3.lexeme);$$.lexeme=new char[c.size()]; strcpy($$.lexeme, c.c_str());$$.line=$3.line;if(!is_self){yyerror("type");return 0;}}
+dec_name: SELF DOT name %prec high{class_offset[curr_class][convert($3.lexeme)]=cu_class_off;cu_class_off+=8;$$.type=1;$$.reg=$3.reg;$$.lexeme=$3.lexeme;string c = "self.";c=c+convert($3.lexeme);$$.lexeme=new char[c.size()]; strcpy($$.lexeme, c.c_str());$$.line=$3.line;if(!is_self){yyerror("type");return 0;}}
 |name {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.line=$1.line;}
 
 name: NAME {$$.lexeme=$1.lexeme; string c=convert($1.lexeme); $$.reg=new char[c.size()]; strcpy($$.reg, c.c_str()); $$.line=yylineno;}
@@ -517,7 +521,7 @@ CLASS class_name opt_class_arg COLON{
                                  func_class="";
                                 }
 ;
-class_name:name{curr_class=$1.lexeme;$$.lexeme=$1.lexeme;update_class_type(curr_class);}
+class_name:name{curr_class=$1.lexeme;$$.lexeme=$1.lexeme;update_class_type(curr_class);cu_class_off=0;}
 ;
 opt_class_arg: 
 LEFT_BRACKET RIGHT_BRACKET  {$$.lexeme=(char*)"None";}
@@ -560,7 +564,23 @@ not_test: NOT not_test  {string c=convert($2.reg); c=c+" = not "+convert($2.reg)
 |comparison  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;} 
 ;
 
-comparison: comparison r_o expr %prec high  {string c=convert($1.reg); c=c+" = "+c+" "+convert($2.reg)+" "+convert($3.reg); code.push_back(c); $$.reg=$1.reg;if(!check_type($1.type,$3.type))return 0;$$.type=3;} 
+comparison: comparison r_o expr %prec high  {$$.reg=$1.reg;if(!check_type($1.type,$3.type))return 0;$$.type=3;
+                                                if($3.type==4){
+                                                    string c="param "+convert($3.reg); code.push_back(c);
+                                                    c="param "+convert($1.reg); code.push_back(c);
+                                                    c="stackpointer +16"; code.push_back(c);
+                                                    if(convert($2.lexeme)=="=="){c="call is_string_equal , 2"; code.push_back(c);}
+                                                    if(convert($2.lexeme)=="!="){c="call is_string_not_equal , 2"; code.push_back(c);}
+                                                    if(convert($2.lexeme)==">="){c="call is_string_greater_equal , 2"; code.push_back(c);}
+                                                    if(convert($2.lexeme)=="<="){c="call is_string_less_equal , 2"; code.push_back(c);}
+                                                    if(convert($2.lexeme)==">"){c="call is_string_greater , 2"; code.push_back(c);}
+                                                    if(convert($2.lexeme)=="<"){c="call is_string_less , 2"; code.push_back(c);} 
+                                                    c="stackpointer -16"; code.push_back(c);
+                                                    c=convert($1.reg)+" = popparameter"; code.push_back(c);
+                                                }else{
+                                                    string c=convert($1.reg); c=c+" = "+c+" "+convert($2.reg)+" "+convert($3.reg); code.push_back(c);
+                                                }                                                      
+                                            } 
 |expr %prec low  {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}   
 ;
 
@@ -621,7 +641,9 @@ atom opt_trailer %prec high {
                                 if($1.type==6){
                                     if(!match_vector(get_func_parameter($1.lexeme),$2.other->types)){return 0;}
                                     int i=0;
-                                    for(auto x: $2.other->regs){
+                                    vector<string>rev=$2.other->regs;
+                                    reverse(rev.begin(),rev.end());
+                                    for(auto x: rev){
                                         i++;
                                         string c="param ";
                                         c=c+x;
@@ -643,7 +665,9 @@ atom opt_trailer %prec high {
                                         $$.type=classes_type[$1.lexeme];
                                         if(!match_vector(table[$1.lexeme]["__init__"].func_parameter,$2.other->types)){return 0;}
                                         int i=0;
-                                        for(auto x: $2.other->regs){
+                                        vector<string>rev=$2.other->regs;
+                                        reverse(rev.begin(),rev.end());
+                                        for(auto x: rev){
                                             i++;
                                             string c="param ";
                                             c=c+x;
@@ -660,7 +684,9 @@ atom opt_trailer %prec high {
                                         $$.type=table[$1.lexeme][$2.lexeme].type;
                                         if($$.type==6&&!match_vector(table[$1.lexeme][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                                         int i=0;
-                                        for(auto x: $2.other->regs){
+                                        vector<string>rev=$2.other->regs;
+                                        reverse(rev.begin(),rev.end());
+                                        for(auto x: rev){
                                             i++;
                                             string c="param ";
                                             c=c+x;
@@ -682,7 +708,9 @@ atom opt_trailer %prec high {
                                         $$.type=table[type_to_class[$1.type]][$2.lexeme].type;
                                         if($$.type==6&&!match_vector(table[type_to_class[$1.type]][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                                         int i=0;
-                                        for(auto x: $2.other->regs){
+                                        vector<string>rev=$2.other->regs;
+                                        reverse(rev.begin(),rev.end());
+                                        for(auto x: rev){
                                             i++;
                                             string c="param ";
                                             c=c+x;
@@ -701,7 +729,6 @@ atom opt_trailer %prec high {
                               }
                             }
 |atom %prec low {$$.reg=$1.reg;$$.lexeme=$1.lexeme;$$.type=$1.type;$$.count=$1.count;}
-;
 |SELF opt_trailer %prec low{
                             if($2.dot){
                                 string c = "self.";c=c+convert($2.lexeme);$2.lexeme=new char[c.size()]; strcpy($2.lexeme, c.c_str());
@@ -714,15 +741,8 @@ atom opt_trailer %prec high {
                         }
 |LEN LEFT_BRACKET test RIGHT_BRACKET {
                                 if($3.type!=7){yyerror("type");return 0;}
-                                $$.type=1;
-                                string c="param ";
-                                c=c+convert($3.reg);
-                                code.push_back(c);
-                                code.push_back("stackpointer +xxx"); 
-                                c= "call len , 1";
-                                code.push_back(c);
-                                code.push_back("stackpointer -xxx"); 
-                                c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+"=popparameter"; code.push_back(c);
+                                $$.type=1; 
+                                string c="#r"+to_string(node); node++; $$.reg=new char[c.size() + 1]; strcpy($$.reg, c.c_str()); c=c+" = len() "+convert($3.lexeme); code.push_back(c);
                             }
 |PRINT LEFT_BRACKET test RIGHT_BRACKET{
                                 string c="param ";
@@ -801,9 +821,7 @@ void yyerror(const char *s){
    cout<< "The Last Token is "<<token_name(yychar)<<endl;
    return ;
 }
-
 int main ( int argc, char *argv[]){
-   
    int flag = 0;
    if(argc == 5)  flag=1;
    if(flag){ 
@@ -854,3 +872,4 @@ int main ( int argc, char *argv[]){
    
    return 0;
 }
+

@@ -3,145 +3,69 @@ format_print_str: .asciz "%s\n"
 format_print_int: .asciz "%ld\n"
 format_print_true: .asciz "True\n"
 format_print_false: .asciz "False\n"
+string1: .asciz "Shift-Reduce"
 .text
 .globl main
+ShiftReduceParser.__init__:
+pushq %rbp
+movq %rsp, %rbp
+subq $40, %rsp
+movq 16(%rbp), %rdx
+movq %rdx, -8(%rbp)
+movq $1, %rdx
+movq %rdx, -16(%rbp)
+movq -16(%rbp), %rdx
+movq %rdx, 
+movq $0, %rdx
+movq %rdx, -24(%rbp)
+movq -24(%rbp), %rdx
+movq %rdx, 
+movq $1, %rdx
+movq %rdx, -32(%rbp)
+movq -40(%rbp), %rcx
+movq -32(%rbp), %rdx
+addq %rdx, %rcx
+movq %rcx, -40(%rbp)
+movq -40(%rbp), %rdx
+movq %rdx, 
+leave
+ret
 main:
 pushq %rbp
 movq %rsp, %rbp
-subq $160, %rsp
-movq $2, %rdx
-movq %rdx, -8(%rbp)
+subq $24, %rsp
+lea string1(%rip), %rdx
+movq %rdx,-8(%rbp)
+pushq %rax
+pushq %rcx
+pushq %rdx
+pushq %rdi
+pushq %rsi
+pushq %r8
+pushq %r9
+pushq %r10
+pushq %r11
+movq %rsp, %rbx
+movq %rsp, %rcx
+addq $-8, %rcx
+andq $15, %rcx
+subq %rcx, %rsp
 movq -8(%rbp), %rdx
-movq %rdx, -16(%rbp)
-movq $4, %rdx
+pushq %rdx
+call ShiftReduceParser.__init__
+movq %rax, -16(%rbp)
+movq %rbx, %rsp
+popq %r11
+popq %r10
+popq %r9
+popq %r8
+popq %rsi
+popq %rdi
+popq %rdx
+popq %rcx
+popq %rax
+movq -16(%rbp), %rdx
 movq %rdx, -24(%rbp)
-movq -24(%rbp), %rdx
-movq %rdx, -32(%rbp)
-movq -32(%rbp), %rdx
-movq %rdx, -40(%rbp)
-movq $2, %rdx
-movq %rdx, -48(%rbp)
-movq -40(%rbp), %rax
-cdq
-idivq -48(%rbp)
-movq %rax, -40(%rbp)
-movq -40(%rbp), %rdx
-movq %rdx, -56(%rbp)
-movq -56(%rbp), %rdx
-movq %rdx, -64(%rbp)
-pushq %rax
-pushq %rcx
-pushq %rdx
-pushq %rdi
-pushq %rsi
-pushq %r8
-pushq %r9
-pushq %r10
-pushq %r11
-movq %rsp, %rbx
-movq %rsp, %rcx
-addq $-8, %rcx
-andq $15, %rcx
-subq %rcx, %rsp
-movq -64(%rbp), %rdx
-pushq %rdx
-call print_int
-movq %rbx, %rsp
-popq %r11
-popq %r10
-popq %r9
-popq %r8
-popq %rsi
-popq %rdi
-popq %rdx
-popq %rcx
-popq %rax
-movq $158, %rdx
-movq %rdx, -72(%rbp)
-movq -72(%rbp), %rdx
-movq %rdx, -80(%rbp)
-movq $34, %rdx
-movq %rdx, -88(%rbp)
-movq -88(%rbp), %rdx
-movq %rdx, -96(%rbp)
-movq -80(%rbp), %rdx
-movq %rdx, -104(%rbp)
-movq -96(%rbp), %rdx
-movq %rdx, -112(%rbp)
-movq -104(%rbp), %rax
-cdq
-idivq -112(%rbp)
-movq %rax, -104(%rbp)
-movq -104(%rbp), %rdx
-movq %rdx, -120(%rbp)
-movq -80(%rbp), %rdx
-movq %rdx, -128(%rbp)
-movq -96(%rbp), %rdx
-movq %rdx, -136(%rbp)
-movq -128(%rbp), %rax
-cdq
-idivq -136(%rbp)
-movq %rdx, -128(%rbp)
-movq -128(%rbp), %rdx
-movq %rdx, -144(%rbp)
-movq -120(%rbp), %rdx
-movq %rdx, -152(%rbp)
-pushq %rax
-pushq %rcx
-pushq %rdx
-pushq %rdi
-pushq %rsi
-pushq %r8
-pushq %r9
-pushq %r10
-pushq %r11
-movq %rsp, %rbx
-movq %rsp, %rcx
-addq $-8, %rcx
-andq $15, %rcx
-subq %rcx, %rsp
-movq -152(%rbp), %rdx
-pushq %rdx
-call print_int
-movq %rbx, %rsp
-popq %r11
-popq %r10
-popq %r9
-popq %r8
-popq %rsi
-popq %rdi
-popq %rdx
-popq %rcx
-popq %rax
-movq -144(%rbp), %rdx
-movq %rdx, -160(%rbp)
-pushq %rax
-pushq %rcx
-pushq %rdx
-pushq %rdi
-pushq %rsi
-pushq %r8
-pushq %r9
-pushq %r10
-pushq %r11
-movq %rsp, %rbx
-movq %rsp, %rcx
-addq $-8, %rcx
-andq $15, %rcx
-subq %rcx, %rsp
-movq -160(%rbp), %rdx
-pushq %rdx
-call print_int
-movq %rbx, %rsp
-popq %r11
-popq %r10
-popq %r9
-popq %r8
-popq %rsi
-popq %rdi
-popq %rdx
-popq %rcx
-popq %rax
 leave
 ret
 print_int:
@@ -184,7 +108,7 @@ movq 16(%rbp), %rdi
 callq malloc
 leave
 ret
-strcmpl:
+is_string_less:
 pushq %rbp
 movq %rsp, %rbp
 movq 16(%rbp), %rdi
@@ -196,7 +120,7 @@ setl %dl
 movq %rdx, %rax
 leave
 ret
-strcmpg:
+is_string_greater:
 pushq %rbp
 movq %rsp, %rbp
 movq 16(%rbp), %rdi
@@ -208,7 +132,7 @@ setg %dl
 movq %rdx, %rax
 leave
 ret
-strcmpe:
+is_string_equal:
 pushq %rbp
 movq %rsp, %rbp
 movq 16(%rbp), %rdi
@@ -220,7 +144,7 @@ sete %dl
 movq %rdx, %rax
 leave
 ret
-strcmpne:
+is_string_not_equal:
 pushq %rbp
 movq %rsp, %rbp
 movq 16(%rbp), %rdi
@@ -232,7 +156,7 @@ setne %dl
 movq %rdx, %rax
 leave
 ret
-strcmple:
+is_string_less_equal:
 pushq %rbp
 movq %rsp, %rbp
 movq 16(%rbp), %rdi
@@ -244,7 +168,7 @@ setle %dl
 movq %rdx, %rax
 leave
 ret
-strcmpge:
+is_string_greater_equal:
 pushq %rbp
 movq %rsp, %rbp
 movq 16(%rbp), %rdi

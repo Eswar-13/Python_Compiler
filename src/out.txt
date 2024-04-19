@@ -1,41 +1,27 @@
 
+ShiftReduceParser.__init__ :
+funcbegin
+name_ = popparameter
+#r0 = 1
+self.name = #r0
+#r1 = 0
+self.srname = #r1
+#r2 = 1
+name = name + #r2
+self.srname = name
+funcend
+
+
 main :
 funcbegin
-#r0 = 2
-a = #r0
-#r1 = 4
-b = #r1
-#r2 = b
-#r3 = 2
-#r2 = #r2 / #r3
-c = #r2
-#r4 = c
+#r3 = ShiftReduceParser
+#r4 = "Shift-Reduce"
 param #r4
-stackpointer +8
-call print_int , 1
-stackpointer -8
-#r5 = 158
-k = #r5
-#r6 = 34
-p = #r6
-#r7 = k
-#r8 = p
-#r7 = #r7 / #r8
-o = #r7
-#r9 = k
-#r10 = p
-#r9 = #r9 % #r10
-r = #r9
-#r11 = o
-param #r11
-stackpointer +8
-call print_int , 1
-stackpointer -8
-#r12 = r
-param #r12
-stackpointer +8
-call print_int , 1
-stackpointer -8
+stackpointer +xxx
+call ShiftReduceParser.__init__ , 1
+stackpointer -xxx
+#r5 = popparameter
+obj = #r5
 funcend
 
 exit
