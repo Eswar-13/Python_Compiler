@@ -1,155 +1,47 @@
 
-binarySearch :
-funcbegin
-array = popparameter
-x = popparameter
-low = popparameter
-high = popparameter
-#r0 = 0
-a = #r0
-#r2 = a
-#r3 = array [] #r2
-c = #r3
-.L4 :
-#r4 = low
-#r5 = high
-#r4 = #r4 <= #r5
-if #r4 jump .L5
-jump .L11
-.L5 :
-#r6 = low
-#r7 = high
-#r8 = low
-#r7 = #r7 - #r8
-#r9 = 2
-#r7 = #r7 // #r9
-#r6 = #r6 + #r7
-mid = #r6
-#r11 = mid
-#r12 = array [] #r11
-b = #r12
-#r14 = mid
-#r15 = array [] #r14
-#r16 = x
-#r15 = #r15 == #r16
-if #r15 jump .L6
-jump .L7
-.L6 :
-#r17 = mid
-return #r17
-jump .L10
-.L7 :
-#r19 = mid
-#r20 = array [] #r19
-#r21 = x
-#r20 = #r20 < #r21
-if #r20 jump .L8
-jump .L9
-.L8 :
-#r23 = mid
-#r24 = 1
-#r23 = #r23 + #r24
-low = #r23
-jump .L10
-.L9 :
-#r26 = mid
-#r27 = 1
-#r26 = #r26 - #r27
-high = #r26
-.L10 :
-jump .L4
-.L11 :
-#r28 = 1
-#r28 = - #r28
-return #r28
-funcend
-
-
 main :
 funcbegin
-#r29 = 3
-#r30 = 5
-#r31 = 6
-#r32 = 7
-#r33 = 8
-#r34 = 9
-#r35 = 56
-param #r35
-stackpointer + 8
-call mem_alloc , 1
-stackpointer - 8
-#r36 = popparameter
-#r37 = #r36
-*(#r37) = 6
-#r37 = #r37 + 8
-*(#r37) = #r29
-#r37 = #r37 + 8
-*(#r37) = #r30
-#r37 = #r37 + 8
-*(#r37) = #r31
-#r37 = #r37 + 8
-*(#r37) = #r32
-#r37 = #r37 + 8
-*(#r37) = #r33
-#r37 = #r37 + 8
-*(#r37) = #r34
-array = #r36
-#r39 = array
-#r40 = 6
-#r41 = 0
-#r43 = len() array
-#r44 = 1
-#r43 = #r43 - #r44
-param #r43
-param #r41
-param #r40
-param #r39
-stackpointer +xxx
-call binarySearch , 4
-stackpointer -xxx
-#r45 = popparameter
-result = #r45
-#r46 = result
-#r47 = 1
-#r47 = - #r47
-#r46 = #r46 != #r47
-if #r46 jump .L12
-jump .L13
-.L12 :
-#r48 = "Element is present at index:"
-param #r48
-stackpointer +8
-call print_str , 1
-stackpointer -8
-#r49 = result
-param #r49
+#r0 = 0
+i = #r0
+#r1 = 5
+#r2 = 0
+#r3 = 1
+#r4 = #r2 - #r3
+i = #r4
+.L4 :
+#r5 = i
+#r5 = #r5 + #r3
+i = #r5
+#r5 = #r5 < #r1
+if #r5 jump .L5
+jump .L11
+.L5 :
+#r6 = i
+#r7 = 5
+#r6 = #r6 > #r7
+if #r6 jump .L6
+jump .L7
+.L6 :
+jump .L11
+jump .L10
+.L7 :
+#r8 = i
+#r9 = 3
+#r8 = #r8 == #r9
+if #r8 jump .L8
+jump .L9
+.L8 :
+jump .L4
+jump .L9
+.L9 :
+#r10 = i
+param #r10
 stackpointer +8
 call print_int , 1
 stackpointer -8
-jump .L14
-.L13 :
-#r50 = "Element is not present"
-param #r50
-stackpointer +8
-call print_str , 1
-stackpointer -8
-.L14 :
+.L10 :
+jump .L4
+.L11 :
 funcend
 
-#r51 = __name__
-#r52 = "__main__"
-param #r52
-param #r51
-stackpointer +16
-call is_string_equal , 2
-stackpointer -16
-#r51 = popparameter
-if #r51 jump .L15
-jump .L16
-.L15 :
-stackpointer +xxx
-call main , 0
-stackpointer -xxx
-jump .L16
-.L16 :
 exit

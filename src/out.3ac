@@ -1,33 +1,443 @@
 
-add :
+factorial :
 funcbegin
-a = popparameter
-b = popparameter
-#r0 = a
-#r1 = b
-#r0 = #r0 + #r1
-return #r0
+n = popparameter
+#r0 = n
+#r1 = 0
+#r0 = #r0 <= #r1
+if #r0 jump .L4
+jump .L5
+.L4 :
+#r2 = 1
+return #r2
+jump .L6
+.L5 :
+#r3 = n
+#r5 = n
+#r6 = 1
+#r5 = #r5 - #r6
+param #r5
+stackpointer +xxx
+call factorial , 1
+stackpointer -xxx
+#r7 = popparameter
+#r3 = #r3 * #r7
+return #r3
+.L6 :
+funcend
+
+
+area :
+funcbegin
+length = popparameter
+width = popparameter
+#r8 = length
+#r9 = width
+#r8 = #r8 * #r9
+return #r8
+funcend
+
+
+Vehicle.__init__ : 
+funcbegin
+self = popparameter
+make = popparameter
+model = popparameter
+#r10 = make
+self.make = #r10
+#r11 = model
+self.model = #r11
+funcend
+
+
+Vehicle.start :
+funcbegin
+self = popparameter
+#r12 = self.make
+param #r12
+stackpointer +8
+call print_str , 1
+stackpointer -8
+#r13 = self.model
+param #r13
+stackpointer +8
+call print_str , 1
+stackpointer -8
+funcend
+
+
+Car.__init__ : Vehicle
+funcbegin
+self = popparameter
+make = popparameter
+model = popparameter
+year = popparameter
+#r16 = make
+self.make = #r16
+#r18 = model
+self.model = #r18
+#r19 = year
+self.year = #r19
+funcend
+
+
+Car.start :
+funcbegin
+self = popparameter
+#r20 = self.year
+param #r20
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r21 = self.make
+param #r21
+stackpointer +8
+call print_str , 1
+stackpointer -8
+#r22 = self.model
+param #r22
+stackpointer +8
+call print_str , 1
+stackpointer -8
 funcend
 
 
 main :
 funcbegin
-#r2 = 1009
-a = #r2
-#r4 = a
-#r5 = 9
-param #r4
-param #r5
-stackpointer +xxx
-call add , 2
-stackpointer -xxx
-#r6 = popparameter
-b = #r6
-#r7 = b
-param #r7
+#r23 = 42
+x = #r23
+#r24 = 3
+y = #r24
+#r25 = "hello"
+s = #r25
+#r26 = True
+b = #r26
+#r27 = 1
+#r28 = 2
+#r29 = 3
+#r30 = 4
+#r31 = 5
+#r32 = 48
+param #r32
+stackpointer + 8
+call mem_alloc , 1
+stackpointer - 8
+#r33 = popparameter
+#r34 = #r33
+*(#r34) = 5
+#r34 = #r34 + 8
+*(#r34) = #r27
+#r34 = #r34 + 8
+*(#r34) = #r28
+#r34 = #r34 + 8
+*(#r34) = #r29
+#r34 = #r34 + 8
+*(#r34) = #r30
+#r34 = #r34 + 8
+*(#r34) = #r31
+lst = #r33
+#r35 = x
+#r36 = y
+#r35 = #r35 + #r36
+a = #r35
+#r37 = x
+#r38 = y
+#r37 = #r37 - #r38
+b = #r37
+#r39 = x
+#r40 = y
+#r39 = #r39 * #r40
+c = #r39
+#r41 = x
+#r42 = y
+#r41 = #r41 / #r42
+d = #r41
+#r43 = x
+#r44 = y
+#r43 = #r43 // #r44
+e = #r43
+#r45 = x
+#r46 = y
+#r45 = #r45 % #r46
+f = #r45
+#r47 = x
+#r48 = y
+#r47 = #r47 == #r48
+param #r47
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r49 = x
+#r50 = y
+#r49 = #r49 != #r50
+param #r49
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r51 = x
+#r52 = y
+#r51 = #r51 > #r52
+param #r51
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r53 = x
+#r54 = y
+#r53 = #r53 < #r54
+param #r53
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r55 = x
+#r56 = y
+#r55 = #r55 >= #r56
+param #r55
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r57 = x
+#r58 = y
+#r57 = #r57 <= #r58
+param #r57
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r59 = True
+#r60 = False
+#r59 = #r59 and #r60
+param #r59
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r61 = True
+#r62 = False
+#r61 = #r61 or #r62
+param #r61
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r63 = True
+#r63 = not #r63
+param #r63
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r64 = 10
+p = #r64
+#r65 = 11
+q = #r65
+#r66 = p
+#r67 = q
+#r66 = #r66 & #r67
+param #r66
 stackpointer +8
 call print_int , 1
 stackpointer -8
+#r68 = p
+#r69 = q
+#r68 = #r68 | #r69
+param #r68
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r70 = p
+#r71 = q
+#r70 = #r70 ^ #r71
+param #r70
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r72 = p
+#r72 = ~ #r72
+param #r72
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r74 = 5
+x = #r74
+#r75 = x
+#r76 = 3
+x = #r75 + #r76
+#r77 = x
+#r78 = 2
+x = #r77 - #r78
+#r79 = x
+#r80 = 4
+x = #r79 * #r80
+#r81 = x
+#r82 = 3
+x = #r81 / #r82
+#r83 = x
+#r84 = 2
+x = #r83 // #r84
+#r85 = x
+#r86 = 3
+x = #r85 % #r86
+#r87 = x
+#r88 = 2
+x = #r87 ** #r88
+#r90 = 2
+y = #r90
+#r91 = y
+#r92 = 7
+y = #r91 & #r92
+#r93 = y
+#r94 = 8
+y = #r93 | #r94
+#r95 = y
+#r96 = 18
+y = #r95 ^ #r96
+#r97 = y
+#r98 = 2
+y = #r97 << #r98
+#r99 = y
+#r100 = 2
+y = #r99 >> #r100
+#r101 = x
+#r102 = 10
+#r101 = #r101 > #r102
+if #r101 jump .L7
+jump .L8
+.L7 :
+#r103 = "x is greater than 10"
+param #r103
+stackpointer +8
+call print_str , 1
+stackpointer -8
+jump .L11
+.L8 :
+#r104 = x
+#r105 = 5
+#r104 = #r104 < #r105
+if #r104 jump .L9
+jump .L10
+.L9 :
+#r106 = "x is less than 5"
+param #r106
+stackpointer +8
+call print_str , 1
+stackpointer -8
+jump .L11
+.L10 :
+#r107 = "x is between 5 and 10"
+param #r107
+stackpointer +8
+call print_str , 1
+stackpointer -8
+.L11 :
+#r108 = 0
+i = #r108
+#r109 = 1
+#r110 = 5
+#r111 = 1
+#r112 = #r109 - #r111
+i = #r112
+.L12 :
+#r113 = i
+#r113 = #r113 + #r111
+i = #r113
+#r113 = #r113 < #r110
+if #r113 jump .L13
+jump .L14
+.L13 :
+#r114 = i
+param #r114
+stackpointer +8
+call print_int , 1
+stackpointer -8
+jump .L12
+.L14 :
+#r116 = 0
+i = #r116
+.L15 :
+#r117 = i
+#r118 = 5
+#r117 = #r117 < #r118
+if #r117 jump .L16
+jump .L19
+.L16 :
+#r119 = i
+param #r119
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r120 = i
+#r121 = 1
+i = #r120 + #r121
+#r122 = i
+#r123 = 3
+#r122 = #r122 == #r123
+if #r122 jump .L17
+jump .L18
+.L17 :
+jump .L19
+jump .L18
+.L18 :
+jump .L15
+.L19 :
+#r125 = 5
+param #r125
+stackpointer +xxx
+call factorial , 1
+stackpointer -xxx
+#r126 = popparameter
+fact = #r126
+#r127 = fact
+param #r127
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r129 = 5
+#r130 = 3
+param #r130
+param #r129
+stackpointer +xxx
+call area , 2
+stackpointer -xxx
+#r131 = popparameter
+ar = #r131
+#r132 = ar
+param #r132
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r134 = "Toyota"
+#r135 = "Camry"
+#r136 = 2020
+#r137 = 24
+param #r137
+stackpointer +xxx
+call mem_alloc , 1
+stackpointer -xxx
+#r137 = popparameter
+param #r136
+param #r135
+param #r134
+param #r137
+stackpointer +xxx
+call Car.__init__ , 3
+stackpointer -xxx
+car = #r137
+param car
+stackpointer +xxx
+call Car.start , 1
+stackpointer -xxx
 funcend
 
+#r140 = __name__
+#r141 = "__main__"
+param #r141
+param #r140
+stackpointer +16
+call is_string_equal , 2
+stackpointer -16
+#r140 = popparameter
+if #r140 jump .L20
+jump .L21
+.L20 :
+stackpointer +xxx
+call main , 0
+stackpointer -xxx
+jump .L21
+.L21 :
 exit
