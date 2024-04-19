@@ -732,6 +732,7 @@ atom opt_trailer %prec high {
 |SELF opt_trailer %prec low{
                             if($2.dot){
                                 string c = "self.";c=c+convert($2.lexeme);$2.lexeme=new char[c.size()]; strcpy($2.lexeme, c.c_str());
+                                c="#r"+to_string(node); node++; $2.reg=new char[c.size() + 1]; strcpy($2.reg, c.c_str()); c=c+" = ";  c=c+convert($2.lexeme); code.push_back(c);
                                 $$.type=table[curr_class][$2.lexeme].type;
                                 if($$.type==6&&!match_vector(table[curr_class][$2.lexeme].func_parameter,$2.other->types)){return 0;}
                             }

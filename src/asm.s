@@ -3,39 +3,20 @@ format_print_str: .asciz "%s\n"
 format_print_int: .asciz "%ld\n"
 format_print_true: .asciz "True\n"
 format_print_false: .asciz "False\n"
-string1: .asciz "Shift-Reduce"
 .text
 .globl main
-ShiftReduceParser.__init__:
-pushq %rbp
-movq %rsp, %rbp
-subq $40, %rsp
-movq 16(%rbp), %rdx
-movq %rdx, -8(%rbp)
-movq $1, %rdx
-movq %rdx, -16(%rbp)
-movq -16(%rbp), %rdx
-movq %rdx, 
-movq $0, %rdx
-movq %rdx, -24(%rbp)
-movq -24(%rbp), %rdx
-movq %rdx, 
-movq $1, %rdx
-movq %rdx, -32(%rbp)
-movq -40(%rbp), %rcx
-movq -32(%rbp), %rdx
-addq %rdx, %rcx
-movq %rcx, -40(%rbp)
-movq -40(%rbp), %rdx
-movq %rdx, 
-leave
-ret
 main:
 pushq %rbp
 movq %rsp, %rbp
-subq $24, %rsp
-lea string1(%rip), %rdx
-movq %rdx,-8(%rbp)
+subq $160, %rsp
+movq $1, %rdx
+movq %rdx, -8(%rbp)
+movq $2, %rdx
+movq %rdx, -16(%rbp)
+movq $3, %rdx
+movq %rdx, -24(%rbp)
+movq $32, %rdx
+movq %rdx, -32(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -50,10 +31,10 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -8(%rbp), %rdx
+movq -32(%rbp), %rdx
 pushq %rdx
-call ShiftReduceParser.__init__
-movq %rax, -16(%rbp)
+call mem_alloc
+movq %rax, -40(%rbp)
 movq %rbx, %rsp
 popq %r11
 popq %r10
@@ -64,8 +45,118 @@ popq %rdi
 popq %rdx
 popq %rcx
 popq %rax
-movq -16(%rbp), %rdx
-movq %rdx, -24(%rbp)
+movq -40(%rbp), %rdx
+movq %rdx, -48(%rbp)
+movq -48(%rbp), %rdx
+movq $3, %rcx
+movq %rcx, (%rdx)
+movq -48(%rbp), %rcx
+movq $8, %rdx
+addq %rdx, %rcx
+movq %rcx, -48(%rbp)
+movq -48(%rbp), %rdx
+movq -8(%rbp), %rcx
+movq %rcx, (%rdx)
+movq -48(%rbp), %rcx
+movq $8, %rdx
+addq %rdx, %rcx
+movq %rcx, -48(%rbp)
+movq -48(%rbp), %rdx
+movq -16(%rbp), %rcx
+movq %rcx, (%rdx)
+movq -48(%rbp), %rcx
+movq $8, %rdx
+addq %rdx, %rcx
+movq %rcx, -48(%rbp)
+movq -48(%rbp), %rdx
+movq -24(%rbp), %rcx
+movq %rcx, (%rdx)
+movq -40(%rbp), %rdx
+movq %rdx, -56(%rbp)
+movq $1, %rdx
+movq %rdx, -64(%rbp)
+movq $0, %rdx
+movq %rdx, -72(%rbp)
+movq -56(%rbp), %rcx
+movq -64(%rbp), %rdx
+addq %rdx, %rcx
+movq -72(%rbp), %rdx
+movq %rdx, (%rcx)
+movq $0, %rdx
+movq %rdx, -80(%rbp)
+movq -80(%rbp), %rdx
+movq %rdx, -88(%rbp)
+movq $3, %rdx
+movq %rdx, -96(%rbp)
+movq $0, %rdx
+movq %rdx, -104(%rbp)
+movq $1, %rdx
+movq %rdx, -112(%rbp)
+movq -104(%rbp), %rcx
+movq -112(%rbp), %rdx
+subq %rdx, %rcx
+movq %rcx, -120(%rbp)
+movq -120(%rbp), %rdx
+movq %rdx, -88(%rbp)
+.L4:
+movq -88(%rbp), %rdx
+movq %rdx, -128(%rbp)
+movq -128(%rbp), %rcx
+movq -112(%rbp), %rdx
+addq %rdx, %rcx
+movq %rcx, -128(%rbp)
+movq -128(%rbp), %rdx
+movq %rdx, -88(%rbp)
+movq -128(%rbp), %rdx
+movq -96(%rbp), %rcx
+cmp %rcx, %rdx
+movq $0, %rdx
+setl %dl
+movq %rdx, -128(%rbp)
+movq -128(%rbp), %rdx
+cmp $0, %rdx
+jg .L5
+jmp .L6
+.L5:
+movq -88(%rbp), %rdx
+movq %rdx, -152(%rbp)
+movq -56(%rbp), %rcx
+movq -152(%rbp), %rdx
+addq $1, %rdx
+imulq $8, %rdx
+addq %rdx, %rcx
+movq (%rcx), %rdx
+movq %rdx, -160(%rbp)
+pushq %rax
+pushq %rcx
+pushq %rdx
+pushq %rdi
+pushq %rsi
+pushq %r8
+pushq %r9
+pushq %r10
+pushq %r11
+movq %rsp, %rbx
+movq %rsp, %rcx
+addq $-8, %rcx
+andq $15, %rcx
+subq %rcx, %rsp
+movq -160(%rbp), %rdx
+pushq %rdx
+call print_int
+movq %rbx, %rsp
+popq %r11
+popq %r10
+popq %r9
+popq %r8
+popq %rsi
+popq %rdi
+popq %rdx
+popq %rcx
+popq %rax
+jmp .L6
+jmp .L4
+.L6:
 leave
 ret
 print_int:

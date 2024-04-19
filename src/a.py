@@ -6,4 +6,3 @@ class ShiftReduceParser:
 
 def main():
   obj: ShiftReduceParser = ShiftReduceParser("Shift-Reduce")
-  
