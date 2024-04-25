@@ -1,0 +1,450 @@
+
+fibonacci :
+funcbegin
+n = popparameter
+#r0 = n
+#r1 = 2
+#r0 = #r0 < #r1
+if #r0 jump line 10
+jump line 13
+#r2 = 1
+return #r2
+jump line 33
+#r3 = fibonacci
+#r4 = n
+#r5 = 1
+#r4 = #r4 - #r5
+param #r4
+stackpointer +xxx
+call fibonacci , 1
+stackpointer -xxx
+#r6 = popparameter
+#r7 = fibonacci
+#r8 = n
+#r9 = 2
+#r8 = #r8 - #r9
+param #r8
+stackpointer +xxx
+call fibonacci , 1
+stackpointer -xxx
+#r10 = popparameter
+#r6 = #r6 + #r10
+return #r6
+funcend
+
+
+perimeter :
+funcbegin
+length = popparameter
+width = popparameter
+#r11 = 2
+#r12 = length
+#r13 = width
+#r12 = #r12 + #r13
+#r11 = #r11 * #r12
+return #r11
+funcend
+
+
+Device.__init__ : 
+funcbegin
+self = popparameter
+make = popparameter
+model = popparameter
+#r14 = make
+self.make = #r14
+#r15 = model
+self.model = #r15
+funcend
+
+
+Device.start :
+funcbegin
+self = popparameter
+#r16 = self.make
+param #r16
+stackpointer +8
+call print_str , 1
+stackpointer -8
+#r17 = self.model
+param #r17
+stackpointer +8
+call print_str , 1
+stackpointer -8
+funcend
+
+#r18 = Device
+
+Laptop.__init__ : Device
+funcbegin
+self = popparameter
+make = popparameter
+model = popparameter
+year = popparameter
+#r19 = self.make
+#r20 = make
+self.make = #r20
+#r21 = self.model
+#r22 = model
+self.model = #r22
+#r23 = year
+self.year = #r23
+funcend
+
+
+Laptop.start :
+funcbegin
+self = popparameter
+#r24 = self.year
+param #r24
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r25 = self.make
+param #r25
+stackpointer +8
+call print_str , 1
+stackpointer -8
+#r26 = self.model
+param #r26
+stackpointer +8
+call print_str , 1
+stackpointer -8
+funcend
+
+
+main :
+funcbegin
+#r27 = 13
+x = #r27
+#r28 = 7
+y = #r28
+#r29 = "Cs335"
+s = #r29
+#r30 = True
+b = #r30
+#r31 = 1
+#r32 = 2
+#r33 = 3
+#r34 = 4
+#r35 = 5
+#r36 = 48
+param #r36
+stackpointer + 8
+call mem_alloc , 1
+stackpointer - 8
+#r37 = popparameter
+#r38 = #r37
+*(#r38) = 5
+#r38 = #r38 + 8
+*(#r38) = #r31
+#r38 = #r38 + 8
+*(#r38) = #r32
+#r38 = #r38 + 8
+*(#r38) = #r33
+#r38 = #r38 + 8
+*(#r38) = #r34
+#r38 = #r38 + 8
+*(#r38) = #r35
+lst = #r37
+#r39 = x
+#r40 = y
+#r39 = #r39 + #r40
+a = #r39
+#r41 = x
+#r42 = y
+#r41 = #r41 - #r42
+b = #r41
+#r43 = x
+#r44 = y
+#r43 = #r43 * #r44
+c = #r43
+#r45 = x
+#r46 = y
+#r45 = #r45 / #r46
+d = #r45
+#r47 = x
+#r48 = y
+#r47 = #r47 // #r48
+e = #r47
+#r49 = x
+#r50 = y
+#r49 = #r49 % #r50
+f = #r49
+#r51 = x
+#r52 = y
+#r51 = #r51 == #r52
+param #r51
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r53 = x
+#r54 = y
+#r53 = #r53 != #r54
+param #r53
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r55 = x
+#r56 = y
+#r55 = #r55 > #r56
+param #r55
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r57 = x
+#r58 = y
+#r57 = #r57 < #r58
+param #r57
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r59 = x
+#r60 = y
+#r59 = #r59 >= #r60
+param #r59
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r61 = x
+#r62 = y
+#r61 = #r61 <= #r62
+param #r61
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r63 = True
+#r64 = False
+#r63 = #r63 and #r64
+param #r63
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r65 = True
+#r66 = False
+#r65 = #r65 or #r66
+param #r65
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r67 = True
+#r67 = not #r67
+param #r67
+stackpointer +8
+call print_bool , 1
+stackpointer -8
+#r68 = 10
+p = #r68
+#r69 = 11
+q = #r69
+#r70 = p
+#r71 = q
+#r70 = #r70 & #r71
+param #r70
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r72 = p
+#r73 = q
+#r72 = #r72 | #r73
+param #r72
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r74 = p
+#r75 = q
+#r74 = #r74 ^ #r75
+param #r74
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r76 = p
+#r76 = ~ #r76
+param #r76
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r77 = x
+#r78 = 5
+x = #r78
+#r79 = x
+#r80 = 3
+x = #r79 + #r80
+#r81 = x
+#r82 = 2
+x = #r81 - #r82
+#r83 = x
+#r84 = 4
+x = #r83 * #r84
+#r85 = x
+#r86 = 3
+x = #r85 / #r86
+#r87 = x
+#r88 = 2
+x = #r87 // #r88
+#r89 = x
+#r90 = 3
+x = #r89 % #r90
+#r91 = x
+#r92 = 2
+x = #r91 ** #r92
+#r93 = y
+#r94 = 2
+y = #r94
+#r95 = y
+#r96 = 7
+y = #r95 & #r96
+#r97 = y
+#r98 = 8
+y = #r97 | #r98
+#r99 = y
+#r100 = 18
+y = #r99 ^ #r100
+#r101 = y
+#r102 = 2
+y = #r101 << #r102
+#r103 = y
+#r104 = 2
+y = #r103 >> #r104
+#r105 = x
+#r106 = 10
+#r105 = #r105 > #r106
+if #r105 jump line 314
+jump line 320
+#r107 = "x is greater than 10"
+param #r107
+stackpointer +8
+call print_str , 1
+stackpointer -8
+jump line 336
+#r108 = x
+#r109 = 5
+#r108 = #r108 < #r109
+if #r108 jump line 325
+jump line 331
+#r110 = "x is less than 5"
+param #r110
+stackpointer +8
+call print_str , 1
+stackpointer -8
+jump line 336
+#r111 = "x is between 5 and 10"
+param #r111
+stackpointer +8
+call print_str , 1
+stackpointer -8
+#r112 = 0
+i = #r112
+#r113 = 0
+#r114 = 5
+#r115 = 1
+#r116 = #r113 - #r115
+i = #r116
+#r117 = i
+#r117 = #r117 + #r115
+i = #r117
+#r117 = #r117 < #r114
+if #r117 jump line 349
+jump line 357
+#r118 = lst
+#r119 = i
+#r120 = lst [] #r119
+param #r120
+stackpointer +8
+call print_int , 1
+stackpointer -8
+jump line 343
+#r121 = i
+#r122 = 0
+i = #r122
+#r123 = i
+#r124 = 5
+#r123 = #r123 < #r124
+if #r123 jump line 365
+jump line 381
+#r125 = i
+param #r125
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r126 = i
+#r127 = 1
+i = #r126 + #r127
+#r128 = i
+#r129 = 3
+#r128 = #r128 == #r129
+if #r128 jump line 378
+jump line 380
+jump line 381
+jump line 380
+jump line 360
+#r130 = fibonacci
+#r131 = 5
+param #r131
+stackpointer +xxx
+call fibonacci , 1
+stackpointer -xxx
+#r132 = popparameter
+fact = #r132
+#r133 = fact
+param #r133
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r134 = perimeter
+#r135 = 5
+#r136 = 3
+param #r136
+param #r135
+stackpointer +xxx
+call perimeter , 2
+stackpointer -xxx
+#r137 = popparameter
+per = #r137
+#r138 = per
+param #r138
+stackpointer +8
+call print_int , 1
+stackpointer -8
+#r139 = Laptop
+#r140 = "Dell"
+#r141 = "Inspiron"
+#r142 = 2021
+#r143 = 24
+param #r143
+stackpointer +xxx
+call mem_alloc , 1
+stackpointer -xxx
+#r143 = popparameter
+param #r142
+param #r141
+param #r140
+param #r143
+stackpointer +xxx
+call Laptop.__init__ , 3
+stackpointer -xxx
+pc = #r143
+#r144 = pc
+param pc
+stackpointer +xxx
+call Laptop.start , 1
+stackpointer -xxx
+#r145 = popparameter
+funcend
+
+#r146 = __name__
+#r147 = "__main__"
+param #r147
+param #r146
+stackpointer +16
+call is_string_equal , 2
+stackpointer -16
+#r146 = popparameter
+if #r146 jump line 445
+jump line 450
+#r148 = main
+stackpointer +xxx
+call main , 0
+stackpointer -xxx
+jump line 450
+exit

@@ -3,30 +3,30 @@ format_print_str: .asciz "%s\n"
 format_print_int: .asciz "%ld\n"
 format_print_true: .asciz "True\n"
 format_print_false: .asciz "False\n"
-string1: .asciz "hello"
+string1: .asciz "Cs335"
 string2: .asciz "x is greater than 10"
 string3: .asciz "x is less than 5"
 string4: .asciz "x is between 5 and 10"
-string5: .asciz "Toyota"
-string6: .asciz "Camry"
+string5: .asciz "Dell"
+string6: .asciz "Inspiron"
 string7: .asciz "__main__"
 .text
 .globl main
-factorial:
+fibonacci:
 pushq %rbp
 movq %rsp, %rbp
-subq $80, %rsp
+subq $96, %rsp
 movq 16(%rbp), %rdx
 movq %rdx, -8(%rbp)
 movq -8(%rbp), %rdx
 movq %rdx, -16(%rbp)
-movq $0, %rdx
+movq $2, %rdx
 movq %rdx, -24(%rbp)
 movq -16(%rbp), %rdx
 movq -24(%rbp), %rcx
 cmp %rcx, %rdx
 movq $0, %rdx
-setle %dl
+setl %dl
 movq %rdx, -16(%rbp)
 movq -16(%rbp), %rdx
 cmp $0, %rdx
@@ -42,14 +42,12 @@ jmp .L6
 .L5:
 movq -8(%rbp), %rdx
 movq %rdx, -56(%rbp)
-movq -8(%rbp), %rdx
-movq %rdx, -64(%rbp)
 movq $1, %rdx
-movq %rdx, -72(%rbp)
-movq -64(%rbp), %rcx
-movq -72(%rbp), %rdx
+movq %rdx, -64(%rbp)
+movq -56(%rbp), %rcx
+movq -64(%rbp), %rdx
 subq %rdx, %rcx
-movq %rcx, -64(%rbp)
+movq %rcx, -56(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -64,10 +62,10 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -64(%rbp), %rdx
+movq -56(%rbp), %rdx
 pushq %rdx
-call factorial
-movq %rax, -80(%rbp)
+call fibonacci
+movq %rax, -72(%rbp)
 movq %rbx, %rsp
 popq %r11
 popq %r10
@@ -78,28 +76,70 @@ popq %rdi
 popq %rdx
 popq %rcx
 popq %rax
-movq -56(%rbp), %rcx
+movq -8(%rbp), %rdx
+movq %rdx, -80(%rbp)
+movq $2, %rdx
+movq %rdx, -88(%rbp)
+movq -80(%rbp), %rcx
+movq -88(%rbp), %rdx
+subq %rdx, %rcx
+movq %rcx, -80(%rbp)
+pushq %rax
+pushq %rcx
+pushq %rdx
+pushq %rdi
+pushq %rsi
+pushq %r8
+pushq %r9
+pushq %r10
+pushq %r11
+movq %rsp, %rbx
+movq %rsp, %rcx
+addq $-8, %rcx
+andq $15, %rcx
+subq %rcx, %rsp
 movq -80(%rbp), %rdx
-imulq %rdx, %rcx
-movq %rcx, -56(%rbp)
-movq -56(%rbp), %rax
+pushq %rdx
+call fibonacci
+movq %rax, -96(%rbp)
+movq %rbx, %rsp
+popq %r11
+popq %r10
+popq %r9
+popq %r8
+popq %rsi
+popq %rdi
+popq %rdx
+popq %rcx
+popq %rax
+movq -72(%rbp), %rcx
+movq -96(%rbp), %rdx
+addq %rdx, %rcx
+movq %rcx, -72(%rbp)
+movq -72(%rbp), %rax
 leave
 ret
 .L6:
 leave
 ret
-area:
+perimeter:
 pushq %rbp
 movq %rsp, %rbp
-subq $32, %rsp
+subq $40, %rsp
 movq 16(%rbp), %rdx
 movq %rdx, -8(%rbp)
 movq 24(%rbp), %rdx
 movq %rdx, -16(%rbp)
-movq -8(%rbp), %rdx
+movq $2, %rdx
 movq %rdx, -24(%rbp)
-movq -16(%rbp), %rdx
+movq -8(%rbp), %rdx
 movq %rdx, -32(%rbp)
+movq -16(%rbp), %rdx
+movq %rdx, -40(%rbp)
+movq -32(%rbp), %rcx
+movq -40(%rbp), %rdx
+addq %rdx, %rcx
+movq %rcx, -32(%rbp)
 movq -24(%rbp), %rcx
 movq -32(%rbp), %rdx
 imulq %rdx, %rcx
@@ -109,7 +149,7 @@ leave
 ret
 leave
 ret
-Vehicle.__init__:
+Device.__init__:
 pushq %rbp
 movq %rsp, %rbp
 subq $40, %rsp
@@ -135,7 +175,7 @@ movq -40(%rbp), %rdx
 movq %rdx, (%rcx)
 leave
 ret
-Vehicle.start:
+Device.start:
 pushq %rbp
 movq %rsp, %rbp
 subq $24, %rsp
@@ -207,7 +247,7 @@ popq %rcx
 popq %rax
 leave
 ret
-Car.__init__:
+Laptop.__init__:
 pushq %rbp
 movq %rsp, %rbp
 subq $56, %rsp
@@ -242,7 +282,7 @@ movq -56(%rbp), %rdx
 movq %rdx, (%rcx)
 leave
 ret
-Car.start:
+Laptop.start:
 pushq %rbp
 movq %rsp, %rbp
 subq $32, %rsp
@@ -349,12 +389,12 @@ ret
 main:
 pushq %rbp
 movq %rsp, %rbp
-subq $1040, %rsp
-movq $42, %rdx
+subq $1048, %rsp
+movq $13, %rdx
 movq %rdx, -8(%rbp)
 movq -8(%rbp), %rdx
 movq %rdx, -16(%rbp)
-movq $3, %rdx
+movq $7, %rdx
 movq %rdx, -24(%rbp)
 movq -24(%rbp), %rdx
 movq %rdx, -32(%rbp)
@@ -1235,7 +1275,7 @@ movq $0, %rdx
 movq %rdx, -808(%rbp)
 movq -808(%rbp), %rdx
 movq %rdx, -816(%rbp)
-movq $1, %rdx
+movq $0, %rdx
 movq %rdx, -824(%rbp)
 movq $5, %rdx
 movq %rdx, -832(%rbp)
@@ -1269,6 +1309,13 @@ jmp .L14
 .L13:
 movq -816(%rbp), %rdx
 movq %rdx, -864(%rbp)
+movq -136(%rbp), %rcx
+movq -864(%rbp), %rdx
+addq $1, %rdx
+imulq $8, %rdx
+addq %rdx, %rcx
+movq (%rcx), %rdx
+movq %rdx, -872(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -1283,7 +1330,7 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -864(%rbp), %rdx
+movq -872(%rbp), %rdx
 pushq %rdx
 call print_int
 movq %rbx, %rsp
@@ -1299,27 +1346,27 @@ popq %rax
 jmp .L12
 .L14:
 movq $0, %rdx
-movq %rdx, -872(%rbp)
-movq -872(%rbp), %rdx
+movq %rdx, -880(%rbp)
+movq -880(%rbp), %rdx
 movq %rdx, -816(%rbp)
 .L15:
 movq -816(%rbp), %rdx
-movq %rdx, -880(%rbp)
-movq $5, %rdx
 movq %rdx, -888(%rbp)
-movq -880(%rbp), %rdx
-movq -888(%rbp), %rcx
+movq $5, %rdx
+movq %rdx, -896(%rbp)
+movq -888(%rbp), %rdx
+movq -896(%rbp), %rcx
 cmp %rcx, %rdx
 movq $0, %rdx
 setl %dl
-movq %rdx, -880(%rbp)
-movq -880(%rbp), %rdx
+movq %rdx, -888(%rbp)
+movq -888(%rbp), %rdx
 cmp $0, %rdx
 jg .L16
 jmp .L19
 .L16:
 movq -816(%rbp), %rdx
-movq %rdx, -896(%rbp)
+movq %rdx, -904(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -1334,7 +1381,7 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -896(%rbp), %rdx
+movq -904(%rbp), %rdx
 pushq %rdx
 call print_int
 movq %rbx, %rsp
@@ -1348,24 +1395,24 @@ popq %rdx
 popq %rcx
 popq %rax
 movq -816(%rbp), %rdx
-movq %rdx, -904(%rbp)
-movq $1, %rdx
 movq %rdx, -912(%rbp)
-movq -904(%rbp), %rcx
-movq -912(%rbp), %rdx
+movq $1, %rdx
+movq %rdx, -920(%rbp)
+movq -912(%rbp), %rcx
+movq -920(%rbp), %rdx
 addq %rdx, %rcx
 movq %rcx, -816(%rbp)
 movq -816(%rbp), %rdx
-movq %rdx, -920(%rbp)
-movq $3, %rdx
 movq %rdx, -928(%rbp)
-movq -920(%rbp), %rdx
-movq -928(%rbp), %rcx
+movq $3, %rdx
+movq %rdx, -936(%rbp)
+movq -928(%rbp), %rdx
+movq -936(%rbp), %rcx
 cmp %rcx, %rdx
 movq $0, %rdx
 sete %dl
-movq %rdx, -920(%rbp)
-movq -920(%rbp), %rdx
+movq %rdx, -928(%rbp)
+movq -928(%rbp), %rdx
 cmp $0, %rdx
 jg .L17
 jmp .L18
@@ -1376,7 +1423,7 @@ jmp .L18
 jmp .L15
 .L19:
 movq $5, %rdx
-movq %rdx, -936(%rbp)
+movq %rdx, -944(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -1391,10 +1438,10 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -936(%rbp), %rdx
+movq -944(%rbp), %rdx
 pushq %rdx
-call factorial
-movq %rax, -944(%rbp)
+call fibonacci
+movq %rax, -952(%rbp)
 movq %rbx, %rsp
 popq %r11
 popq %r10
@@ -1405,10 +1452,10 @@ popq %rdi
 popq %rdx
 popq %rcx
 popq %rax
-movq -944(%rbp), %rdx
-movq %rdx, -952(%rbp)
 movq -952(%rbp), %rdx
 movq %rdx, -960(%rbp)
+movq -960(%rbp), %rdx
+movq %rdx, -968(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -1423,7 +1470,7 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -960(%rbp), %rdx
+movq -968(%rbp), %rdx
 pushq %rdx
 call print_int
 movq %rbx, %rsp
@@ -1437,9 +1484,9 @@ popq %rdx
 popq %rcx
 popq %rax
 movq $5, %rdx
-movq %rdx, -968(%rbp)
-movq $3, %rdx
 movq %rdx, -976(%rbp)
+movq $3, %rdx
+movq %rdx, -984(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -1454,12 +1501,12 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
+movq -984(%rbp), %rdx
+pushq %rdx
 movq -976(%rbp), %rdx
 pushq %rdx
-movq -968(%rbp), %rdx
-pushq %rdx
-call area
-movq %rax, -984(%rbp)
+call perimeter
+movq %rax, -992(%rbp)
 movq %rbx, %rsp
 popq %r11
 popq %r10
@@ -1470,10 +1517,10 @@ popq %rdi
 popq %rdx
 popq %rcx
 popq %rax
-movq -984(%rbp), %rdx
-movq %rdx, -992(%rbp)
 movq -992(%rbp), %rdx
 movq %rdx, -1000(%rbp)
+movq -1000(%rbp), %rdx
+movq %rdx, -1008(%rbp)
 pushq %rax
 pushq %rcx
 pushq %rdx
@@ -1488,7 +1535,7 @@ movq %rsp, %rcx
 addq $-8, %rcx
 andq $15, %rcx
 subq %rcx, %rsp
-movq -1000(%rbp), %rdx
+movq -1008(%rbp), %rdx
 pushq %rdx
 call print_int
 movq %rbx, %rsp
@@ -1502,75 +1549,12 @@ popq %rdx
 popq %rcx
 popq %rax
 lea string5(%rip), %rdx
-movq %rdx, -1008(%rbp)
-lea string6(%rip), %rdx
 movq %rdx, -1016(%rbp)
-movq $2020, %rdx
+lea string6(%rip), %rdx
 movq %rdx, -1024(%rbp)
-movq $24, %rdx
+movq $2021, %rdx
 movq %rdx, -1032(%rbp)
-pushq %rax
-pushq %rcx
-pushq %rdx
-pushq %rdi
-pushq %rsi
-pushq %r8
-pushq %r9
-pushq %r10
-pushq %r11
-movq %rsp, %rbx
-movq %rsp, %rcx
-addq $-8, %rcx
-andq $15, %rcx
-subq %rcx, %rsp
-movq -1032(%rbp), %rdx
-pushq %rdx
-call mem_alloc
-movq %rax, -1032(%rbp)
-movq %rbx, %rsp
-popq %r11
-popq %r10
-popq %r9
-popq %r8
-popq %rsi
-popq %rdi
-popq %rdx
-popq %rcx
-popq %rax
-pushq %rax
-pushq %rcx
-pushq %rdx
-pushq %rdi
-pushq %rsi
-pushq %r8
-pushq %r9
-pushq %r10
-pushq %r11
-movq %rsp, %rbx
-movq %rsp, %rcx
-addq $-8, %rcx
-andq $15, %rcx
-subq %rcx, %rsp
-movq -1024(%rbp), %rdx
-pushq %rdx
-movq -1016(%rbp), %rdx
-pushq %rdx
-movq -1008(%rbp), %rdx
-pushq %rdx
-movq -1032(%rbp), %rdx
-pushq %rdx
-call Car.__init__
-movq %rbx, %rsp
-popq %r11
-popq %r10
-popq %r9
-popq %r8
-popq %rsi
-popq %rdi
-popq %rdx
-popq %rcx
-popq %rax
-movq -1032(%rbp), %rdx
+movq $24, %rdx
 movq %rdx, -1040(%rbp)
 pushq %rax
 pushq %rcx
@@ -1588,7 +1572,70 @@ andq $15, %rcx
 subq %rcx, %rsp
 movq -1040(%rbp), %rdx
 pushq %rdx
-call Car.start
+call mem_alloc
+movq %rax, -1040(%rbp)
+movq %rbx, %rsp
+popq %r11
+popq %r10
+popq %r9
+popq %r8
+popq %rsi
+popq %rdi
+popq %rdx
+popq %rcx
+popq %rax
+pushq %rax
+pushq %rcx
+pushq %rdx
+pushq %rdi
+pushq %rsi
+pushq %r8
+pushq %r9
+pushq %r10
+pushq %r11
+movq %rsp, %rbx
+movq %rsp, %rcx
+addq $-8, %rcx
+andq $15, %rcx
+subq %rcx, %rsp
+movq -1032(%rbp), %rdx
+pushq %rdx
+movq -1024(%rbp), %rdx
+pushq %rdx
+movq -1016(%rbp), %rdx
+pushq %rdx
+movq -1040(%rbp), %rdx
+pushq %rdx
+call Laptop.__init__
+movq %rbx, %rsp
+popq %r11
+popq %r10
+popq %r9
+popq %r8
+popq %rsi
+popq %rdi
+popq %rdx
+popq %rcx
+popq %rax
+movq -1040(%rbp), %rdx
+movq %rdx, -1048(%rbp)
+pushq %rax
+pushq %rcx
+pushq %rdx
+pushq %rdi
+pushq %rsi
+pushq %r8
+pushq %r9
+pushq %r10
+pushq %r11
+movq %rsp, %rbx
+movq %rsp, %rcx
+addq $-8, %rcx
+andq $15, %rcx
+subq %rcx, %rsp
+movq -1048(%rbp), %rdx
+pushq %rdx
+call Laptop.start
 movq %rbx, %rsp
 popq %r11
 popq %r10

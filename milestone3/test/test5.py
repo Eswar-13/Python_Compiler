@@ -1,18 +1,13 @@
-# Recursion
-def factorial(n: int) -> int:
-  if n <= 0:
+def fibonacci(n: int) -> int:
+  if n < 2:
     return 1
   else:
-    return n * factorial(n - 1)
+    return fibonacci(n - 1) + fibonacci(n - 2)
 
+def perimeter(length: int, width: int) -> int:
+  return 2*(length+width)
 
-# Functions
-def area(length: int, width: int) -> int:
-  return length*width
-
-
-# Classes and objects
-class Vehicle:
+class Device:
 
   def __init__(self, make: str, model: str):
     self.make: str = make
@@ -23,7 +18,7 @@ class Vehicle:
     print(self.model)
 
 
-class Car(Vehicle):
+class Laptop(Device):
 
   def __init__(self, make: str, model: str, year: int):
     self.make = make
@@ -37,16 +32,13 @@ class Car(Vehicle):
 
 
 def main():
-  # Primitive data types
-  x: int = 42
-  y: int = 3
-  s: str = "hello"
+  x: int = 13
+  y: int = 7
+  s: str = "Cs335"
   b: bool = True
 
-  # 1D list
   lst: list[int] = [1, 2, 3, 4, 5]
 
-  # Arithmetic operators
   a: int = x + y
   b: int = x - y
   c: int = x * y
@@ -54,7 +46,6 @@ def main():
   e: int = x // y
   f: int = x % y
 
-  # Relational operators
   print(x == y)
   print(x != y)
   print(x > y)
@@ -62,12 +53,10 @@ def main():
   print(x >= y)
   print(x <= y)
 
-  # Logical operators
   print(True and False)
   print(True or False)
   print(not True)
 
-  # Bitwise operators
   p: int = 10
   q: int = 11
   print(p & q)
@@ -75,7 +64,6 @@ def main():
   print(p ^ q)
   print(~p)
 
-  # Assignment operators
   x = 5
   x += 3
   x -= 2
@@ -91,7 +79,6 @@ def main():
   y <<= 2
   y >>= 2
 
-  # Control flow
   if x > 10:
     print("x is greater than 10")
   elif (x < 5):
@@ -99,10 +86,9 @@ def main():
   else:
     print("x is between 5 and 10")
 
-  # Loops
   i : int =0
-  for i in range(1, 5):
-    print(i)
+  for i in range(0, 5):
+    print(lst[i])
 
   i = 0
   while i < 5:
@@ -111,14 +97,14 @@ def main():
     if i == 3:
       break
 
-  fact: int = factorial(5)
+  fact: int = fibonacci(5)
   print(fact)
 
-  ar: int = area(5, 3)
-  print(ar)
+  per: int = perimeter(5, 3)
+  print(per)
 
-  car:Car = Car("Toyota", "Camry", 2020)
-  car.start()
+  pc:Laptop = Laptop("Dell", "Inspiron", 2021)
+  pc.start()
 
 if __name__ == "__main__":
   main()

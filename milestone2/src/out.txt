@@ -1,0 +1,200 @@
+                
+merge_sort :
+funcbegin
+r0=popparameter
+r1=r0
+param r1
+stackpointer +xxx
+call len,1
+stackpointer -xxx
+r2=popparameter
+r3=1
+r2=r2>r3
+if r2 jump line 15
+jump line 149
+r4=r0
+param r4
+stackpointer +xxx
+call len,1
+stackpointer -xxx
+r5=popparameter
+r6=2
+r5=r5//r6
+mid=r5
+r7=1
+r8=[r7]
+left_half=r8
+r9=2
+r10=[r9]
+right_half=r10
+r11=left_half
+r12=1
+r13=2
+r14=3
+r15=[r12,r13,r14]
+left_half=r15
+r16=merge_sort
+r17=left_half
+param r17
+stackpointer +xxx
+call merge_sort,1
+stackpointer -xxx
+r18=merge_sort
+r19=right_half
+param r19
+stackpointer +xxx
+call merge_sort,1
+stackpointer -xxx
+r20=0
+i=r20
+r21=0
+j=r21
+r22=0
+k=r22
+r23=i
+r24=left_half
+param r24
+stackpointer +xxx
+call len,1
+stackpointer -xxx
+r25=popparameter
+r23=r23<r25
+r26=j
+r27=right_half
+param r27
+stackpointer +xxx
+call len,1
+stackpointer -xxx
+r28=popparameter
+r26=r26<r28
+r23=r23andr26
+if r23 jump line 73
+jump line 104
+r29=left_half
+r30=i
+r31=left_half[r30]
+r32=right_half
+r33=j
+r34=right_half[r33]
+r31=r31<r34
+if r31 jump line 82
+jump line 92
+r35=r0
+r36=k
+r37=r0[r36]
+r38=left_half
+r39=i
+r40=left_half[r39]
+r0[r36]=r40
+r41=i
+r42=1
+jump line 101
+r43=r0
+r44=k
+r45=r0[r44]
+r46=right_half
+r47=j
+r48=right_half[r47]
+r0[r44]=r48
+r49=j
+r50=1
+r51=k
+r52=1
+jump line 54
+r53=i
+r54=left_half
+param r54
+stackpointer +xxx
+call len,1
+stackpointer -xxx
+r55=popparameter
+r53=r53<r55
+if r53 jump line 114
+jump line 126
+r56=r0
+r57=k
+r58=r0[r57]
+r59=left_half
+r60=i
+r61=left_half[r60]
+r0[r57]=r61
+r62=i
+r63=1
+r64=k
+r65=1
+jump line 104
+r66=j
+r67=right_half
+param r67
+stackpointer +xxx
+call len,1
+stackpointer -xxx
+r68=popparameter
+r66=r66<r68
+if r66 jump line 136
+jump line 148
+r69=r0
+r70=k
+r71=r0[r70]
+r72=right_half
+r73=j
+r74=right_half[r73]
+r0[r70]=r74
+r75=j
+r76=1
+r77=k
+r78=1
+jump line 126
+jump line 149
+funcend
+
+
+main :
+funcbegin
+r79=2
+r79=-r79
+r80=45
+r81=0
+r82=11
+r83=9
+r83=-r83
+r84=[r79,r80,r81,r82,r83]
+data=r84
+r85=merge_sort
+r86=data
+param r86
+stackpointer +xxx
+call merge_sort,1
+stackpointer -xxx
+r87=0
+element=r87
+r88='Sorted Array in Ascending Order:'
+param r88
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+r89=3
+r90=5
+element=r89
+r91=element
+r91=r91<r90
+if r91 jump line 183
+jump line 189
+r92=element
+param r92
+stackpointer +xxx
+call print,1
+stackpointer -xxx
+jump line 179
+funcend
+
+r93=__name__
+r94="__main__"
+r93=r93==r94
+if r93 jump line 196
+jump line 201
+r95=main
+stackpointer +xxx
+call main,0
+stackpointer -xxx
+jump line 201

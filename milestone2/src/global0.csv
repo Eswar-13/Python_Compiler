@@ -1,0 +1,4 @@
+lexeme, token, line_number, type
+__name__, IDENTIFIER, 0, str
+main, IDENTIFIER, 39, Function
+merge_sort, IDENTIFIER, 2, Function
